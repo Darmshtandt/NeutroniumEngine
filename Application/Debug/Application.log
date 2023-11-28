@@ -1,0 +1,275 @@
+﻿E:\VS 2022\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (NeutroniumEngine.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  _Main.cpp
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Utilities.h(28,1): warning C4005: 'Raise': macro redefinition
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Utilities.h(27,1): message : see previous definition of 'Raise'
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Serialization.h(10,42): warning C4100: 'ClassType': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\JSON\JSON.h(36,17): warning C4244: 'initializing': conversion from 'int' to 'char', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\JSON\JSON.h(89,181): warning C4100: 'CurrentValue': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\JSON\JSON.h(89,39): warning C4100: 'Iterator': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\JSON\JSON.h(117,181): warning C4100: 'CurrentValue': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\JSON\JSON.h(117,39): warning C4100: 'Iterator': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\JSON\JSON.h(141,95): warning C4100: 'Contaiters': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Geometry.h(48,42): warning C4100: 'classType': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\GDI\GDI.h(57,60): warning C4100: 'mode': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\GDI\Bitmap.h(96,23): warning C4100: 'pData': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Icon.h(170,19): warning C4018: '>': signed/unsigned mismatch
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements.h(19,135): warning C4100: 'dwRefData': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements.h(19,112): warning C4100: 'uIdSubclass': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements.h(41,134): warning C4100: 'dwRefData': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements.h(41,111): warning C4100: 'uIdSubclass': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements.h(52,133): warning C4100: 'dwRefData': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements.h(52,110): warning C4100: 'uIdSubclass': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\Tooltip.h(117,9): warning C4245: 'initializing': conversion from 'int' to 'Nt::uInt', signed/unsigned mismatch
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\Tooltip.h(330,83): warning C4100: 'text': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\ImageList.h(83,30): warning C4100: 'list': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\TextEdit.h(71,40): warning C4244: '=': conversion from 'Nt::uInt' to 'WORD', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\Button.h(74,51): warning C4100: 'dwRefData': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\Button.h(74,28): warning C4100: 'uIdSubclass': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\ComboBox.h(69,122): warning C4100: 'dwRefData': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\ComboBox.h(69,99): warning C4100: 'uIdSubclass': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\TreeView.h(165,56): warning C4100: 'name': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\TreeView.h(238,47): warning C4100: 'styles': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\TreeView.h(433,37): warning C4244: 'argument': conversion from 'const Nt::uInt' to 'const _Elem', possible loss of data
+          with
+          [
+              _Elem=wchar_t
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\ListView.h(616,1): warning C4245: 'argument': conversion from 'int' to 'const Nt::uInt', signed/unsigned mismatch
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\ListView.h(619,1): warning C4245: 'argument': conversion from 'int' to 'const Nt::uInt', signed/unsigned mismatch
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\ListView.h(664,1): warning C4245: 'argument': conversion from 'int' to 'const Nt::uInt', signed/unsigned mismatch
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\WindowElements\ListView.h(785,37): warning C4244: 'argument': conversion from 'const Nt::uInt' to 'const _Elem', possible loss of data
+          with
+          [
+              _Elem=wchar_t
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Window.h(153,46): warning C4100: 'pWindowStruct': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Window.h(156,40): warning C4100: 'windowSize': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Window.h(159,32): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Window.h(162,48): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Window.h(162,30): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Window.h(165,60): warning C4100: 'param_2': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Window.h(165,39): warning C4100: 'param_1': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Layouts\BoxLayout.h(205,11): warning C4456: declaration of 'pNextCellCoord' hides previous local declaration
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Layouts\BoxLayout.h(202,10): message : see declaration of 'pNextCellCoord'
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Layouts\BoxLayout.h(206,11): warning C4456: declaration of 'pNextCellSize' hides previous local declaration
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Layouts\BoxLayout.h(203,10): message : see declaration of 'pNextCellSize'
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Layouts\BoxLayout.h(169,15): warning C4189: 'currentIndex': local variable is initialized but not referenced
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Layouts\BoxLayout.h(206,11): warning C4189: 'pNextCellSize': local variable is initialized but not referenced
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Layouts\BoxLayout.h(205,11): warning C4189: 'pNextCellCoord': local variable is initialized but not referenced
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Layouts\BoxLayout.h(236,48): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Layouts\GridLayout.h(249,79): warning C4244: '*=': conversion from 'Nt::Float' to 'Nt::Int', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Layouts\GridLayout.h(287,78): warning C4244: '*=': conversion from 'Nt::Float' to 'Nt::Int', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Layouts\GridLayout.h(316,48): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Resources\Mesh.h(255,16): warning C4456: declaration of 'i' hides previous local declaration
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Resources\Mesh.h(164,9): message : see declaration of 'i'
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Renderer.h(364,16): warning C4189: 'IsNtExceptsEnabled': local variable is initialized but not referenced
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\RenderWindow.h(123,38): warning C4100: 'pWindowStruct': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Model.h(11,1): warning C4245: 'initializing': conversion from 'int' to 'Nt::uInt', signed/unsigned mismatch
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Model.h(16,1): warning C4245: 'initializing': conversion from 'int' to 'Nt::uInt', signed/unsigned mismatch
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Model.h(76,42): warning C4100: 'ClassType': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Camera.h(38,33): warning C4100: 'pRenderer': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RayCast.h(31,40): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RayCast.h(31,34): warning C4244: 'initializing': conversion from 'double' to 'const Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\Collision.h(114,16): warning C4189: 'ABLength': local variable is initialized but not referenced
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\Collision.h(115,16): warning C4189: 'BCLength': local variable is initialized but not referenced
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\Collision.h(116,16): warning C4189: 'CALength': local variable is initialized but not referenced
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\Collision.h(286,29): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics.h(17,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RigidBody.h(114,23): warning C4189: 'pTriangleCollider': local variable is initialized but not referenced
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RigidBody.h(120,19): warning C4189: 'pMeshCollider': local variable is initialized but not referenced
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RigidBody.h(131,4): warning C5205: delete of an abstract class 'Nt::ICollider' that has a non-virtual destructor results in undefined behavior
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\Collision.h(4,8): message : see declaration of 'Nt::ICollider'
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RigidBody.h(136,5): warning C5205: delete of an abstract class 'Nt::ICollider' that has a non-virtual destructor results in undefined behavior
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\Collision.h(4,8): message : see declaration of 'Nt::ICollider'
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\PhysicalWorld.h(14,28): warning C4100: 'Time': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\PhysicalWorld.h(18,45): warning C4100: 'pPhysicalWorld': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Wave.h(29,20): warning C4100: 'wave': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Wave.h(46,36): warning C4244: 'initializing': conversion from 'std::streamoff' to 'Nt::Int', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Wave.h(46,24): warning C4244: 'initializing': conversion from 'std::streamoff' to 'const Nt::Int', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Wave.h(46,15): warning C4189: 'fileSize': local variable is initialized but not referenced
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Collider.h(300,29): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Main.h(61,38): warning C4245: 'initializing': conversion from 'int' to 'Nt::uInt', signed/unsigned mismatch
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Main.h(62,37): warning C4245: 'initializing': conversion from 'int' to 'Nt::uInt', signed/unsigned mismatch
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(28,98): warning C4244: '=': conversion from 'Nt::Float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(43,54): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(44,56): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(48,57): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(53,51): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Primitive.h(205,73): warning C4100: 'color': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTransform.h(238,39): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTransform.h(238,21): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTexture.h(243,39): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTexture.h(243,21): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTexture.h(247,51): warning C4100: 'param_2': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyScript.h(115,5): warning C4297: 'PropertyScript::Control::GetRect': function assumed not to throw an exception but does
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyScript.h(115,5): message : __declspec(nothrow), throw(), noexcept(true), or noexcept was specified on the function
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyScript.h(361,39): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyScript.h(361,21): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyScript.h(367,51): warning C4100: 'param_2': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyRigidBody.h(59,63): warning C4244: '=': conversion from 'Nt::Float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Int
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyRigidBody.h(188,39): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyRigidBody.h(188,21): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyRigidBody.h(192,51): warning C4100: 'param_2': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyPrimitive.h(90,51): warning C4100: 'param_2': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertySound.h(234,39): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertySound.h(234,21): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertySound.h(238,51): warning C4100: 'param_2': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyModel.h(160,39): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyModel.h(160,21): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyModel.h(163,51): warning C4100: 'param_2': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyWindow.h(32,4): warning C5205: delete of an abstract class 'PropertyComponent' that has a non-virtual destructor results in undefined behavior
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyComponent.h(3,8): message : see declaration of 'PropertyComponent'
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyWindow.h(197,39): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyWindow.h(197,21): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyWindow.h(199,51): warning C4100: 'param_2': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyWindow.h(199,30): warning C4100: 'param_1': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\FileExplorer.h(4,70): warning C4100: 'lParamSort': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\FileExplorer.h(247,7): warning C4189: 'a': local variable is initialized but not referenced
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Project.h(20,41): warning C4100: 'ClassType': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\ProjectMenager.h(186,57): warning C4100: 'id': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\ProjectMenager.h(199,50): warning C4100: 'param_1': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\ProjectMenager.h(199,31): warning C4100: 'uMsg': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Game\Game.h(136,19): warning C4244: '=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Game\Game.h(137,19): warning C4244: '=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Game\Game.h(138,19): warning C4244: '=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Game\Game.h(124,27): warning C4100: 'time': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(293,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(294,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(297,18): warning C4244: '-=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(298,18): warning C4244: '-=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(302,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(303,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(306,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(307,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(322,45): warning C4244: 'argument': conversion from 'const _Ty' to 'int', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(322,29): warning C4244: 'argument': conversion from 'const _Ty' to 'int', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(332,21): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(333,21): warning C4244: '-=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(334,21): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(336,75): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(337,21): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(338,74): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(281,29): warning C4100: 'time': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Application.h(309,48): warning C4389: '==': signed/unsigned mismatch
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Application.h(245,51): warning C4100: 'param_2': unreferenced formal parameter
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTransform.h(128): warning C4702: unreachable code
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTransform.h(137): warning C4702: unreachable code
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTransform.h(138): warning C4702: unreachable code
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTransform.h(139): warning C4702: unreachable code
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTransform.h(140): warning C4702: unreachable code
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTransform.h(142): warning C4702: unreachable code
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTransform.h(146): warning C4702: unreachable code
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTransform.h(150): warning C4702: unreachable code
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTransform.h(154): warning C4702: unreachable code
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTransform.h(167): warning C4702: unreachable code
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyTransform.h(170): warning C4702: unreachable code
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Menu.h(165): warning C4172: returning address of local variable or temporary
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Libraries\Include\LuaBridge\detail\LuaHelpers.h(611): warning C4702: unreachable code
+  Lua.lib(lapi.obj) : MSIL .netmodule or module compiled with /GL found; restarting link with /LTCG; add /LTCG to the link command line to improve linker performance
+LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/LTCG' specification
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  Generating code
+  Finished generating code
+glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
+  Application.vcxproj -> C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Bin\Debug\NeutroniumEngine.exe

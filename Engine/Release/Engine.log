@@ -1,0 +1,145 @@
+﻿  Lua.cpp
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Utilities.h(28,1): warning C4005: 'Raise': macro redefinition
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Utilities.h(27,1): message : see previous definition of 'Raise'
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RayCast.h(31,40): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RayCast.h(31,34): warning C4244: 'initializing': conversion from 'double' to 'const Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\Collision.h(286,29): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics.h(17,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Wave.h(46,36): warning C4244: 'initializing': conversion from 'std::streamoff' to 'Nt::Int', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Wave.h(46,24): warning C4244: 'initializing': conversion from 'std::streamoff' to 'const Nt::Int', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Collider.h(300,29): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(28,98): warning C4244: '=': conversion from 'Nt::Float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(43,54): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(44,56): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(48,57): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(53,51): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Vector4D.h(38,15): warning C4244: 'return': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Int
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Vector4D.h(37,1): message : while compiling class template member function '_Ty Nt::Vector4D<_Ty>::Length(void) noexcept const'
+          with
+          [
+              _Ty=Nt::Int
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Lua.cpp(125,12): message : see reference to function template instantiation '_Ty Nt::Vector4D<_Ty>::Length(void) noexcept const' being compiled
+          with
+          [
+              _Ty=Nt::Int
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Lua.cpp(31,1): message : see reference to class template instantiation 'Nt::Vector4D<Nt::Int>' being compiled
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Lua.cpp(164,46): message : see reference to function template instantiation 'void AddVectorToLua<Nt::Int4D,Nt::Int>(Lua *,const std::string &)' being compiled
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Vector3D.h(23,15): warning C4244: 'return': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Int
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Vector3D.h(22,1): message : while compiling class template member function '_Ty Nt::Vector3D<_Ty>::Length(void) noexcept const'
+          with
+          [
+              _Ty=Nt::Int
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Lua.cpp(125,12): message : see reference to function template instantiation '_Ty Nt::Vector3D<_Ty>::Length(void) noexcept const' being compiled
+          with
+          [
+              _Ty=Nt::Int
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\HandleWindow.h(31,10): message : see reference to class template instantiation 'Nt::Vector3D<Nt::Int>' being compiled
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Vector2D.h(19,15): warning C4244: 'return': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Int
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Vector2D.h(18,1): message : while compiling class template member function '_Ty Nt::Vector2D<_Ty>::Length(void) noexcept const'
+          with
+          [
+              _Ty=Nt::Int
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Lua.cpp(125,12): message : see reference to function template instantiation '_Ty Nt::Vector2D<_Ty>::Length(void) noexcept const' being compiled
+          with
+          [
+              _Ty=Nt::Int
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Input.h(249,9): message : see reference to class template instantiation 'Nt::Vector2D<Nt::Int>' being compiled
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Vector3D.h(23,15): warning C4244: 'return': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Vector3D.h(22,1): message : while compiling class template member function '_Ty Nt::Vector3D<_Ty>::Length(void) noexcept const'
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Lua.cpp(125,12): message : see reference to function template instantiation '_Ty Nt::Vector3D<_Ty>::Length(void) noexcept const' being compiled
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Vector4D.h(291,1): message : see reference to class template instantiation 'Nt::Vector3D<Nt::uInt>' being compiled
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Colors.h(39,60): message : see reference to class template instantiation 'Nt::Vector4D<Nt::uInt>' being compiled
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Vector4D.h(38,15): warning C4244: 'return': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Vector4D.h(37,1): message : while compiling class template member function '_Ty Nt::Vector4D<_Ty>::Length(void) noexcept const'
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Lua.cpp(125,12): message : see reference to function template instantiation '_Ty Nt::Vector4D<_Ty>::Length(void) noexcept const' being compiled
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Vector2D.h(19,15): warning C4244: 'return': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Vector2D.h(18,1): message : while compiling class template member function '_Ty Nt::Vector2D<_Ty>::Length(void) noexcept const'
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Lua.cpp(125,12): message : see reference to function template instantiation '_Ty Nt::Vector2D<_Ty>::Length(void) noexcept const' being compiled
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Math\Matrix4x4.h(129,1): message : see reference to class template instantiation 'Nt::Vector2D<Nt::uInt>' being compiled
+  Script.cpp
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Utilities.h(28,1): warning C4005: 'Raise': macro redefinition
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Utilities.h(27,1): message : see previous definition of 'Raise'
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RayCast.h(31,40): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RayCast.h(31,34): warning C4244: 'initializing': conversion from 'double' to 'const Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\Collision.h(286,29): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics.h(17,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Wave.h(46,36): warning C4244: 'initializing': conversion from 'std::streamoff' to 'Nt::Int', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Wave.h(46,24): warning C4244: 'initializing': conversion from 'std::streamoff' to 'const Nt::Int', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Collider.h(300,29): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Script.cpp(78,3): warning C4002: too many arguments for function-like macro invocation 'Raise'
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Script.cpp(80,3): warning C4002: too many arguments for function-like macro invocation 'Raise'
+  Engine.vcxproj -> C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Bin\Release\Engine.lib

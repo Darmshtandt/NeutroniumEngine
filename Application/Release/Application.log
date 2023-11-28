@@ -1,0 +1,145 @@
+﻿  _Main.cpp
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Utilities.h(28,1): warning C4005: 'Raise': macro redefinition
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Utilities.h(27,1): message : see previous definition of 'Raise'
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RayCast.h(31,40): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RayCast.h(31,34): warning C4244: 'initializing': conversion from 'double' to 'const Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\Collision.h(286,29): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics.h(17,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Wave.h(46,36): warning C4244: 'initializing': conversion from 'std::streamoff' to 'Nt::Int', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Wave.h(46,24): warning C4244: 'initializing': conversion from 'std::streamoff' to 'const Nt::Int', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Collider.h(300,29): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(28,98): warning C4244: '=': conversion from 'Nt::Float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(43,54): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(44,56): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(48,57): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(53,51): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyScript.h(115,5): warning C4297: 'PropertyScript::Control::GetRect': function assumed not to throw an exception but does
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyScript.h(115,5): message : __declspec(nothrow), throw(), noexcept(true), or noexcept was specified on the function
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\PropertyRigidBody.h(59,63): warning C4244: '=': conversion from 'Nt::Float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Int
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Game\Game.h(136,19): warning C4244: '=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Game\Game.h(137,19): warning C4244: '=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Game\Game.h(138,19): warning C4244: '=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(298,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(299,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(302,18): warning C4244: '-=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(303,18): warning C4244: '-=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(307,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(308,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(311,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(312,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(327,45): warning C4244: 'argument': conversion from 'const _Ty' to 'int', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(327,29): warning C4244: 'argument': conversion from 'const _Ty' to 'int', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(337,21): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(338,21): warning C4244: '-=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(339,21): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(341,75): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(342,21): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Engine.h(343,74): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  Generating code
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Menu.h(134): warning C4172: returning address of local variable or temporary
+  All 10404 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
+  Application.vcxproj -> C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Bin\Release\NeutroniumEngine.exe

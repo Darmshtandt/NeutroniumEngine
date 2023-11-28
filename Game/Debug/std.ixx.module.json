@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Debug\\std.ixx.obj",
+            "outputs": [
+                "C:\\Users\\Пользователь\\source\\repos\\NeutroniumEngine\\Bin\\Debug\\Game.pdb",
+                "Debug\\",
+                "C:\\Users\\Пользователь\\source\\repos\\NeutroniumEngine\\Game\\Debug\\std.ixx.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "std",
+                    "source-path": "d:\\______vs2022\\vc\\tools\\msvc\\14.36.32532\\modules\\std.ixx",
+                    "is-interface": true
+                }
+            ],
+            "requires": []
+        }
+    ]
+}

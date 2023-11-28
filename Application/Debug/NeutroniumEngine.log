@@ -1,0 +1,134 @@
+﻿  _Main.cpp
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Core\Serialization.h(10,42): warning C4100: 'ClassType': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Core\JSON\JSON.h(36,17): warning C4244: 'initializing': conversion from 'int' to 'char', possible loss of data
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Core\JSON\JSON.h(89,181): warning C4100: 'CurrentValue': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Core\JSON\JSON.h(89,39): warning C4100: 'Iterator': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Core\JSON\JSON.h(117,181): warning C4100: 'CurrentValue': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Core\JSON\JSON.h(117,39): warning C4100: 'Iterator': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Core\JSON\JSON.h(141,95): warning C4100: 'Contaiters': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\Geometry.h(48,42): warning C4100: 'classType': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\GDI\GDI.h(57,60): warning C4100: 'mode': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\GDI\Bitmap.h(87,23): warning C4100: 'pData': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\WindowElements.h(22,135): warning C4100: 'dwRefData': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\WindowElements.h(22,112): warning C4100: 'uIdSubclass': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\WindowElements.h(54,50): warning C4100: 'name': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\WindowElements.h(418,52): warning C4100: 'dwRefData': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\WindowElements.h(418,29): warning C4100: 'uIdSubclass': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\WindowElements.h(501,122): warning C4100: 'dwRefData': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\WindowElements.h(501,99): warning C4100: 'uIdSubclass': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\Window.h(138,46): warning C4100: 'pWindowStruct': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\Window.h(139,40): warning C4100: 'Size': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\Window.h(140,32): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\Window.h(143,48): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\Window.h(143,30): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\Window.h(144,60): warning C4100: 'param_2': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\Window.h(144,39): warning C4100: 'param_1': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\Renderer.h(364,16): warning C4189: 'IsNtExceptsEnabled': local variable is initialized but not referenced
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\RenderWindow.h(123,38): warning C4100: 'pWindowStruct': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\Model.h(59,42): warning C4100: 'ClassType': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\Sprite.h(89,1): warning C4245: '=': conversion from 'int' to 'Nt::uInt', signed/unsigned mismatch
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\Camera.h(38,33): warning C4100: 'pRenderer': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Physics\RayCast.h(24,40): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Physics\RayCast.h(24,34): warning C4244: 'initializing': conversion from 'double' to 'const Nt::Float', possible loss of data
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Physics\Collision.h(102,16): warning C4189: 'ABLength': local variable is initialized but not referenced
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Physics\Collision.h(103,16): warning C4189: 'BCLength': local variable is initialized but not referenced
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Physics\Collision.h(104,16): warning C4189: 'CALength': local variable is initialized but not referenced
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Physics.h(16,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Physics\RigidBody.h(6,25): warning C4100: 'ID': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Physics\RigidBody.h(21,5): warning C5205: delete of an abstract class 'Nt::ICollider' that has a non-virtual destructor results in undefined behavior
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Physics\Collision.h(4,8): message : see declaration of 'Nt::ICollider'
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Physics\RigidBody.h(120,24): warning C4189: 'pTriangleCollider': local variable is initialized but not referenced
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Physics\PhysicalWorld.h(14,28): warning C4100: 'Time': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Physics\PhysicalWorld.h(18,45): warning C4100: 'pPhysicalWorld': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\Settings.h(11,53): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\Settings.h(12,56): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\Settings.h(16,57): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\Settings.h(21,51): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::uInt
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\Object.h(50,35): warning C4100: 'time': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\PropertyTransform.h(154,39): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\PropertyTransform.h(154,21): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\PropertyTexture.h(153,29): warning C4100: 'style': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\PropertyTexture.h(156,35): warning C4100: 'language': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\PropertyTexture.h(209,39): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\PropertyTexture.h(209,21): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\PropertyTexture.h(213,51): warning C4100: 'param_2': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\PropertyWindow.h(20,4): warning C5205: delete of an abstract class 'PropertyComponents' that has a non-virtual destructor results in undefined behavior
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\PropertyComponents.h(3,8): message : see declaration of 'PropertyComponents'
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\PropertyWindow.h(104,39): warning C4100: 'paint': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\PropertyWindow.h(104,21): warning C4100: 'hdc': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\PropertyWindow.h(106,51): warning C4100: 'param_2': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\PropertyWindow.h(106,30): warning C4100: 'param_1': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\Engine.h(261,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\Engine.h(262,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\Engine.h(265,18): warning C4244: '-=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\Engine.h(266,18): warning C4244: '-=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\Engine.h(270,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\Engine.h(271,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\Engine.h(274,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\Engine.h(275,18): warning C4244: '+=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\Engine.h(290,45): warning C4244: 'argument': conversion from 'const _Ty' to 'int', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\Engine.h(290,29): warning C4244: 'argument': conversion from 'const _Ty' to 'int', possible loss of data
+          with
+          [
+              _Ty=Nt::Float
+          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Engine\Engine.h(248,29): warning C4100: 'time': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\Application.h(212,47): warning C4389: '==': signed/unsigned mismatch
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\Application.h(161,51): warning C4100: 'param_2': unreferenced formal parameter
+C:\Users\Пользователь\source\repos\NeutroniumEngine\NeutroniumEngine\ObjectsTree.h(111): warning C4715: 'ObjectsTree::_Proc': not all control paths return a value
+C:\Users\Пользователь\source\repos\Neutronium\Include\Nt\Graphics\Menu.h(134): warning C4172: returning address of local variable or temporary
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
+  NeutroniumEngine.vcxproj -> C:\Users\Пользователь\source\repos\NeutroniumEngine\Bin\Debug\NeutroniumEngine.exe
