@@ -34,5 +34,4 @@
   lvm.c
   lzio.c
   Generating Code...
-  LINK : C:\Users\kings\Desktop\lua-5.4.4\src\Project1\Debug\Project1.exe not found or not built by the last incremental link; performing full link
-  Project1.vcxproj -> C:\Users\kings\Desktop\lua-5.4.4\src\Project1\Debug\Project1.exe
+  Project1.vcxproj -> C:\Users\Пользователь\source\repos\NeutroniumEngine\Bin\Debug\Project1.lib

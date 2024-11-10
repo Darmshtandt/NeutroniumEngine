@@ -12,12 +12,6 @@ public:
 			std::swap(vertex.Position.x, vertex.Position.z);
 
 		m_Model.SetMesh(doubleSideQuad);
-
-		if (g_TextureCameraIndex != uInt(-1))
-			m_Model.SetTexture(g_TextureCameraIndex);
-		else
-			Nt::Log::Warning("Texture camera index is -1.");
-
 		m_Camera.SetPosition({ 0.5f, -0.5f, 0.5f });
 
 		_UpdateColliders();
@@ -54,6 +48,7 @@ public:
 	virtual Object* GetCopy() const override {
 		return new GameCamera(*this);
 	}
+
 	void SetOrigin(const Nt::Float3D& origin) override {
 		Entity::SetOrigin(origin);
 		m_Camera.SetOrigin(-origin);

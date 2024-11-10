@@ -51,15 +51,17 @@ namespace Nt {
 			transformedLocalWorld[2].w = -eye.Dot(lookAt) / lookAt.LengthSquare();
 			transformedLocalWorld[3][3] = 1.f;
 
+			transformedLocalWorld = m_LocalWorld;
+
 			const Float3D transformedDirection = (transformedLocalWorld * direction).GetNormalize();
 			for (Float3D point : m_Points) {
-				const Float pointLength = point.Dot(direction);
+				const Float pointLength = point.Dot(transformedDirection);
 				if (maxDistance < pointLength) {
 					maxDistance = pointLength;
 					maxPoint = point;
 				}
 			}
-			return maxPoint + m_LocalWorld[3].xyz;
+			return (m_LocalWorld * maxPoint) + m_LocalWorld[3].xyz;
 		}
 		[[nodiscard]]
 		Float3D Support(const Collider& collider, const Float3D& direction) const {
@@ -249,19 +251,17 @@ namespace Nt {
 					minDistance = FLT_MAX;
 					std::vector<std::pair<uInt, uInt>> uniqueEdges;
 
-					uInt f = 0;
+					uInt pointID = 0;
 					for (auto& normal : normalContainer) {
 						if (normal.normal.Dot(support) > 0) {
-							AddIfUniqueEdge(uniqueEdges, faces, f + 0, f + 1);
-							AddIfUniqueEdge(uniqueEdges, faces, f + 1, f + 2);
-							AddIfUniqueEdge(uniqueEdges, faces, f + 2, f + 0);
+							AddIfUniqueEdge(uniqueEdges, faces, pointID + 0, pointID + 1);
+							AddIfUniqueEdge(uniqueEdges, faces, pointID + 1, pointID + 2);
+							AddIfUniqueEdge(uniqueEdges, faces, pointID + 2, pointID + 0);
 
-							faces.erase(faces.begin() + f);
-							faces.erase(faces.begin() + f);
-							faces.erase(faces.begin() + f);
+							faces.erase(faces.begin() + pointID, faces.begin() + (pointID + 3));
 						}
 						else {
-							f += 3;
+							pointID += 3;
 						}
 					}
 
@@ -288,41 +288,18 @@ namespace Nt {
 			return CollisionPoint { minNormal, minDistance + 0.0001f };
 		}
 
-		Bool RayIntersectTriangleTest(const Ray& ray, const Float3D face[3]) const {
-			const Float3D ab = face[1] - face[0];
-			const Float3D ac = face[2] - face[0];
-
-			Float3D P = ray.Direction().GetCross(ac);
-			Float determinant = ab.Dot(P);
-			if (std::abs(determinant) < 0.000001)
-				return false;
-
-			Float inverseDeterminant = 1.0 / determinant;
-			Float3D rayStartToA = ray.Start - face[0];
-
-			Float intersectionParam1 = rayStartToA.Dot(P) * inverseDeterminant;
-			if (intersectionParam1 < 0 || intersectionParam1 > 1)
-				return false;
-
-			const Float3D qvec = rayStartToA.GetCross(ab);
-
-			Float intersectionParam2 = ray.Direction().Dot(qvec) * inverseDeterminant;
-			if (intersectionParam2 < 0 || intersectionParam1 + intersectionParam2 > 1)
-				return false;
-			return true;
-		}
-
-		Bool RayCastTest(const Ray& ray) const {
+		Int RayCastTest(const Ray& ray, Float3D* pResultIntersectionPoint = nullptr) const {
 			for (uInt i = 2; i < m_Points.size(); i += 3) {
-				const Float3D face[3] = {
-					m_Points[i - 2] - m_LocalWorld.Rows[3],
-					m_Points[i - 1] - m_LocalWorld.Rows[3],
-					m_Points[i - 0] - m_LocalWorld.Rows[3]
+				const Double3D face[3] = {
+					_GetPointRealPosition(-m_Points[i - 2]),
+					_GetPointRealPosition(-m_Points[i - 1]),
+					_GetPointRealPosition(-m_Points[i - 0]),
 				};
-				if (RayIntersectTriangleTest(ray, face))
-					return true;
+
+				if (ray.IntersectTriangleTest(face, pResultIntersectionPoint))
+					return (i / 3);
 			}
-			return false;
+			return -1;
 		}
 
 		void SetLocalWorld(const Matrix4x4& localWorld) noexcept {
@@ -330,15 +307,15 @@ namespace Nt {
 			m_Model.SetPosition(m_LocalWorld[3].xyz);
 			m_Model.SetAngle(m_LocalWorld.GetEulerAngles() / RADf);
 		}
-		void SetShape(const Shape& shape) {
+		void SetShape(const Shape& shape, const Float3D& shapeSize) {
 			m_Points.clear();
-			if (shape.Indices.size() == 0) {
+			if (shape.Indices.size() > 0) {
 				for (Index_t index : shape.Indices)
-					m_Points.push_back(shape.Vertices[index].Position);
+					m_Points.push_back(shape.Vertices[index].Position / shapeSize);
 			}
 			else {
 				for (Vertex vertex : shape.Vertices)
-					m_Points.push_back(vertex.Position);
+					m_Points.push_back(vertex.Position / shapeSize);
 			}
 			m_Model.SetMesh(shape);
 		}
@@ -363,5 +340,14 @@ namespace Nt {
 		PointContainer m_Points;
 		Matrix4x4 m_LocalWorld;
 		Model m_Model;
+
+	private:
+		Double3D _GetPointRealPosition(const Float3D& point) const noexcept {
+			Double3D position = -Double4D(m_LocalWorld.Rows[3]);
+			position.x += Double((point.x * m_LocalWorld._11) + (point.y * m_LocalWorld._12) + (point.z * m_LocalWorld._13));
+			position.y += Double((point.x * m_LocalWorld._21) + (point.y * m_LocalWorld._22) + (point.z * m_LocalWorld._23));
+			position.z += Double((point.x * m_LocalWorld._31) + (point.y * m_LocalWorld._32) + (point.z * m_LocalWorld._33));
+			return position;
+		}
 	};
 }

@@ -32,6 +32,19 @@ public:
 		return luabridge::setGlobal(m_pState, pData, name);
 	}
 
+	void SetPath(const Nt::String& path) {
+		lua_getglobal(m_pState, "package");
+		lua_getfield(m_pState, -1, "path");
+
+		std::string cur_path = lua_tostring(m_pState, -1);
+		cur_path += ";" + path + "?.lua";
+
+		lua_pop(m_pState, 1);
+		lua_pushstring(m_pState, cur_path.c_str());
+		lua_setfield(m_pState, -2, "path");
+		lua_pop(m_pState, 1);
+	}
+
 	luabridge::Namespace GetGlobalNamespace() const {
 		return luabridge::getGlobalNamespace(m_pState);
 	}

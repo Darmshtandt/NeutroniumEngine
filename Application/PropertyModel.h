@@ -2,17 +2,27 @@
 
 class PropertyModel : public PropertyComponent {
 public:
-	enum {
+	enum TextEdits {
 		TEXTEDIT_MODEL_PATH = 5500,
-		BUTTON_BROWSE,
+	};
+	enum Buttons {
+		BUTTON_BROWSE = 5600,
 		BUTTON_REMOVE,
+	};
+
+public:
+	struct LanguageData : Language::_PropertyWindow::_Model {
+		using ComponentName = Language::_PropertyWindow::_Component;
+
+		Nt::String WindowName;
 	};
 
 public:
 	PropertyModel() = default;
 
 	void Initialize(const Settings& settings) {
-		m_Language = settings.CurrentLanguage;
+		SetLanguage(settings.CurrentLanguage);
+
 		m_Style = settings.Styles;
 		m_Padding = { 10, 10, 20, 10 };
 
@@ -20,7 +30,7 @@ public:
 		windowRect.LeftTop = m_ClientRect.LeftTop;
 		windowRect.Right = settings.PropertyWindowRect.Right;
 
-		Create(windowRect, m_Language.Window.PropertyComponent.ModelWindow);
+		Create(windowRect, m_LanguageData.WindowName);
 		RemoveStyles(WS_OVERLAPPEDWINDOW);
 		AddStyles(WS_BORDER);
 		SetBackgroundColor(m_Style.Property.BackgroundColor);
@@ -28,7 +38,7 @@ public:
 		m_ModelText.SetPosition(m_Padding.LeftTop);
 		m_ModelText.SetColor(settings.Styles.Property.Texts.Color);
 		m_ModelText.SetWeight(settings.Styles.Property.Texts.Weight);
-		m_ModelText.SetText(m_Language.Window.PropertyModel.Model);
+		m_ModelText.SetText(m_LanguageData.Texts[LanguageData::TEXT_MODEL]);
 
 		Nt::IntRect buttonRect = { };
 		buttonRect.Top = m_Padding.Top;
@@ -104,7 +114,7 @@ public:
 				return;
 
 			if (!IsValidPath(GetRootPath(), filePath)) {
-				WarningBox(m_Language.Messages.AddingFile.wstr().c_str(), L"Warning");
+				WarningBox(L"To add a file, place it in the project's root folder.", L"Warning");
 				return;
 			}
 			filePath.erase(filePath.begin(), filePath.begin() + GetRootPath().length() + 1);
@@ -137,8 +147,12 @@ public:
 		m_ModelPathTextEdit.SetTextWeight(m_Style.Property.TextEdits.Text.Weight);
 	}
 	void SetLanguage(const Language& language) {
-		m_Language = language;
-		m_ModelText.SetText(m_Language.Window.PropertyModel.Model);
+		m_LanguageData = (LanguageData)language.PropertyWindow.Model;
+		m_LanguageData.WindowName =
+			language.PropertyWindow.Component.Texts[LanguageData::ComponentName::TEXT_MODELWINDOW];
+		SetName(m_LanguageData.WindowName);
+
+		m_ModelText.SetText(m_LanguageData.Texts[LanguageData::TEXT_MODEL]);
 	}
 	void SetScence(Scence* pScence) {
 		if (pScence == nullptr)
@@ -147,20 +161,20 @@ public:
 	}
 
 private:
+	LanguageData m_LanguageData;
 	Scence* m_pScence;
 	Nt::Text m_ModelText;
 	Nt::TextEdit m_ModelPathTextEdit;
 	Nt::Button m_BrowseButton;
 	Nt::Button m_DeleteButton;
 	Nt::IntRect m_Padding;
-	Language m_Language;
 	Style m_Style;
 
 private:
-	void _WMPaint(HDC& hdc, PAINTSTRUCT& paint) override {
+	void _WMPaint([[maybe_unused]] HDC& hdc, [[maybe_unused]] PAINTSTRUCT& paint) override {
 		m_ModelText.Draw(*this);
 	}
-	void _WMCommand(const Long& param_1, const Long& param_2) override {
+	void _WMCommand(const Long& param_1, [[maybe_unused]] const Long& param_2) override {
 		const uInt id = LOWORD(param_1);
 		const uInt command = HIWORD(param_1);
 

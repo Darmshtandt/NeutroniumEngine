@@ -5,6 +5,7 @@ enum class EntityTypes {
 	CAMERA,
 	SOUND,
 	MODEL,
+	TERRAIN,
 };
 
 class Entity : public Object {

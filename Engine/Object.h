@@ -121,6 +121,9 @@ public:
 			m_pCollider->SetLocalWorld(LocalToWorld());
 	}
 	virtual void Render(Nt::Renderer* pRenderer) const override {
+		if (!IsVisible())
+			return;
+
 		if (m_IsStarted && m_IsInvisible)
 			return;
 
@@ -162,11 +165,11 @@ public:
 		m_IsColliderShowed = false;
 	}
 
-	void AttachScript(Scence* pScence, const Nt::String& filePath) {
+	void AttachScript(Lua* pLua, Scence* pScence, const Nt::String& filePath) {
 		if (m_pScript)
 			delete(m_pScript);
 
-		m_pScript = new Script;
+		m_pScript = new Script(pLua);
 		m_pScript->Initialize(pScence);
 		m_pScript->Load(filePath, this);
 	}
@@ -196,8 +199,8 @@ public:
 			return false;
 		return m_pCollider->GJK(*pObject->m_pCollider).first;
 	}
-	Bool RayCastTest(const Nt::Ray& ray) const {
-		return m_pCollider->RayCastTest(ray);
+	Int RayCastTest(const Nt::Ray& ray, Nt::Float3D* pResultIntersectionPoint = nullptr) const {
+		return m_pCollider->RayCastTest(ray, pResultIntersectionPoint);
 	}
 
 	virtual Object* GetCopy() const {
@@ -205,6 +208,11 @@ public:
 	}
 	const Nt::Model& GetModel() const {
 		return m_Model;
+	}
+	Nt::Collider::PointContainer GetColliderPointContainer() const {
+		if (m_pCollider == nullptr)
+			Raise("Collider pointer is null");
+		return m_pCollider->GetPointContainer();
 	}
 	Script* GetScript() const noexcept {
 		return m_pScript;
@@ -243,24 +251,33 @@ public:
 	void SetParentPtr(Object* pNewParent) noexcept {
 		m_ParentPtr = pNewParent;
 	}
+	void SetTexture(const uInt& textureIndex) {
+		m_Model.SetTexture(textureIndex);
+	}
 	void SetTexture(const Nt::Texture& texture) {
 		m_Model.SetTexture(texture);
 	}
-	void SetModel(const Nt::Model& newModel) {
-		m_Model = newModel;
+	void SetMesh(const uInt& meshIndex) {
+		m_Model.SetMesh(meshIndex);
 		_UpdateColliders();
 	}
 	void SetMesh(const Nt::Mesh& mesh) {
 		m_Model.SetMesh(mesh);
 		_UpdateColliders();
 	}
+	void SetModel(const Nt::Model& newModel) {
+		m_Model = newModel;
+		_UpdateColliders();
+	}
 	virtual void SetPosition(const Nt::Float3D& position) override {
 		m_Model.SetPosition(position);
 		IObject::SetPosition(position);
+		_UpdateColliders();
 	}
 	virtual void SetSize(const Nt::Float3D& size) override {
 		if (m_Model.GetMeshPtr())
 			m_Model.GetMeshPtr()->SetScale(size);
+
 		m_Model.SetSize(size);
 		IObject::SetSize(size);
 		_UpdateColliders();
@@ -301,7 +318,7 @@ protected:
 			delete(m_pCollider);
 
 		m_pCollider = new Nt::Collider;
-		m_pCollider->SetShape(m_Model.GetMeshPtr()->GetShape());
+		m_pCollider->SetShape(m_Model.GetMeshPtr()->GetShape(), m_Size);
 		m_pCollider->SetLocalWorld(LocalToWorld());
 	}
 };

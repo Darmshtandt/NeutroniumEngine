@@ -5,7 +5,6 @@ enum class PrimitiveTypes {
 	QUAD,
 	PLANE,
 	PYRAMID,
-	MIX,
 };
 
 class Primitive : public Object {
@@ -13,7 +12,8 @@ public:
 	Primitive(const std::string& name) :
 		Object(ObjectTypes::PRIMITIVE, name),
 		m_TextureScale({ 1.f, 1.f })
-	{ }
+	{ 
+	}
 	Primitive(const std::string& name, const PrimitiveTypes& type, const Nt::Float3D& size) :
 		Object(ObjectTypes::PRIMITIVE, name),
 		m_TextureScale({ 1.f, 1.f })
@@ -64,8 +64,9 @@ public:
 		case PrimitiveTypes::PYRAMID:
 			m_Model.SetMesh(Nt::Geometry::Pyramid(size, Nt::Colors::White));
 			break;
-		case PrimitiveTypes::MIX:
-			Raise("Cannot create primitive with type mix");
+		default:
+			Raise("Error primitive type");
+			break;
 		}
 		_UpdateColliders();
 	}
@@ -203,7 +204,7 @@ private:
 	}
 
 	Nt::Shape _CreateQuadShape(const Nt::Float2D& size, const Nt::Float4D& color) const {
-		Nt::Shape quad = Nt::Geometry::Quad(size, Nt::Colors::White);
+		Nt::Shape quad = Nt::Geometry::Quad(size, color);
 		quad.Indices.push_back(0);
 		quad.Indices.push_back(1);
 		quad.Indices.push_back(2);

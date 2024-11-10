@@ -1,7 +1,7 @@
 #pragma once
 
 
-Int CALLBACK _ListCompareFunc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort) {
+Int CALLBACK _ListCompareFunc(LPARAM lParam1, LPARAM lParam2, [[maybe_unused]] LPARAM lParamSort) {
 	if (lParam1 == 0 || lParam2 == 0)
 		Raise("Left or right item Data is nullptr");
 
@@ -43,7 +43,7 @@ public:
 		SetProcedure([&](const uInt& uMsg, const DWord& param_1, const DWord& param_2) {
 			return _Procedure(uMsg, param_1, param_2);
 			});
-		Create(settings.FileExplorerWindowRect, settings.CurrentLanguage.Window.FileExplorerWindow);
+		Create(settings.FileExplorerWindowRect, m_Language.Window.Texts[Language::_WindowNames::TEXT_FILEEXPLORERWINDOW]);
 
 		m_PathFieldRect.Left = m_ClientRect.Right / 5;
 		m_PathFieldRect.Right = m_ClientRect.Right - m_PathFieldRect.Left;
@@ -101,11 +101,11 @@ public:
 		
 		HIMAGELIST hImageList_SmallIcons;
 		if (FAILED(SHGetImageList(SHIL_SMALL, IID_IImageList, reinterpret_cast<void**>(&hImageList_SmallIcons))))
-			Raise("Failed to load shell icons");
+			Raise("Failed to load small shell icons");
 
 		HIMAGELIST hImageList_LargeIcons;
 		if (FAILED(SHGetImageList(SHIL_LARGE, IID_IImageList, reinterpret_cast<void**>(&hImageList_LargeIcons))))
-			Raise("Failed to load shell icons");
+			Raise("Failed to load large shell icons");
 
 		ImageList_SetBkColor(hImageList_SmallIcons, CLR_NONE);
 		m_DirectoryTree.SetImageList(hImageList_SmallIcons, TVSIL_NORMAL);
@@ -146,7 +146,7 @@ public:
 	}
 	void SetLanguage(const Language& language) {
 		m_Language = language;
-		SetName(m_Language.Window.FileExplorerWindow);
+		SetName(m_Language.Window.Texts[Language::_WindowNames::TEXT_FILEEXPLORERWINDOW]);
 	}
 	void SetRootPath(const Nt::String& rootPath) {
 		m_RootPath = rootPath;
@@ -244,7 +244,6 @@ private:
 		SHFILEINFO sfi = { };
 		const std::wstring wPath = path;
 		
-		int a = GetFileAttributes(wPath.c_str());
 		SHGetFileInfo(wPath.c_str(), GetFileAttributes(wPath.c_str()), &sfi,
 			sizeof(sfi), SHGFI_SYSICONINDEX | SHGFI_USEFILEATTRIBUTES);
 		return sfi.iIcon;
@@ -297,108 +296,6 @@ private:
 				break;
 			case LVM_EDITLABEL:
 				break;
-			//case LVN_BEGINLABELEDIT:
-			//	cout << "LVN_BEGINLABELEDIT" << endl;
-			//	break;
-			//case LVN_BEGINSCROLL:
-			//	cout << "LVN_BEGINSCROLL" << endl;
-			//	break;
-			//case LVN_COLUMNCLICK:
-			//	cout << "LVN_COLUMNCLICK" << endl;
-			//	break;
-			//case LVN_COLUMNDROPDOWN:
-			//	cout << "LVN_COLUMNDROPDOWN" << endl;
-			//	break;
-			//case LVN_COLUMNOVERFLOWCLICK:
-			//	cout << "LVN_COLUMNOVERFLOWCLICK" << endl;
-			//	break;
-			//case LVN_DELETEALLITEMS:
-			//	cout << "LVN_DELETEALLITEMS" << endl;
-			//	break;
-			//case LVN_DELETEITEM:
-			//	cout << "LVN_DELETEITEM" << endl;
-			//	break;
-			//case LVN_ENDLABELEDIT:
-			//	cout << "LVN_ENDLABELEDIT" << endl;
-			//	break;
-			//case LVN_ENDSCROLL:
-			//	cout << "LVN_ENDSCROLL" << endl;
-			//	break;
-			//case LVN_GETDISPINFO:
-			//	cout << "LVN_GETDISPINFO" << endl;
-			//	break;
-			//case LVN_GETEMPTYMARKUP:
-			//	cout << "LVN_GETEMPTYMARKUP" << endl;
-			//	break;
-			//case LVN_GETINFOTIP:
-			//	cout << "LVN_GETINFOTIP" << endl;
-			//	break;
-			//case LVN_HOTTRACK:
-			//	cout << "LVN_HOTTRACK" << endl;
-			//	break;
-			//case LVN_INCREMENTALSEARCH:
-			//	cout << "LVN_INCREMENTALSEARCH" << endl;
-			//	break;
-			//case LVN_INSERTITEM:
-			//	cout << "LVN_INSERTITEM" << endl;
-			//	break;
-			//case LVN_ITEMCHANGED:
-			//	cout << "LVN_ITEMCHANGED" << endl;
-			//	break;
-			//case LVN_ITEMCHANGING:
-			//	cout << "LVN_ITEMCHANGING" << endl;
-			//	break;
-			//case LVN_KEYDOWN:
-			//	cout << "LVN_KEYDOWN" << endl;
-			//	break;
-			//case LVN_LINKCLICK:
-			//	cout << "LVN_LINKCLICK" << endl;
-			//	break;
-			//case LVN_MARQUEEBEGIN:
-			//	cout << "LVN_MARQUEEBEGIN" << endl;
-			//	break;
-			//case LVN_ODCACHEHINT:
-			//	cout << "LVN_ODCACHEHINT" << endl;
-			//	break;
-			//case LVN_ODFINDITEM:
-			//	cout << "LVN_ODFINDITEM" << endl;
-			//	break;
-			//case LVN_ODSTATECHANGED:
-			//	cout << "LVN_ODSTATECHANGED" << endl;
-			//	break;
-			//case LVN_SETDISPINFO:
-			//	cout << "LVN_SETDISPINFO" << endl;
-			//	break;
-			//case NM_CUSTOMDRAW:
-			//	cout << "NM_CUSTOMDRAW" << endl;
-			//	break;
-			//case NM_DBLCLK:
-			//	cout << "NM_DBLCLK" << endl;
-			//	break;
-			//case NM_HOVER:
-			//	cout << "NM_HOVER" << endl;
-			//	break;
-			//case NM_KILLFOCUS:
-			//	cout << "NM_KILLFOCUS" << endl;
-			//	break;
-			//case NM_RCLICK:
-			//	cout << "NM_RCLICK" << endl;
-			//	break;
-			//case NM_RDBLCLK:
-			//	cout << "NM_HOVER" << endl;
-			//	break;
-			//case NM_RELEASEDCAPTURE:
-			//	cout << "NM_RELEASEDCAPTURE" << endl;
-			//	break;
-			//case NM_RETURN:
-			//	cout << "NM_RETURN" << endl;
-			//	break;
-			//case NM_SETFOCUS:
-			//	cout << "NM_SETFOCUS" << endl;
-			//	break;
-			//case NM_CLICK:
-			//	cout << "NM_CLICK" << endl;
-			//	break;
 			case TVN_ITEMEXPANDING:
 			case TVN_ITEMEXPANDED:
 			{

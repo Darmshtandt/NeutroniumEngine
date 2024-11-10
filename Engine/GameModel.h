@@ -24,7 +24,7 @@ public:
 __inline GameModel* UpcastEntityToGameModel(Entity* pEntity) {
 	if (pEntity == nullptr)
 		Raise("Entity pointer is null");
-	if (pEntity->GetEntityType() != EntityTypes::SOUND)
+	if (pEntity->GetEntityType() != EntityTypes::MODEL)
 		Raise("Entity pointer is not GameModel");
 
 	GameModel* pGameModel = dynamic_cast<GameModel*>(pEntity);

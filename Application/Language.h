@@ -1,21 +1,46 @@
 ﻿#pragma once
 
-struct Language {
-private:
+class Language {
+public:
 	struct _Menu : public Nt::ISerialization {
+		enum {
+			TEXT_FILE,
+			TEXT_FILE_BUILD,
+			TEXT_FILE_NEW,
+			TEXT_FILE_OPEN,
+			TEXT_FILE_SAVE,
+			TEXT_FILE_SAVEAS,
+			TEXT_FILE_CLOSE,
+			TEXT_VIEW,
+			TEXT_VIEW_OBJECTSTREE,
+			TEXT_VIEW_FILEEXPLORER,
+			TEXT_VIEW_PROPERTY,
+			TEXT_CREATE,
+			TEXT_CREATE_PRIMITIVE,
+			TEXT_CREATE_PRIMITIVE_CUBE,
+			TEXT_CREATE_PRIMITIVE_QUAD,
+			TEXT_CREATE_PRIMITIVE_PLANE,
+			TEXT_CREATE_PRIMITIVE_PYRAMID,
+			TEXT_CREATE_ENTITY,
+			TEXT_CREATE_ENTITY_CAMERA,
+			TEXT_CREATE_ENTITY_SOUND,
+			TEXT_CREATE_ENTITY_MODEL,
+			TEXT_SETTINGS,
+			TEXT_SETTINGS_THEME,
+			TEXT_SETTINGS_LANGUAGE,
+			TEXT_SETTINGS_LANGUAGE_ENGLISH,
+			TEXT_SETTINGS_LANGUAGE_RUSSIAN,
+			TEXT_SETTINGS_LANGUAGE_SLOVAK,
+			TEXT_COUNT
+		};
+
 		void Write(std::ostream& stream) const override {
-			Nt::Serialization::WriteAll(stream, File, File_Open,
-				File_Save, File_SaveAs, File_Close, View, View_ObjectsTree,
-				View_FileExplorer, View_Property, Create, Create_Primitive,
-				Create_Primitive_Cube, Create_Primitive_Pyramid, Create_Entity,
-				Create_Entity_Camera, Settings, Settings_Theme);
+			for (uInt i = 0; i < TEXT_COUNT; ++i)
+				Nt::Serialization::WriteAll(stream, Texts[i]);
 		}
 		void Read(std::istream& stream) override {
-			Nt::Serialization::ReadAll(stream, File, File_Open,
-				File_Save, File_SaveAs, File_Close, View, View_ObjectsTree, View_FileExplorer, View_Property, Create, 
-				Create_Primitive, Create_Primitive_Cube, 
-				Create_Primitive_Pyramid, Create_Entity, 
-				Create_Entity_Camera, Settings, Settings_Theme);
+			for (uInt i = 0; i < TEXT_COUNT; ++i)
+				Nt::Serialization::ReadAll(stream, Texts[i]);
 		}
 		constexpr uInt Sizeof() const noexcept override {
 			return sizeof(*this);
@@ -24,113 +49,112 @@ private:
 			return 0;
 		}
 
-		Nt::String File;
-		Nt::String File_Build;
-		Nt::String File_New;
-		Nt::String File_Open;
-		Nt::String File_Save;
-		Nt::String File_SaveAs;
-		Nt::String File_Close;
-		Nt::String View;
-		Nt::String View_ObjectsTree;
-		Nt::String View_FileExplorer;
-		Nt::String View_Property;
-		Nt::String Create;
-		Nt::String Create_Primitive;
-		Nt::String Create_Primitive_Cube;
-		Nt::String Create_Primitive_Quad;
-		Nt::String Create_Primitive_Plane;
-		Nt::String Create_Primitive_Pyramid;
-		Nt::String Create_Entity;
-		Nt::String Create_Entity_Camera;
-		Nt::String Create_Entity_Sound;
-		Nt::String Create_Entity_Model;
-		Nt::String Settings;
-		Nt::String Settings_Theme;
-		Nt::String Settings_Language;
-		Nt::String Settings_Language_English;
-		Nt::String Settings_Language_Russian;
-		Nt::String Settings_Language_Slovak;
-	};
-	struct _PropertyComponent {
-		Nt::String TransformWindow;
-		Nt::String TextureWindow;
-		Nt::String ScriptWindow;
-		Nt::String RigidBodyWindow;
-		Nt::String PrimitiveWindow;
-		Nt::String SoundWindow;
-		Nt::String ModelWindow;
-	};
-	struct _PropertyTexture {
-		Nt::String Offset;
-		Nt::String Scale;
-		Nt::String Rotate;
-		Nt::String ClampU;
-		Nt::String ClampV;
-	};
-	struct _PropertyScript {
-		Nt::String Script;
-	};
-	struct _PropertyRigidBody {
-		Nt::String Active;
-		Nt::String EnableCollision;
-		Nt::String EnableGravitation;
-		Nt::String ShowCollider;
-		Nt::String Mass;
-		Nt::String GravityDirection;
-		Nt::String Friction;
-	};
-	struct _PropertyPrimitive {
-		Nt::String Join;
-		Nt::String Split;
-		Nt::String Invisible;
-	};
-	struct _PropertySound {
-		Nt::String Sound;
-		Nt::String RolloffFactor;
-		Nt::String ReferenceDistance;
-		Nt::String MaxDistance;
-		Nt::String Gain;
-	};
-	struct _PropertyModel {
-		Nt::String Model;
-	};
-	struct _Window : public Nt::ISerialization {
-		void Write(std::ostream& stream) const override {
-			Nt::Serialization::WriteAll(stream, EngineWindow,
-				ObjectsTreeWindow, PropertyWindow, FileExplorerWindow);
-		}
-		void Read(std::istream& stream) override {
-			Nt::Serialization::ReadAll(stream, EngineWindow,
-				ObjectsTreeWindow, PropertyWindow, FileExplorerWindow);
-		}
-		constexpr uInt Sizeof() const noexcept override {
-			return sizeof(*this);
-		}
-		constexpr uInt ClassType() const noexcept override {
-			return 0;
-		}
-
-		Nt::String EngineWindow;
-		Nt::String ObjectsTreeWindow;
-		Nt::String PropertyWindow;
-		Nt::String FileExplorerWindow;
-		_PropertyComponent PropertyComponent;
-		_PropertyTexture PropertyTexture;
-		_PropertyScript PropertyScript;
-		_PropertyRigidBody PropertyRigidBody;
-		_PropertyPrimitive PropertyPrimitive;
-		_PropertySound PropertySound;
-		_PropertyModel PropertyModel;
+		Nt::String Texts[TEXT_COUNT];
 	};
 	struct _PropertyWindow : public Nt::ISerialization {
+		struct _Component {
+			enum {
+				TEXT_TRANSFORMWINDOW,
+				TEXT_TEXTUREWINDOW,
+				TEXT_SCRIPTWINDOW,
+				TEXT_RIGIDBODYWINDOW,
+				TEXT_PRIMITIVEWINDOW,
+				TEXT_SOUNDWINDOW,
+				TEXT_MODELWINDOW,
+				TEXT_COUNT
+			};
+
+			Nt::String Texts[TEXT_COUNT];
+		};
+		struct _Texture {
+			enum {
+				TEXT_OFFSET,
+				TEXT_SCALE,
+				TEXT_ROTATE,
+				TEXT_CLAMPU,
+				TEXT_CLAMPV,
+				TEXT_COUNT
+			};
+
+			Nt::String Texts[TEXT_COUNT];
+		};
+		struct _Script {
+			enum {
+				TEXT_SCRIPT,
+				TEXT_COUNT
+			};
+
+			Nt::String Texts[TEXT_COUNT];
+		};
+		struct _RigidBody {
+			enum {
+				TEXT_ACTIVE,
+				TEXT_ENABLECOLLISION,
+				TEXT_ENABLEGRAVITATION,
+				TEXT_SHOWCOLLIDER,
+				TEXT_MASS,
+				TEXT_GRAVITYDIRECTION,
+				TEXT_FRICTION,
+				TEXT_COUNT
+			};
+
+			Nt::String Texts[TEXT_COUNT];
+		};
+		struct _Primitive {
+			enum {
+				TEXT_JOIN,
+				TEXT_SPLIT,
+				TEXT_INVISIBLE,
+				TEXT_COUNT
+			};
+
+			Nt::String Texts[TEXT_COUNT];
+		};
+		struct _Sound {
+			enum {
+				TEXT_SOUND,
+				TEXT_ROLLOFFFACTOR,
+				TEXT_REFERENCEDISTANCE,
+				TEXT_MAXDISTANCE,
+				TEXT_GAIN,
+				TEXT_COUNT
+			};
+
+			Nt::String Texts[TEXT_COUNT];
+		};
+		struct _Model {
+			enum {
+				TEXT_MODEL,
+				TEXT_COUNT
+			};
+
+			Nt::String Texts[TEXT_COUNT];
+		};
+		struct _Transform {
+			enum {
+				TEXT_POSITION,
+				TEXT_POSITION_X, TEXT_POSITION_Y, TEXT_POSITION_Z,
+				TEXT_SIZE,
+				TEXT_SIZE_WIDTH,
+				TEXT_SIZE_HEIGHT,
+				TEXT_SIZE_LENGTH,
+				TEXT_ANGLE,
+				TEXT_ANGLE_ROLL, TEXT_ANGLE_PITCH, TEXT_ANGLE_YAW,
+				TEXT_COUNT
+			};
+
+			Nt::String Texts[TEXT_COUNT];
+		};
+
 		void Write(std::ostream& stream) const override {
-			Nt::Serialization::WriteAll(stream, Position,
-				Size, Size_Width, Size_Height, Size_Length, Angle);
+			Nt::Serialization::WriteAll(stream, Transform, 
+				Component, Texture, Script, RigidBody, 
+				Primitive, Sound, Model);
 		}
 		void Read(std::istream& stream) override {
-			Nt::Serialization::ReadAll(stream, Position,
-				Size, Size_Width, Size_Height, Size_Length, Angle);
+			Nt::Serialization::ReadAll(stream, Transform,
+				Component, Texture, Script, RigidBody,
+				Primitive, Sound, Model);
 		}
 		constexpr uInt Sizeof() const noexcept override {
 			return sizeof(*this);
@@ -139,123 +163,175 @@ private:
 			return 0;
 		}
 
-		Nt::String Position;
-		Nt::String Size;
-		Nt::String Size_Width;
-		Nt::String Size_Height;
-		Nt::String Size_Length;
-		Nt::String Angle;
+		_Transform Transform;
+		_Component Component;
+		_Texture Texture;
+		_Script Script;
+		_RigidBody RigidBody;
+		_Primitive Primitive;
+		_Sound Sound;
+		_Model Model;
 	};
-	struct _ProjectMenagerWindow {
-		struct _ActionWindow {
-			Nt::String Open;
-			Nt::String Create;
-			Nt::String Delete;
-			Nt::String RemoveFromList;
-			Nt::String AddToList;
-		};
-		struct _CreationWindow {
-			Nt::String ProjectName;
-			Nt::String ProjectPath;
+
+	struct _WindowNames : public Nt::ISerialization {
+		enum {
+			TEXT_ENGINEWINDOW,
+			TEXT_OBJECTSTREEWINDOW,
+			TEXT_PROPERTYWINDOW,
+			TEXT_FILEEXPLORERWINDOW,
+			TEXT_COUNT
 		};
 
-		_ActionWindow ActionWindow;
-		_CreationWindow CreationWindow;
+		void Write(std::ostream& stream) const override {
+			for (uInt i = 0; i < TEXT_COUNT; ++i)
+				Nt::Serialization::WriteAll(stream, Texts[i]);
+		}
+		void Read(std::istream& stream) override {
+			for (uInt i = 0; i < TEXT_COUNT; ++i)
+				Nt::Serialization::ReadAll(stream, Texts[i]);
+		}
+		constexpr uInt Sizeof() const noexcept override {
+			return sizeof(*this);
+		}
+		constexpr uInt ClassType() const noexcept override {
+			return 0;
+		}
+
+		Nt::String Texts[TEXT_COUNT];
+	};
+	struct _ProjectManagerWindow {
+		struct _Action {
+			enum {
+				TEXT_OPEN,
+				TEXT_DELETE,
+				TEXT_CREATE,
+				TEXT_REMOVEFROMLIST,
+				TEXT_ADDTOLIST,
+				TEXT_COUNT
+			};
+
+			Nt::String Texts[TEXT_COUNT];
+		};
+		struct _Creation {
+			enum {
+				TEXT_PROJECTNAME,
+				TEXT_PROJECTPATH,
+				TEXT_COUNT
+			};
+
+			Nt::String Texts[TEXT_COUNT];
+		};
+
+		_Action Action;
+		_Creation Creation;
 	};
 	struct _Messages {
-		Nt::String AddingFile;
+		enum {
+			TEXT_ADDINGFILE,
+			TEXT_COUNT
+		};
+
+		Nt::String Texts[TEXT_COUNT];
 	};
 
 public:
 	Language() {
-		Menu.File = "File";
-		Menu.File_Build = "Build";
-		Menu.File_New = "New";
-		Menu.File_Open = "Open";
-		Menu.File_Save = "Save";
-		Menu.File_SaveAs = "Save as";
-		Menu.File_Close = "Close";
-		Menu.View = "View";
-		Menu.View_ObjectsTree = "Objects tree window";
-		Menu.View_FileExplorer = "File Explorer window";
-		Menu.View_Property = "Property window";
-		Menu.Create = "Create";
-		Menu.Create_Primitive = "Primitive";
-		Menu.Create_Primitive_Cube = "Cube";
-		Menu.Create_Primitive_Quad = "Quad";
-		Menu.Create_Primitive_Plane = "Plane";
-		Menu.Create_Primitive_Pyramid = "Pyramid";
-		Menu.Create_Entity = "Entity";
-		Menu.Create_Entity_Camera = "Camera";
-		Menu.Create_Entity_Sound = "Sound";
-		Menu.Create_Entity_Model = "Model";
-		Menu.Settings = "Settings";
-		Menu.Settings_Theme = "Theme";
-		Menu.Settings_Language = "Language";
-		Menu.Settings_Language_English = "English";
-		Menu.Settings_Language_Russian = "Russian";
-		Menu.Settings_Language_Slovak = "Slovak";
+		Menu.Texts[_Menu::TEXT_FILE] = "File";
+		Menu.Texts[_Menu::TEXT_FILE_BUILD] = "Build";
+		Menu.Texts[_Menu::TEXT_FILE_NEW] = "New";
+		Menu.Texts[_Menu::TEXT_FILE_OPEN] = "Open";
+		Menu.Texts[_Menu::TEXT_FILE_SAVE] = "Save";
+		Menu.Texts[_Menu::TEXT_FILE_SAVEAS] = "Save as";
+		Menu.Texts[_Menu::TEXT_FILE_CLOSE] = "Close";
+		Menu.Texts[_Menu::TEXT_VIEW] = "View";
+		Menu.Texts[_Menu::TEXT_VIEW_OBJECTSTREE] = "Objects tree window";
+		Menu.Texts[_Menu::TEXT_VIEW_FILEEXPLORER] = "File Explorer window";
+		Menu.Texts[_Menu::TEXT_VIEW_PROPERTY] = "Property window";
+		Menu.Texts[_Menu::TEXT_CREATE] = "Create";
+		Menu.Texts[_Menu::TEXT_CREATE_PRIMITIVE] = "Primitive";
+		Menu.Texts[_Menu::TEXT_CREATE_PRIMITIVE_CUBE] = "Cube";
+		Menu.Texts[_Menu::TEXT_CREATE_PRIMITIVE_QUAD] = "Quad";
+		Menu.Texts[_Menu::TEXT_CREATE_PRIMITIVE_PLANE] = "Plane";
+		Menu.Texts[_Menu::TEXT_CREATE_PRIMITIVE_PYRAMID] = "Pyramid";
+		Menu.Texts[_Menu::TEXT_CREATE_ENTITY] = "Entity";
+		Menu.Texts[_Menu::TEXT_CREATE_ENTITY_CAMERA] = "Camera";
+		Menu.Texts[_Menu::TEXT_CREATE_ENTITY_SOUND] = "Sound";
+		Menu.Texts[_Menu::TEXT_CREATE_ENTITY_MODEL] = "Model";
+		Menu.Texts[_Menu::TEXT_SETTINGS] = "Settings";
+		Menu.Texts[_Menu::TEXT_SETTINGS_THEME] = "Theme";
+		Menu.Texts[_Menu::TEXT_SETTINGS_LANGUAGE] = "Language";
+		Menu.Texts[_Menu::TEXT_SETTINGS_LANGUAGE_ENGLISH] = "English";
+		Menu.Texts[_Menu::TEXT_SETTINGS_LANGUAGE_RUSSIAN] = "Russian";
+		Menu.Texts[_Menu::TEXT_SETTINGS_LANGUAGE_SLOVAK] = "Slovak";
 
-		Window.EngineWindow = "Engine";
-		Window.ObjectsTreeWindow = "Objects tree";
-		Window.PropertyWindow = "Property";
-		Window.FileExplorerWindow = "File explorer";
+		Window.Texts[_WindowNames::TEXT_ENGINEWINDOW] = "Engine";
+		Window.Texts[_WindowNames::TEXT_OBJECTSTREEWINDOW] = "Objects tree";
+		Window.Texts[_WindowNames::TEXT_PROPERTYWINDOW] = "Property";
+		Window.Texts[_WindowNames::TEXT_FILEEXPLORERWINDOW] = "File explorer";
 
-		Window.PropertyComponent.TransformWindow = "Transform";
-		Window.PropertyComponent.TextureWindow = "Texture";
-		Window.PropertyComponent.ScriptWindow = "Script";
-		Window.PropertyComponent.RigidBodyWindow = "Rigid body";
-		Window.PropertyComponent.PrimitiveWindow = "Primitive";
-		Window.PropertyComponent.SoundWindow = "Sound";
-		Window.PropertyComponent.ModelWindow = "Model";
 
-		Window.PropertyTexture.Offset = "Offset";
-		Window.PropertyTexture.Scale = "Scale";
-		Window.PropertyTexture.Rotate = "Rotate";
-		Window.PropertyTexture.ClampU = "Clamp U";
-		Window.PropertyTexture.ClampV = "Clamp V";
+		PropertyWindow.Component.Texts[_PropertyWindow::_Component::TEXT_TRANSFORMWINDOW] = "Transform";
+		PropertyWindow.Component.Texts[_PropertyWindow::_Component::TEXT_TEXTUREWINDOW] = "Texture";
+		PropertyWindow.Component.Texts[_PropertyWindow::_Component::TEXT_SCRIPTWINDOW] = "Script";
+		PropertyWindow.Component.Texts[_PropertyWindow::_Component::TEXT_RIGIDBODYWINDOW] = "Rigid body";
+		PropertyWindow.Component.Texts[_PropertyWindow::_Component::TEXT_PRIMITIVEWINDOW] = "Primitive";
+		PropertyWindow.Component.Texts[_PropertyWindow::_Component::TEXT_SOUNDWINDOW] = "Sound";
+		PropertyWindow.Component.Texts[_PropertyWindow::_Component::TEXT_MODELWINDOW] = "Model";
 
-		Window.PropertyScript.Script = "Script";
+		PropertyWindow.Transform.Texts[_PropertyWindow::_Transform::TEXT_POSITION] = "Position";
+		PropertyWindow.Transform.Texts[_PropertyWindow::_Transform::TEXT_POSITION_X] = "X";
+		PropertyWindow.Transform.Texts[_PropertyWindow::_Transform::TEXT_POSITION_Y] = "Y";
+		PropertyWindow.Transform.Texts[_PropertyWindow::_Transform::TEXT_POSITION_Z] = "Z";
+		PropertyWindow.Transform.Texts[_PropertyWindow::_Transform::TEXT_SIZE] = "Size";
+		PropertyWindow.Transform.Texts[_PropertyWindow::_Transform::TEXT_SIZE_WIDTH] = "Width";
+		PropertyWindow.Transform.Texts[_PropertyWindow::_Transform::TEXT_SIZE_HEIGHT] = "Height";
+		PropertyWindow.Transform.Texts[_PropertyWindow::_Transform::TEXT_SIZE_LENGTH] = "Length";
+		PropertyWindow.Transform.Texts[_PropertyWindow::_Transform::TEXT_ANGLE] = "Angle";
+		PropertyWindow.Transform.Texts[_PropertyWindow::_Transform::TEXT_ANGLE_ROLL] = "Roll";
+		PropertyWindow.Transform.Texts[_PropertyWindow::_Transform::TEXT_ANGLE_PITCH] = "Pitch";
+		PropertyWindow.Transform.Texts[_PropertyWindow::_Transform::TEXT_ANGLE_YAW] = "Yaw";
 
-		Window.PropertyRigidBody.Active = "Active";
-		Window.PropertyRigidBody.EnableCollision = "Collision detect";
-		Window.PropertyRigidBody.EnableGravitation = "Gravity";
-		Window.PropertyRigidBody.ShowCollider = "Show collider";
-		Window.PropertyRigidBody.Mass = "Mass";
-		Window.PropertyRigidBody.GravityDirection = "Gravity direction";
-		Window.PropertyRigidBody.Friction = "Friction";
+		PropertyWindow.Texture.Texts[_PropertyWindow::_Texture::TEXT_OFFSET] = "Offset";
+		PropertyWindow.Texture.Texts[_PropertyWindow::_Texture::TEXT_SCALE] = "Scale";
+		PropertyWindow.Texture.Texts[_PropertyWindow::_Texture::TEXT_ROTATE] = "Rotate";
+		PropertyWindow.Texture.Texts[_PropertyWindow::_Texture::TEXT_CLAMPU] = "Clamp U";
+		PropertyWindow.Texture.Texts[_PropertyWindow::_Texture::TEXT_CLAMPV] = "Clamp V";
 
-		Window.PropertyPrimitive.Join = "Join";
-		Window.PropertyPrimitive.Split = "Split";
-		Window.PropertyPrimitive.Invisible = "Invisible";
+		PropertyWindow.Script.Texts[_PropertyWindow::_Script::TEXT_SCRIPT] = "Script";
 
-		Window.PropertySound.Sound = "Sound";
-		Window.PropertySound.RolloffFactor = "Rolloff factor";
-		Window.PropertySound.ReferenceDistance = "Reference distance";
-		Window.PropertySound.MaxDistance = "Max ditance";
-		Window.PropertySound.Gain = "Gain";
+		PropertyWindow.RigidBody.Texts[_PropertyWindow::_RigidBody::TEXT_ACTIVE] = "Active";
+		PropertyWindow.RigidBody.Texts[_PropertyWindow::_RigidBody::TEXT_ENABLECOLLISION] = "Collision detect";
+		PropertyWindow.RigidBody.Texts[_PropertyWindow::_RigidBody::TEXT_ENABLEGRAVITATION] = "Gravity";
+		PropertyWindow.RigidBody.Texts[_PropertyWindow::_RigidBody::TEXT_SHOWCOLLIDER] = "Show collider";
+		PropertyWindow.RigidBody.Texts[_PropertyWindow::_RigidBody::TEXT_MASS] = "Mass";
+		PropertyWindow.RigidBody.Texts[_PropertyWindow::_RigidBody::TEXT_GRAVITYDIRECTION] = "Gravity direction";
+		PropertyWindow.RigidBody.Texts[_PropertyWindow::_RigidBody::TEXT_FRICTION] = "Friction";
 
-		Window.PropertyModel.Model = "Model";
+		PropertyWindow.Primitive.Texts[_PropertyWindow::_Primitive::TEXT_JOIN] = "Join";
+		PropertyWindow.Primitive.Texts[_PropertyWindow::_Primitive::TEXT_SPLIT] = "Split";
+		PropertyWindow.Primitive.Texts[_PropertyWindow::_Primitive::TEXT_INVISIBLE] = "Invisible";
 
-		PropertyWindow.Position = "Position";
-		PropertyWindow.Size = "Size";
-		PropertyWindow.Size_Width = "Width";
-		PropertyWindow.Size_Height = "Height";
-		PropertyWindow.Size_Length = "Length";
-		PropertyWindow.Angle = "Angle";
+		PropertyWindow.Sound.Texts[_PropertyWindow::_Sound::TEXT_SOUND] = "Sound";
+		PropertyWindow.Sound.Texts[_PropertyWindow::_Sound::TEXT_ROLLOFFFACTOR] = "Rolloff factor";
+		PropertyWindow.Sound.Texts[_PropertyWindow::_Sound::TEXT_REFERENCEDISTANCE] = "Reference distance";
+		PropertyWindow.Sound.Texts[_PropertyWindow::_Sound::TEXT_MAXDISTANCE] = "Max ditance";
+		PropertyWindow.Sound.Texts[_PropertyWindow::_Sound::TEXT_GAIN] = "Gain";
 
-		ProjectMenagerWindow.ActionWindow.Open = "Open";
-		ProjectMenagerWindow.ActionWindow.Create = "Create";
-		ProjectMenagerWindow.ActionWindow.Delete = "Delete";
-		ProjectMenagerWindow.ActionWindow.RemoveFromList = "Remove from list";
-		ProjectMenagerWindow.ActionWindow.AddToList = "Add to list";
+		PropertyWindow.Model.Texts[_PropertyWindow::_Model::TEXT_MODEL] = "Model";
 
-		ProjectMenagerWindow.CreationWindow.ProjectName = "Project name";
-		ProjectMenagerWindow.CreationWindow.ProjectPath = "Project path";
+		ProjectManagerWindow.Action.Texts[_ProjectManagerWindow::_Action::TEXT_OPEN] = "Open";
+		ProjectManagerWindow.Action.Texts[_ProjectManagerWindow::_Action::TEXT_CREATE] = "Create";
+		ProjectManagerWindow.Action.Texts[_ProjectManagerWindow::_Action::TEXT_DELETE] = "Delete";
+		ProjectManagerWindow.Action.Texts[_ProjectManagerWindow::_Action::TEXT_REMOVEFROMLIST] = "Remove from list";
+		ProjectManagerWindow.Action.Texts[_ProjectManagerWindow::_Action::TEXT_ADDTOLIST] = "Add to list";
 
-		Messages.AddingFile = "To add a file, place it in the project's root folder.";
+		ProjectManagerWindow.Creation.Texts[_ProjectManagerWindow::_Creation::TEXT_PROJECTNAME] = "Project name";
+		ProjectManagerWindow.Creation.Texts[_ProjectManagerWindow::_Creation::TEXT_PROJECTPATH] = "Project path";
+
+		Messages.Texts[_Messages::TEXT_ADDINGFILE] = "To add a file, place it in the project's root folder.";
 	}
 
+#if 0
 	void SetSk() {
 		Menu.File = L"Súbor";
 		Menu.File_Build = "Stavať";
@@ -289,13 +365,13 @@ public:
 		Window.PropertyWindow = L"Vlastnosti";
 		Window.FileExplorerWindow = L"Prieskumník";
 
-		Window.PropertyComponent.TransformWindow = "Transformovať";
-		Window.PropertyComponent.TextureWindow = "Textúra";
-		Window.PropertyComponent.ScriptWindow = "Skript";
-		Window.PropertyComponent.RigidBodyWindow = "Pevné telo";
-		Window.PropertyComponent.PrimitiveWindow = "Primitiv";
-		Window.PropertyComponent.SoundWindow = "Zvuk";
-		Window.PropertyComponent.ModelWindow = "Model";
+		Window.Component.TransformWindow = "Transformovať";
+		Window.Component.TextureWindow = "Textúra";
+		Window.Component.ScriptWindow = "Skript";
+		Window.Component.RigidBodyWindow = "Pevné telo";
+		Window.Component.PrimitiveWindow = "Primitiv";
+		Window.Component.SoundWindow = "Zvuk";
+		Window.Component.ModelWindow = "Model";
 
 
 		PropertyWindow.Position = L"Poloha";
@@ -305,42 +381,42 @@ public:
 		PropertyWindow.Size_Length = L"Dĺžka";
 		PropertyWindow.Angle = L"Uhol";
 
-		Window.PropertyTexture.Offset = "Offset";
-		Window.PropertyTexture.Scale = "Mierka";
-		Window.PropertyTexture.Rotate = "Točiť sa";
-		Window.PropertyTexture.ClampU = "Svorka U";
-		Window.PropertyTexture.ClampV = "Svorka V";
+		Window.Texture.Offset = "Offset";
+		Window.Texture.Scale = "Mierka";
+		Window.Texture.Rotate = "Točiť sa";
+		Window.Texture.ClampU = "Svorka U";
+		Window.Texture.ClampV = "Svorka V";
 
-		Window.PropertyScript.Script = "Skript";
+		Window.Script.Script = "Skript";
 
-		Window.PropertyRigidBody.Active = "Aktívne";
-		Window.PropertyRigidBody.EnableCollision = "Detekcia kolízie";
-		Window.PropertyRigidBody.EnableGravitation = "Gravitácia";
-		Window.PropertyRigidBody.ShowCollider = "Zobraziť zrážač";
-		Window.PropertyRigidBody.Mass = "Omša";
-		Window.PropertyRigidBody.GravityDirection = "Smer gravitácie";
-		Window.PropertyRigidBody.Friction = "Trenie";
+		Window.RigidBody.Active = "Aktívne";
+		Window.RigidBody.EnableCollision = "Detekcia kolízie";
+		Window.RigidBody.EnableGravitation = "Gravitácia";
+		Window.RigidBody.ShowCollider = "Zobraziť zrážač";
+		Window.RigidBody.Mass = "Omša";
+		Window.RigidBody.GravityDirection = "Smer gravitácie";
+		Window.RigidBody.Friction = "Trenie";
 
-		Window.PropertyPrimitive.Join = "Pripojte sa";
-		Window.PropertyPrimitive.Split = "Rozdeliť";
-		Window.PropertyPrimitive.Invisible = "Neviditeľný";
+		Window.Primitive.Join = "Pripojte sa";
+		Window.Primitive.Split = "Rozdeliť";
+		Window.Primitive.Invisible = "Neviditeľný";
 
-		Window.PropertySound.Sound = "Zvuk";
-		Window.PropertySound.RolloffFactor = "Roll Off faktor";
-		Window.PropertySound.ReferenceDistance = "Referenčná vzdialenosť";
-		Window.PropertySound.MaxDistance = "Maximálna vzdialenosť";
-		Window.PropertySound.Gain = "Získať";
+		Window.Sound.Sound = "Zvuk";
+		Window.Sound.RolloffFactor = "Roll Off faktor";
+		Window.Sound.ReferenceDistance = "Referenčná vzdialenosť";
+		Window.Sound.MaxDistance = "Maximálna vzdialenosť";
+		Window.Sound.Gain = "Získať";
 
-		Window.PropertyModel.Model = "Model";
+		Window.Model.Model = "Model";
 
-		ProjectMenagerWindow.ActionWindow.Open = "Otvoriť";
-		ProjectMenagerWindow.ActionWindow.Create = "Vytvorte";
-		ProjectMenagerWindow.ActionWindow.Delete = "Odstrániť";
-		ProjectMenagerWindow.ActionWindow.RemoveFromList = "Vymazať zo zoznamu";
-		ProjectMenagerWindow.ActionWindow.AddToList = "Pridať do zoznamu";
+		ProjectManagerWindow.Action.Open = "Otvoriť";
+		ProjectManagerWindow.Action.Create = "Vytvorte";
+		ProjectManagerWindow.Action.Delete = "Odstrániť";
+		ProjectManagerWindow.Action.RemoveFromList = "Vymazať zo zoznamu";
+		ProjectManagerWindow.Action.AddToList = "Pridať do zoznamu";
 
-		ProjectMenagerWindow.CreationWindow.ProjectName = "Názov projektu";
-		ProjectMenagerWindow.CreationWindow.ProjectPath = "Cesta projektu";
+		ProjectManagerWindow.Creation.ProjectName = "Názov projektu";
+		ProjectManagerWindow.Creation.ProjectPath = "Cesta projektu";
 
 		Messages.AddingFile = "Ak chcete pridať súbor, umiestnite ho do koreňového priečinka projektu.";
 	}
@@ -377,13 +453,13 @@ public:
 		Window.PropertyWindow = L"Свойства";
 		Window.FileExplorerWindow = L"Файловый проводник";
 
-		Window.PropertyComponent.TransformWindow = "Трансформация";
-		Window.PropertyComponent.TextureWindow = "Текстура";
-		Window.PropertyComponent.ScriptWindow = "Скрипт";
-		Window.PropertyComponent.RigidBodyWindow = "Твердое тело";
-		Window.PropertyComponent.PrimitiveWindow = "Примитив";
-		Window.PropertyComponent.SoundWindow = "Звук";
-		Window.PropertyComponent.ModelWindow = "Модель";
+		Window.Component.TransformWindow = "Трансформация";
+		Window.Component.TextureWindow = "Текстура";
+		Window.Component.ScriptWindow = "Скрипт";
+		Window.Component.RigidBodyWindow = "Твердое тело";
+		Window.Component.PrimitiveWindow = "Примитив";
+		Window.Component.SoundWindow = "Звук";
+		Window.Component.ModelWindow = "Модель";
 
 		PropertyWindow.Position = L"Позиция";
 		PropertyWindow.Size = L"Размер";
@@ -392,45 +468,46 @@ public:
 		PropertyWindow.Size_Length = L"Длина";
 		PropertyWindow.Angle = L"Угол поворота";
 
-		Window.PropertyTexture.Offset = "Сдвиг";
-		Window.PropertyTexture.Scale = "Масштаб";
-		Window.PropertyTexture.Rotate = "Угол поворота";
-		Window.PropertyTexture.ClampU = "Ограничить по U";
-		Window.PropertyTexture.ClampV = "Ограничить по V";
+		Window.Texture.Offset = "Сдвиг";
+		Window.Texture.Scale = "Масштаб";
+		Window.Texture.Rotate = "Угол поворота";
+		Window.Texture.ClampU = "Ограничить по U";
+		Window.Texture.ClampV = "Ограничить по V";
 
-		Window.PropertyScript.Script = "Скрипт";
+		Window.Script.Script = "Скрипт";
 
-		Window.PropertyRigidBody.Active = "Активный";
-		Window.PropertyRigidBody.EnableCollision = "Обработка столкновений";
-		Window.PropertyRigidBody.EnableGravitation = "Гравитация";
-		Window.PropertyRigidBody.ShowCollider = "Отобрать коллайдеры";
-		Window.PropertyRigidBody.Mass = "Масса";
-		Window.PropertyRigidBody.GravityDirection = "Направление гравитации";
-		Window.PropertyRigidBody.Friction = "Сила трения";
+		Window.RigidBody.Active = "Активный";
+		Window.RigidBody.EnableCollision = "Обработка столкновений";
+		Window.RigidBody.EnableGravitation = "Гравитация";
+		Window.RigidBody.ShowCollider = "Отобрать коллайдеры";
+		Window.RigidBody.Mass = "Масса";
+		Window.RigidBody.GravityDirection = "Направление гравитации";
+		Window.RigidBody.Friction = "Сила трения";
 
-		Window.PropertyPrimitive.Join = "Соединить";
-		Window.PropertyPrimitive.Split = "Разделить";
-		Window.PropertyPrimitive.Invisible = "Невидимый";
+		Window.Primitive.Join = "Соединить";
+		Window.Primitive.Split = "Разделить";
+		Window.Primitive.Invisible = "Невидимый";
 
-		Window.PropertySound.Sound = "Звук";
-		Window.PropertySound.RolloffFactor = "Коэффициент спада";
-		Window.PropertySound.ReferenceDistance = "Базовое расстояние";
-		Window.PropertySound.MaxDistance = "Максимальное расстояние";
-		Window.PropertySound.Gain = "Прирост";
+		Window.Sound.Sound = "Звук";
+		Window.Sound.RolloffFactor = "Коэффициент спада";
+		Window.Sound.ReferenceDistance = "Базовое расстояние";
+		Window.Sound.MaxDistance = "Максимальное расстояние";
+		Window.Sound.Gain = "Прирост";
 
-		Window.PropertyModel.Model = "Модель";
+		Window.Model.Model = "Модель";
 
-		ProjectMenagerWindow.ActionWindow.Open = "Окрыть";
-		ProjectMenagerWindow.ActionWindow.Create = "Создать";
-		ProjectMenagerWindow.ActionWindow.Delete = "Удалить";
-		ProjectMenagerWindow.ActionWindow.RemoveFromList = "Убрать из списка";
-		ProjectMenagerWindow.ActionWindow.AddToList = "Добавить в список";
+		ProjectManagerWindow.Action.Open = "Окрыть";
+		ProjectManagerWindow.Action.Create = "Создать";
+		ProjectManagerWindow.Action.Delete = "Удалить";
+		ProjectManagerWindow.Action.RemoveFromList = "Убрать из списка";
+		ProjectManagerWindow.Action.AddToList = "Добавить в список";
 
-		ProjectMenagerWindow.CreationWindow.ProjectName = "Názov projektu";
-		ProjectMenagerWindow.CreationWindow.ProjectPath = "Cesta projektu";
+		ProjectManagerWindow.Creation.ProjectName = "Názov projektu";
+		ProjectManagerWindow.Creation.ProjectPath = "Cesta projektu";
 
 		Messages.AddingFile = "Для того чтобы загрузить файл, добавте его в корневую папку проекта.";
 	}
+#endif
 
 	void Load(const std::string& filePath) {
 		std::ifstream file(filePath, std::ios::binary);
@@ -455,8 +532,8 @@ public:
 	}
 
 	_Menu Menu;
-	_Window Window;
+	_WindowNames Window;
 	_PropertyWindow PropertyWindow;
-	_ProjectMenagerWindow ProjectMenagerWindow;
+	_ProjectManagerWindow ProjectManagerWindow;
 	_Messages Messages;
 };

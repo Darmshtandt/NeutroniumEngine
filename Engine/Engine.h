@@ -2,11 +2,23 @@
 
 class Engine {
 private:
-	enum class View {
+	enum class ViewMode {
 		PERSPECTIVE,
 		TOP, BOTTOM,
 		LEFT, RIGHT,
 		BACK, FORWARD
+	};
+
+	enum ControlElements {
+		CONTROL_COMBOBOX_PROJECTION,
+		CONTROL_TEXTEDIT_GRIDCELLSIZE,
+		CONTROL_BUTTON_TOGGLEGRID,
+	};
+
+	enum ImageIDs {
+		TEXTURE_DEFAULT,
+		TEXTURE_CAMERA,
+		TEXTURE_SOUND,
 	};
 
 public:
@@ -20,29 +32,69 @@ public:
 	{ 
 	}
 
-	void Initialize(const Settings& settings) {
+	void Initialize(const Settings& settings, const Nt::String& defaultInitialPath) {
+		const uInt pathType = GetFileAttributesA(defaultInitialPath);
+		if (pathType == INVALID_FILE_ATTRIBUTES)
+			Raise(std::string("A non-existent path was specified: ") + defaultInitialPath);
+		else if (!(pathType & FILE_ATTRIBUTE_DIRECTORY))
+			Raise(std::string("This path is not a directory: ") + defaultInitialPath);
+
 		m_Settings = settings;
 
 		m_Window.RemoveStyles(WS_OVERLAPPEDWINDOW);
 		m_Window.AddStyles(WS_DLGFRAME);
-		m_Window.Create(m_Settings.EngineWindowRect, settings.CurrentLanguage.Window.EngineWindow);
+		m_Window.Create(m_Settings.EngineWindowRect, settings.CurrentLanguage.Window.Texts[Language::_WindowNames::TEXT_ENGINEWINDOW]);
 		m_Window.SetProcedure([&](const uInt& uMsg, const DWord& param_1, const DWord& param_2) -> Long {
 			return _Procedure(uMsg, param_1, param_2);
 			});
 
-		m_ComboBoxView.AddStyles(CBS_DROPDOWN | CBS_HASSTRINGS | CBS_SIMPLE | WS_VISIBLE);
-		m_ComboBoxView.SetParent(m_Window);
-		m_ComboBoxView.Create({ 25, 5, 110, 140 });
-		m_ComboBoxView.AddElement("Perspective");
-		m_ComboBoxView.AddElement("Top");
-		m_ComboBoxView.AddElement("Bottom");
-		m_ComboBoxView.AddElement("Left");
-		m_ComboBoxView.AddElement("Right");
-		m_ComboBoxView.AddElement("Back");
-		m_ComboBoxView.AddElement("Forward");
-		m_ComboBoxView.SetCurrentElement(0);
+		Nt::ResourceManager::Add(new Nt::Texture(defaultInitialPath + "Images\\Tiles.tga"));
+		Nt::ResourceManager::Add(new Nt::Texture(defaultInitialPath + "Images\\Camera.tga"));
+		Nt::ResourceManager::Add(new Nt::Texture(defaultInitialPath + "Images\\Sound.tga"));
+
+		{
+			m_ComboBoxView.AddStyles(CBS_DROPDOWN | CBS_HASSTRINGS | CBS_SIMPLE);
+			m_ComboBoxView.SetID(CONTROL_COMBOBOX_PROJECTION);
+			m_ComboBoxView.SetParent(m_Window);
+			m_ComboBoxView.Create({ 25, 5, 110, 140 });
+			m_ComboBoxView.AddElement("Perspective");
+			m_ComboBoxView.AddElement("Top");
+			m_ComboBoxView.AddElement("Bottom");
+			m_ComboBoxView.AddElement("Left");
+			m_ComboBoxView.AddElement("Right");
+			m_ComboBoxView.AddElement("Back");
+			m_ComboBoxView.AddElement("Forward");
+			m_ComboBoxView.SetCurrentElement(0);
+			m_ComboBoxView.Show();
+
+			Nt::IntRect gridTextEditRect;
+			gridTextEditRect.RightBottom = { 100, 24 };
+			gridTextEditRect.Left = m_Window.GetWindowRect().Right - gridTextEditRect.Right - 25;
+			gridTextEditRect.Top = 5;
+
+			m_GridTextEdit.SetID(CONTROL_TEXTEDIT_GRIDCELLSIZE);
+			m_GridTextEdit.SetParent(m_Window);
+			m_GridTextEdit.Create(gridTextEditRect, "1.0", true);
+			m_GridTextEdit.Show();
+
+			Nt::IntRect gridButtonRect;
+			gridButtonRect.RightBottom = Nt::Int2D(gridTextEditRect.Bottom, gridTextEditRect.Bottom);
+			gridButtonRect.LeftTop = gridTextEditRect.LeftTop;
+			gridButtonRect.Left -= gridButtonRect.Right;
+
+			Nt::GDI::Bitmap gridIcon;
+			gridIcon.LoadFromFile(defaultInitialPath + "Images\\GridIcon.bmp");
+
+			m_GridButton.AddStyles(BS_LEFT | BS_BITMAP | BS_VCENTER | BS_AUTOCHECKBOX | BS_PUSHLIKE);
+			m_GridButton.SetID(CONTROL_BUTTON_TOGGLEGRID);
+			m_GridButton.SetParent(m_Window);
+			m_GridButton.Create(gridButtonRect, "");
+			m_GridButton.SetImage(gridIcon);
+			m_GridButton.Show();
+		}
 
 		m_pScence = new Scence;
+		m_Selector.Initialize(m_pScence, defaultInitialPath);
 
 		m_pGame = new Game;
 		m_pGame->InitializeTestGame(&m_Window, m_pScence);
@@ -61,38 +113,51 @@ public:
 		const Nt::Float3D clearColor = m_Settings.Styles.Engine.BackgroundColor;
 		m_Window.SetClearColor(Nt::Float4D(clearColor, 255.f) / 255.f);
 	}
-	
-	void CreateCube() {
+
+	void CreatePrimitive(const PrimitiveTypes& type) {
 		constexpr Nt::Float3D size(1.f, 1.f, 1.f);
-		Object* pObject = new Primitive("Cube", PrimitiveTypes::CUBE, size);
+		Object* pObject = new Primitive("", type, size);
+		pObject->SetTexture(TEXTURE_DEFAULT);
+
+		switch (type) {
+		case PrimitiveTypes::CUBE:
+			pObject->SetName("Cube");
+			break;
+		case PrimitiveTypes::QUAD:
+			pObject->SetName("Quad");
+			break;
+		case PrimitiveTypes::PLANE:
+			pObject->SetName("Plane");
+			break;
+		case PrimitiveTypes::PYRAMID:
+			pObject->SetName("Pyramid");
+			break;
+		}
+
 		m_pScence->AddObject(pObject);
 		m_IsChanged = true;
 	}
-	void CreatePyramid() {
-		constexpr Nt::Float3D size(1.f, 1.f, 1.f);
-		m_pScence->AddObject(new Primitive("Pyramid", PrimitiveTypes::PYRAMID, size));
-		m_IsChanged = true;
-	}
-	void CreateQuad() {
-		constexpr Nt::Float3D size(1.f, 1.f, 1.f);
-		m_pScence->AddObject(new Primitive("Quad", PrimitiveTypes::QUAD, size));
-		m_IsChanged = true;
-	}
-	void CreatePlane() {
-		constexpr Nt::Float3D size(1.f, 1.f, 1.f);
-		m_pScence->AddObject(new Primitive("Plane", PrimitiveTypes::PLANE, size));
-		m_IsChanged = true;
-	}
-	void CreateCamera() {
-		m_pScence->AddObject(new GameCamera("Camera"));
-		m_IsChanged = true;
-	}
-	void CreateSound() {
-		m_pScence->AddObject(new GameSound("Sound"));
-		m_IsChanged = true;
-	}
-	void CreateModel() {
-		m_pScence->AddObject(new GameModel("Model"));
+	void CreateEntity(const EntityTypes& type) {
+		Object* pObject = nullptr;
+
+		switch (type) {
+		case EntityTypes::CAMERA:
+			pObject = new GameCamera("Camera");
+			pObject->SetTexture(TEXTURE_CAMERA);
+			break;
+		case EntityTypes::SOUND:
+			pObject = new GameSound("Sound");
+			pObject->SetTexture(TEXTURE_SOUND);
+			break;
+		case EntityTypes::MODEL:
+			pObject = new GameModel("Model");
+			break;
+		default:
+			Raise("Error primitive type");
+			break;
+		}
+
+		m_pScence->AddObject(pObject);
 		m_IsChanged = true;
 	}
 
@@ -133,10 +198,10 @@ public:
 		case Nt::Event::KEY_UP:
 			switch (event.Value) {
 			case Nt::Keyboard::KEY_SUBTRACT:
-				CreateCamera();
+				CreateEntity(EntityTypes::CAMERA);
 				break;
 			case Nt::Keyboard::KEY_ADD:
-				CreateCube();
+				CreatePrimitive(PrimitiveTypes::CUBE);
 				break;
 			}
 			break;
@@ -144,12 +209,13 @@ public:
 	}
 
 	void Update() {
-		const Float time = m_Window.GetFPS() / 1000.f;
+		const Float time = Float(m_Window.GetFrameTime()) / 1000.f;
 		if (m_pGame->IsLaunched()) {
 			m_pGame->Update(time);
 		}
 		else {
-			_Control(time);
+			_Control();
+			m_Selector.Update(m_Camera.GetPosition());
 			m_pScence->Update(time);
 			m_Window.Update();
 		}
@@ -162,6 +228,7 @@ public:
 		else {
 			m_Window.Clear();
 			m_pScence->Render(&m_Window);
+			m_Selector.Render(&m_Window);
 			m_Window.Display();
 		}
 	}
@@ -248,11 +315,10 @@ public:
 		m_Window.SetClearColor(Nt::Float4D(clearColor, 255.f) / 255.f);
 	}
 	void SetLanguage(const Language& language) {
-		m_Window.SetName(language.Window.EngineWindow);
+		m_Window.SetName(language.Window.Texts[Language::_WindowNames::TEXT_ENGINEWINDOW]);
 	}
 
 private:
-	Nt::ComboBox m_ComboBoxView;
 	Nt::RenderWindow m_Window;
 	Nt::Shader m_Shader;
 	Nt::Camera m_Camera;
@@ -260,13 +326,17 @@ private:
 	Nt::Keyboard m_Keyboard;
 	Nt::Mouse m_Mouse;
 
+	Nt::ComboBox m_ComboBoxView;
+	Nt::Button m_GridButton;
+	Nt::TextEdit m_GridTextEdit;
+
 	Game* m_pGame;
 	Selector m_Selector;
 	ObjectsTree* m_ObjectsTreePtr;
 	Scence* m_pScence;
 	Settings m_Settings;
 	Nt::String m_FilePath;
-	View m_Projection;
+	ViewMode m_Projection;
 	Float m_CameraSpeed;
 
 	Bool m_IsFly;
@@ -278,39 +348,40 @@ private:
 		m_Camera.SetPosition({ 0.f, -3.f, -5.f });
 		m_Camera.SetAngle({ -35.f, 0.f, 0.f });
 	}
-	void _Control(const Float& time) {
+
+	void _Control() {
 		m_Keyboard.Update();
 		m_Mouse.Update();
 		
-		const Bool isPressedControl = m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_CONTROL);
+		const Bool isPressedControl = m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_CONTROL, false);
 
 		if (m_Mouse.IsButtonPressed(Nt::Mouse::BUTTON_RIGHT, true))
 			ToggleFly();
 
 		if (m_IsFly) {
 			Nt::Float3D move;
-			if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_W)) {
-				move.x += sin(m_Camera.GetAngle().y * RAD);
-				move.z += cos(m_Camera.GetAngle().y * RAD);
+			if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_W, false)) {
+				move.x += sinf(m_Camera.GetAngle().y * RADf);
+				move.z += cosf(m_Camera.GetAngle().y * RADf);
 			}
-			else if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_S)) {
-				move.x -= sin(m_Camera.GetAngle().y * RAD);
-				move.z -= cos(m_Camera.GetAngle().y * RAD);
+			else if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_S, false)) {
+				move.x -= sinf(m_Camera.GetAngle().y * RADf);
+				move.z -= cosf(m_Camera.GetAngle().y * RADf);
 			}
 
-			if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_A)) {
-				move.x += sin((m_Camera.GetAngle().y + 90.f) * RAD);
-				move.z += cos((m_Camera.GetAngle().y + 90.f) * RAD);
+			if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_A, false)) {
+				move.x += sinf((m_Camera.GetAngle().y + 90.f) * RADf);
+				move.z += cosf((m_Camera.GetAngle().y + 90.f) * RADf);
 			}
-			else if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_D)) {
-				move.x += sin((m_Camera.GetAngle().y - 90.f) * RAD);
-				move.z += cos((m_Camera.GetAngle().y - 90.f) * RAD);
+			else if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_D, false)) {
+				move.x += sinf((m_Camera.GetAngle().y - 90.f) * RADf);
+				move.z += cosf((m_Camera.GetAngle().y - 90.f) * RADf);
 			}
 
 			if (!isPressedControl) {
-				if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_SPACE))
+				if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_SPACE, false))
 					move.y = -1.f;
-				else if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_SHIFT))
+				else if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_SHIFT, false))
 					move.y = 1.f;
 			}
 			m_Camera.Translate(move * m_CameraSpeed);
@@ -319,40 +390,14 @@ private:
 			const Nt::Float2D screenCenter = Nt::GetMonitorSize() / 2;
 			const Nt::Float2D angleRotation = -((cursorPosition - screenCenter) / 6.f);
 			m_Camera.Rotate({ angleRotation.y, angleRotation.x, 0.f });
-			SetCursorPos(screenCenter.x, screenCenter.y);
+			SetCursorPos(Int(screenCenter.x), Int(screenCenter.y));
 		}
-		else if (m_Mouse.IsButtonPressed(Nt::Mouse::BUTTON_LEFT, true)) {
-			Nt::Ray ray;
-			ray.Start = m_Camera.GetPosition();
-			ray.End = ray.Start;
+		else {
+			m_Selector.Control(&m_Window, m_Camera.GetPosition(), m_Camera.GetAngle(), m_Keyboard, m_Mouse);
 
-			Nt::Float2D cursorPosition = m_Window.ScreenToClient(m_Mouse.GetCursorPosition());
-			cursorPosition = cursorPosition * 2.f / m_Window.GetClientRect().RightBottom - 1.f;
-			if (abs(cursorPosition.x) <= 1.f && abs(cursorPosition.y) <= 1.f) {
-				ray.End.x += sin(m_Camera.GetAngle().y * RAD);
-				ray.End.y -= tan(m_Camera.GetAngle().x * RAD);
-				ray.End.z += cos(m_Camera.GetAngle().y * RAD);
-
-				ray.End.x += tan(-cursorPosition.x * m_Settings.Projection_FOV * RAD) * cos(m_Camera.GetAngle().y * RAD);
-				ray.End.y += tan(cursorPosition.y * m_Settings.Projection_FOV * RAD);
-				ray.End.z += tan(cursorPosition.x * m_Settings.Projection_FOV * RAD) * sin(m_Camera.GetAngle().y * RAD);
-
-				for (uInt i = 0; i < m_pScence->GetObjects().size(); ++i) {
-					Object* pObject = m_pScence->GetObjects()[i];
-					if (pObject == nullptr)
-						Raise("Object pointer is null.");
-					if (pObject->RayCastTest(ray)) {
-						if (isPressedControl)
-							m_Selector.AddSelect(pObject);
-						else
-							m_Selector.Select(pObject);
-						break;
-					}
-				}
-			}
+			if (isPressedControl && m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_J, true))
+				_CSG();
 		}
-
-		_SelectionMoving();
 
 		wChar className[12];
 		GetClassName(GetFocus(), className, 12);
@@ -381,38 +426,97 @@ private:
 			}
 		}
 	}
-	void _SelectionMoving() {
-		constexpr Float movingSpeed = 0.025f;
-		if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_CONTROL)) {
-			Nt::Float3D move;
-			if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_LEFT))
-				move.x -= movingSpeed;
-			else if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_RIGHT))
-				move.x += movingSpeed;
+	void _CSG() {
+		if (m_Selector.GetObjects().size() > 1) {
+			using Kernel = CGAL::Homogeneous<CGAL::Exact_integer>;
+			using NefPolyhedron = CGAL::Nef_polyhedron_3<Kernel>;
+			using Polyhedron = CGAL::Polyhedron_3<Kernel>;
+			using SurfaceMesh = CGAL::Surface_mesh<CGAL::Exact_predicates_exact_constructions_kernel::Point_3>;
 
-			if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_SPACE))
-				move.y += movingSpeed;
-			else if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_SHIFT))
-				move.y -= movingSpeed;
-			
-			if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_UP))
-				move.z -= movingSpeed;
-			else if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_DOWN))
-				move.z += movingSpeed;
+			/*NefPolyhedron nefOperationResult;
+			for (const Object* pObject : m_Selector.GetObjects()) {
+				if (pObject->GetModel().GetMeshPtr() == nullptr)
+					Raise("Model mesh pointer is null. Object name: " + pObject->GetName());
 
-			if (move != Nt::Float3D::Zero) {
-				for (Object* pObject : m_Selector.GetObjects())
-					pObject->Translate(move);
-			}
+				const Nt::Shape shape = pObject->GetModel().GetMeshPtr()->GetShape();
+
+				Nt::String stringData = "OFF\n";
+				stringData += Nt::String(shape.Vertices.size()) + ' ' + Nt::String(shape.Indices.size() / 3) + " 0\n";
+
+				for (const Nt::Vertex& vertex : shape.Vertices) {
+					stringData += Nt::String(vertex.Position.x) + ' ';
+					stringData += Nt::String(vertex.Position.y) + ' ';
+					stringData += Nt::String(vertex.Position.z) + '\n';
+				}
+				for (uInt i = 2; i < shape.Indices.size(); i += 3) {
+					stringData += "3  ";
+					stringData += Nt::String(shape.Indices[i - 2]) + ' ';
+					stringData += Nt::String(shape.Indices[i - 1]) + ' ';
+					stringData += Nt::String(shape.Indices[i - 0]) + '\n';
+				}
+
+				NefPolyhedron nefPolyhedron;
+				{
+					std::stringstream stream(stringData);
+					stream >> nefPolyhedron;
+				}
+
+				nefOperationResult += nefPolyhedron;
+			}*/
+
+			//SurfaceMesh surfaceMesh;
+			////CGAL::convert_nef_polyhedron_to_polygon_mesh(nefOperationResult, surfaceMesh);
+			//
+			//Nt::Shape newShape;
+			//for (const CGAL::SM_Vertex_index& cgalVertex : surfaceMesh.vertices()) {
+			//	const CGAL::Epeck::Point_3 point = surfaceMesh.point(cgalVertex);
+
+			//	Nt::Vertex ntVertex;
+			//	ntVertex.Position.x = (Float)CGAL::to_double(point.x());
+			//	ntVertex.Position.y = (Float)CGAL::to_double(point.y());
+			//	ntVertex.Position.z = (Float)CGAL::to_double(point.z());
+			//	newShape.Vertices.push_back(ntVertex);
+			//}
+
+			//for (const CGAL::SM_Face_index& face : surfaceMesh.faces()) {
+			//	for (const CGAL::SM_Vertex_index& vertex : surfaceMesh.vertices_around_face(surfaceMesh.halfedge(face)))
+			//		newShape.Indices.push_back(vertex.id());
+			//}
+
+			//Object* pNewObject = new Object(ObjectTypes::PRIMITIVE, m_Selector.GetObjects()[0]->GetName(), newShape);
+			//m_pScence->RemoveSelected(&m_Selector);
+			//m_pScence->AddObject(pNewObject);
+			//m_Selector.Select(pNewObject);
 		}
 	}
 	Long _Procedure(const uInt& uMsg, const DWord& param_1, const DWord& param_2) {
+		const uInt id = LOWORD(param_1);
+		const uInt command = HIWORD(param_1);
+
 		switch (uMsg) {
 		case WM_COMMAND:
-			switch (HIWORD(param_1)) {
+			switch (command) {
 			case CBN_SELCHANGE:
-				m_Projection = (View)ComboBox_GetCurSel(reinterpret_cast<HWND>(param_2));
-				_UpdateProjection();
+				switch (id) {
+				case CONTROL_COMBOBOX_PROJECTION:
+					m_Projection = (ViewMode)ComboBox_GetCurSel(reinterpret_cast<HWND>(param_2));
+					_UpdateProjection();
+					break;
+				}
+				break;
+			case EN_UPDATE:
+				switch (id) {
+				case CONTROL_TEXTEDIT_GRIDCELLSIZE:
+					m_Selector.SetGridCellSize(m_GridTextEdit.GetText());
+					break;
+				}
+				break;
+			case BN_CLICKED:
+				switch (id) {
+				case CONTROL_BUTTON_TOGGLEGRID:
+					m_Selector.ToggleSnapToGrid(m_GridButton.IsChecked());
+					break;
+				}
 				break;
 			}
 			break;
@@ -420,7 +524,7 @@ private:
 		return DefWindowProc(m_Window.GetHandle(), uMsg, param_1, param_2);
 	}
 	void _UpdateProjection() {
-		if (m_Projection == Engine::View::PERSPECTIVE) {
+		if (m_Projection == Engine::ViewMode::PERSPECTIVE) {
 			m_Window.SetPerspectiveProjection(
 				m_Settings.Projection_FOV,
 				m_Settings.Projection_Near,
@@ -430,32 +534,32 @@ private:
 		else {
 			Nt::Float3D cameraPorition = m_Camera.GetPosition();
 			switch (m_Projection) {
-			case Engine::View::TOP:
+			case Engine::ViewMode::TOP:
 				cameraPorition.y = -100.f;
 				m_OrthoCamera.SetPosition(cameraPorition);
 				m_OrthoCamera.SetAngle({ -90.f, 0.f, 0.f });
 				break;
-			case Engine::View::BOTTOM:
+			case Engine::ViewMode::BOTTOM:
 				cameraPorition.y = 100.f;
 				m_OrthoCamera.SetPosition(cameraPorition);
 				m_OrthoCamera.SetAngle({ 90.f, 0.f, 0.f });
 				break;
-			case Engine::View::LEFT:
+			case Engine::ViewMode::LEFT:
 				cameraPorition.x = -100.f;
 				m_OrthoCamera.SetPosition(cameraPorition);
 				m_OrthoCamera.SetAngle({ 0.f, 90.f, 0.f });
 				break;
-			case Engine::View::RIGHT:
+			case Engine::ViewMode::RIGHT:
 				cameraPorition.x = 100.f;
 				m_OrthoCamera.SetPosition(cameraPorition);
 				m_OrthoCamera.SetAngle({ 0.f, -90.f, 0.f });
 				break;
-			case Engine::View::BACK:
+			case Engine::ViewMode::BACK:
 				cameraPorition.z = -100.f;
 				m_OrthoCamera.SetPosition(cameraPorition);
 				m_OrthoCamera.SetAngle({ 0.f, 0.f, 0.f });
 				break;
-			case Engine::View::FORWARD:
+			case Engine::ViewMode::FORWARD:
 				cameraPorition.z = 100.f;
 				m_OrthoCamera.SetPosition(cameraPorition);
 				m_OrthoCamera.SetAngle({ 0.f, 180.f, 0.f });

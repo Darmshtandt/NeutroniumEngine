@@ -98,7 +98,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(NT_DIR)Lib\;$(NT_DIR)ExtLibs\;$(SolutionDir)Libraries\Lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Lua.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -171,7 +171,9 @@
     <ClInclude Include="Menu.h" />
     <ClInclude Include="ObjectsTree.h" />
     <ClInclude Include="Project.h" />
-    <ClInclude Include="ProjectMenager.h" />
+    <ClInclude Include="ProjectCreationPage.h" />
+    <ClInclude Include="ProjectMainPage.h" />
+    <ClInclude Include="ProjectManager.h" />
     <ClInclude Include="PropertyComponent.h" />
     <ClInclude Include="PropertyModel.h" />
     <ClInclude Include="PropertyPrimitive.h" />

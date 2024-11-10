@@ -16,11 +16,6 @@ public:
 
 		m_Model.SetMesh(doubleSideQuad);
 
-		if (g_TextureSoundIndex != uInt(-1))
-			m_Model.SetTexture(g_TextureSoundIndex);
-		else
-			Nt::Log::Warning("Texture sound index is -1.");
-
 		_UpdateColliders();
 		DisableCollider();
 	}

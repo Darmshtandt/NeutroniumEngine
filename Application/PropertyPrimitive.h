@@ -11,10 +11,20 @@ public:
 	const uInt ID = 7000;
 
 public:
-	PropertyPrimitive() = default;
+	struct LanguageData : Language::_PropertyWindow::_Primitive {
+		using ComponentName = Language::_PropertyWindow::_Component;
+
+		Nt::String WindowName;
+	};
+
+public:
+	PropertyPrimitive(Scence* pScence) {
+		SetScence(pScence);
+	}
 
 	void Initialize(const Settings& settings) override {
-		m_Language = settings.CurrentLanguage;
+		SetLanguage(settings.CurrentLanguage);
+
 		m_Style = settings.Styles;
 		m_PaddingRect = { 5, 5, 10, 10 };
 
@@ -22,7 +32,7 @@ public:
 		windowRect.Right = settings.PropertyWindowRect.Right;
 		windowRect.Bottom = 200;
 
-		Create(windowRect, m_Language.Window.PropertyComponent.PrimitiveWindow);
+		Create(windowRect, m_LanguageData.WindowName);
 		RemoveStyles(WS_OVERLAPPEDWINDOW);
 		AddStyles(WS_BORDER);
 		SetBackgroundColor(settings.Styles.Property.BackgroundColor);
@@ -47,7 +57,7 @@ public:
 		m_ButtonAdd.SetID(ID + BUTTON_INVISIBLE);
 		m_ButtonAdd.SetParent(*this);
 		m_ButtonAdd.AddStyles(BS_CHECKBOX | BS_AUTOCHECKBOX | WS_VISIBLE);
-		m_ButtonAdd.Create(buttonRect, m_Language.Window.PropertyPrimitive.Invisible);
+		m_ButtonAdd.Create(buttonRect, m_LanguageData.Texts[LanguageData::TEXT_INVISIBLE]);
 
 		windowRect.Bottom = buttonRect.Top;
 		windowRect.Bottom += m_PaddingRect.Bottom;
@@ -56,6 +66,7 @@ public:
 	void Update() override {
 		if (!IsEnabled())
 			return;
+
 		if (!m_SelectorPtr)
 			Raise("Selector pointer is nullptr");
 
@@ -68,8 +79,12 @@ public:
 		SetBackgroundColor(m_Style.Property.BackgroundColor);
 	}
 	void SetLanguage(const Language& language) override {
-		m_Language = language;
-		m_ButtonAdd.SetName(m_Language.Window.PropertyPrimitive.Invisible);
+		m_LanguageData = (LanguageData)language.PropertyWindow.Primitive;
+		m_LanguageData.WindowName =
+			language.PropertyWindow.Component.Texts[LanguageData::ComponentName::TEXT_PRIMITIVEWINDOW];
+		SetName(m_LanguageData.WindowName);
+
+		m_ButtonAdd.SetName(m_LanguageData.Texts[LanguageData::TEXT_INVISIBLE]);
 	}
 	void SetScence(Scence* pScence) {
 		if (pScence == nullptr)
@@ -78,16 +93,16 @@ public:
 	}
 
 private:
+	LanguageData m_LanguageData;
 	Scence* m_ScencePtr = nullptr;
 	Nt::Button m_ButtonAdd;
 	Nt::Button m_ButtonSplit;
 	Nt::Button m_ButtonInivisible;
 	Nt::IntRect m_PaddingRect;
-	Language m_Language;
 	Style m_Style;
 
 private:
-	void _WMCommand(const Long& param_1, const Long& param_2) override {
+	void _WMCommand(const Long& param_1, [[maybe_unused]] const Long& param_2) override {
 		const uInt id = LOWORD(param_1);
 		const uInt command = HIWORD(param_1);
 

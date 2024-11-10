@@ -35,44 +35,33 @@ public:
 	void Initialize(const Settings& settings, const Nt::String& rootPath, Selector* selectorPtr, Scence* pScence) {
 		if (!std::exists(std::path(rootPath)))
 			Raise("Root folder path is not valid.");
-		if (selectorPtr == nullptr)
+		else if (selectorPtr == nullptr)
 			Raise("Selector pointer is null.");
-		if (pScence == nullptr)
+		else if (pScence == nullptr)
 			Raise("Scence pointer is null.");
 		
-		Create(settings.PropertyWindowRect, settings.CurrentLanguage.Window.PropertyWindow);
+		Create(settings.PropertyWindowRect, settings.CurrentLanguage.Window.Texts[Language::_WindowNames::TEXT_PROPERTYWINDOW]);
 		RemoveStyles(WS_OVERLAPPEDWINDOW);
 		AddStyles(WS_DLGFRAME);
 		SetBackgroundColor(settings.Styles.Property.BackgroundColor);
 
-		PropertyScript* pPropertyScript = new PropertyScript;
-		pPropertyScript->SetScence(pScence);
-
-		PropertyPrimitive* pPropertyPrimitive = new PropertyPrimitive;
-		pPropertyPrimitive->SetScence(pScence);
-
 		m_Components.push_back(new PropertyTransform);
 		m_Components.push_back(new PropertyTexture);
-		m_Components.push_back(pPropertyScript);
+		m_Components.push_back(new PropertyScript(pScence));
 		m_Components.push_back(new PropertyRigidBody);
-		m_Components.push_back(pPropertyPrimitive);
+		m_Components.push_back(new PropertyPrimitive(pScence));
 		m_Components.push_back(new PropertySound);
 		m_Components.push_back(new PropertyModel);
 
 		m_SelectorPtr = selectorPtr;
 		m_RootPath = rootPath;
 
-		Int freeY = 0;
 		for (PropertyComponent* pComponent : m_Components) {
-			pComponent->SetPosition({ 0, freeY });
 			pComponent->Initialize(settings);
 			pComponent->SetParent(*this);
 			pComponent->SetRootPath(m_RootPath);
 			pComponent->SetSelector(m_SelectorPtr);
 			pComponent->Show();
-
-			const Nt::IntRect rect = pComponent->GetClientRect();
-			freeY = rect.Top + rect.Bottom;
 		}
 
 		m_IsInitialized = true;
@@ -157,7 +146,7 @@ public:
 				pComponent->SetPosition({ 0, freeY });
 				pComponent->Update();
 
-				const Nt::IntRect rect = pComponent->GetClientRect();
+				const Nt::IntRect rect = pComponent->GetWindowRect();
 				freeY += rect.Bottom;
 			}
 		}
@@ -176,9 +165,10 @@ public:
 		if (!m_IsInitialized)
 			Raise("PropertyWindow is not initialized");
 
+		SetName(language.Window.Texts[Language::_WindowNames::TEXT_PROPERTYWINDOW]);
 		for (PropertyComponent* pComponent : m_Components) {
 			pComponent->SetLanguage(language);
-			InvalidateRect(pComponent->GetHandle(), nullptr, TRUE);
+			pComponent->InvalidateRect(nullptr, true);
 		}
 	}
 
@@ -192,10 +182,4 @@ private:
 	Nt::String m_RootPath;
 	Selector* m_SelectorPtr;
 	Bool m_IsInitialized;
-
-private:
-	void _WMPaint(HDC& hdc, PAINTSTRUCT& paint) override {
-	}
-	void _WMCommand(const Long& param_1, const Long& param_2) override {
-	}
 };

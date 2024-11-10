@@ -6,16 +6,24 @@ class ObjectsTree : private Nt::Window {
 public:
 	ObjectsTree() = default;
 
-	void Initialize(const Settings& settings) {
+	void Initialize(const Settings& settings, const Nt::String& defaultInitialPath) {
 		RemoveStyles(WS_OVERLAPPEDWINDOW);
 		AddStyles(WS_DLGFRAME);
-		Create(settings.ObjectsTreeWindowRect, settings.CurrentLanguage.Window.ObjectsTreeWindow);
+		Create(settings.ObjectsTreeWindowRect, settings.CurrentLanguage.Window.Texts[Language::_WindowNames::TEXT_OBJECTSTREEWINDOW]);
 
 		m_TreeView.AddStyles(
 			TVS_SHOWSELALWAYS | TVS_LINESATROOT | TVS_EDITLABELS |
 			TVS_TRACKSELECT | TVS_HASBUTTONS);
 		m_TreeView.AddTreeExStyles(Nt::TreeView::EX_STYLE_MULTISELECT);
 		m_TreeView.SetParent(*this);
+		
+		m_ObjectIcon.LoadFromFile(defaultInitialPath + "Images\\Primitives.bmp");
+
+		static Nt::ImageList imageList;
+		imageList.Create(Nt::Int2D(16, 16), Nt::ImageList::CREATEFLAG_COLOR, 1, 0);
+		imageList.Add(&m_ObjectIcon);
+		
+		ImageList_SetBkColor(imageList.GetHandle(), CLR_NONE);
 
 		Nt::uIntRect treeViewRect;
 		treeViewRect.RightBottom = settings.ObjectsTreeWindowRect.RightBottom;
@@ -23,16 +31,18 @@ public:
 		m_TreeView.SetBackgroundColor(settings.Styles.ObjectsTree.BackgroundColor);
 		m_TreeView.SetTextColor(settings.Styles.ObjectsTree.TreeView.Text.Color);
 		//m_TreeView.SetTextWeight(settings.Styles.ObjectsTree.TreeView.Text.Weight);
+		m_TreeView.SetImageList(imageList, false);
 		m_TreeView.Show();
-
+		
 		SetProcedure(std::bind(&ObjectsTree::_Procedure, this, 
 			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	}
 
 	void Add(Object* pObject) {
 		Nt::TreeView::Item item = { };
+		item.ImageID = 1;
 		item.Mask = Nt::TreeView::Item::Masks(
-			Nt::TreeView::Item::MASK_TEXT | Nt::TreeView::Item::MASK_DATA);
+			Nt::TreeView::Item::MASK_IMAGE | Nt::TreeView::Item::MASK_TEXT | Nt::TreeView::Item::MASK_DATA);
 		item.Text = pObject->GetName();
 		item.Data = reinterpret_cast<Long>(pObject);
 		m_TreeView.Add(item);
@@ -72,7 +82,7 @@ public:
 		}
 	}
 	void SetLanguage(const Language& language) {
-		SetName(language.Window.ObjectsTreeWindow);
+		SetName(language.Window.Texts[Language::_WindowNames::TEXT_OBJECTSTREEWINDOW]);
 	}
 	void SetRect(const Nt::IntRect& rect) noexcept {
 		Window::SetWindowRect(rect);
@@ -87,6 +97,7 @@ public:
 
 private:
 	static WNDPROC m_BaseWndProc;
+	Nt::GDI::Bitmap m_ObjectIcon;
 	std::vector<Nt::TreeView::ItemID> m_SelectedTreeItems;
 	Selector* m_SelectorPtr = nullptr;
 	Nt::TreeView m_TreeView;
@@ -103,11 +114,17 @@ private:
 			{
 				if (m_SelectorPtr == nullptr)
 					break;
+
 				m_SelectorPtr->AllDeselect();
 				
 				Nt::TreeView::ItemID hSelectedItem = m_TreeView.GetSelection();
 				if (hSelectedItem == nullptr)
 					break;
+
+				if (m_SelectedTreeItems.size() == 1) {
+					if (m_SelectedTreeItems[0] == hSelectedItem)
+						break;
+				}
 
 				if (!(GetAsyncKeyState(VK_CONTROL) & 0x8000)) {
 					for (Nt::TreeView::ItemID& itemID : m_SelectedTreeItems)

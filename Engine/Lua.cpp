@@ -18,11 +18,11 @@
 
 namespace luabridge {
 	template<> 
-	struct Stack<Nt::Keyboard::Key> : EnumWrapper<Nt::Keyboard::Key> 
+	struct Stack<Nt::Keyboard::Key> : EnumWrapper<Nt::Keyboard::Key>
 	{
 	};
-	template<> 
-	struct Stack<Nt::Mouse::Button> : EnumWrapper<Nt::Mouse::Button> 
+	template<>
+	struct Stack<Nt::Mouse::Button> : EnumWrapper<Nt::Mouse::Button>
 	{
 	};
 }
@@ -128,6 +128,10 @@ void AddVectorToLua(Lua* pLua, const std::string& className) {
 void Lua::Initialize(Scence* pScence) {
 	if (pScence == nullptr)
 		Raise("Scence pointer is null");
+	if (m_pState != nullptr) {
+		m_IsInitialized = true;
+		return;
+	}
 
 	m_ScencePtr = pScence;
 	m_pState = luaL_newstate();
@@ -146,6 +150,7 @@ void Lua::Initialize(Scence* pScence) {
 			Float(Nt::String::*)() const>(&Nt::String::operator Float))
 		.addFunction("ToDouble", static_cast<
 			Double(Nt::String::*)() const>(&Nt::String::operator Double))
+		.addFunction("c_str", &Nt::String::c_str)
 		.endClass();
 
 	AddVectorToLua<Nt::Float2D, Float>(this, "Float2D");
@@ -162,7 +167,7 @@ void Lua::Initialize(Scence* pScence) {
 	AddVectorToLua<Nt::Double4D, Double>(this, "Double4D");
 	AddVectorToLua<Nt::uInt4D, uInt>(this, "uInt4D");
 	AddVectorToLua<Nt::Int4D, Int>(this, "Int4D");
-	
+
 	const cString keysSymbols = "0123456789QWERTYUIOPASDFGHJKLZXCVBNM";
 	const uInt symbolCount = strlen(keysSymbols);
 	Char keyName[3] = "_0";
@@ -248,7 +253,7 @@ void Lua::Initialize(Scence* pScence) {
 		.addConstructor<void(*)(const ObjectTypes&, const std::string&)>()
 		.addFunction("Translate", &Object::Translate)
 		.addFunction("Rotate", &Object::Rotate)
-		.addFunction("Resize", &Object::Resize)
+		.addFunction("Scale", &Object::Scale)
 
 		.addFunction("CheckCollision", &Object::CheckCollision)
 		.addFunction("AddForce", &Object::AddForce)
@@ -312,6 +317,9 @@ void Lua::Initialize(Scence* pScence) {
 		.addFunction("Stop", &GameSound::Stop)
 		.addFunction<void (GameSound::*)(const Bool&)>("ToggleLooping", &GameSound::ToggleLooping)
 		.addFunction("SetPosition", &GameSound::SetPosition)
+		.endClass()
+		.deriveClass<GameModel, Entity>("Camera")
+		.addConstructor<void(*)(const Nt::String&)>()
 		.endClass();
 
 	GetGlobalNamespace()

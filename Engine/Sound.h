@@ -35,7 +35,8 @@ namespace Nt {
 			m_RolloffFactor(sound.m_RolloffFactor),
 			m_ReferenceDistance(sound.m_ReferenceDistance),
 			m_MaxDistance(sound.m_MaxDistance),
-			m_IsPlaying(sound.m_IsPlaying)
+			m_IsPlaying(sound.m_IsPlaying),
+			m_IsLooping(sound.m_IsLooping)
 		{
 		}
 		~Sound() {
@@ -167,7 +168,7 @@ namespace Nt {
 			m_Wave.LoadFromFile(GetFilePath());
 
 			ALenum format = -1;
-			Bool isStereo = (m_Wave.GetHeader().NumChannels > 1);
+			const Bool isStereo = (m_Wave.GetHeader().NumChannels > 1);
 			switch (m_Wave.GetHeader().BitsPerSample) {
 			case 8:
 				format = (isStereo) ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8;

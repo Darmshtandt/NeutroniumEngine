@@ -4,7 +4,11 @@ struct PropertyComponent : protected Nt::Window {
 	PropertyComponent() noexcept :
 		m_SelectorPtr(nullptr),
 		m_IsEnabled(true)
-	{ }
+	{ 
+	}
+	__inline virtual ~PropertyComponent()
+	{
+	}
 
 	virtual void Initialize(const Settings& settings) = 0;
 	virtual void Update() = 0;
@@ -44,6 +48,7 @@ public:
 	using Window::Show;
 	using Window::Hide;
 	using Window::PopEvent;
+	using Window::InvalidateRect;
 	using Window::GetHandle;
 	using Window::GetParent;
 	using Window::GetClientRect;

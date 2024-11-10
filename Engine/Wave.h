@@ -42,10 +42,7 @@ namespace Nt {
 			m_FilePath = filePath;
 			std::ifstream file(m_FilePath, std::ios::in | std::ios::binary);
 			if (file.is_open()) {
-				file.seekg(0, std::ifstream::_Seekend);
-				const Int fileSize = file.tellg();
 				file.seekg(0, std::ifstream::_Seekbeg);
-
 				file.read(reinterpret_cast<Char*>(&m_Header), sizeof(_Header));
 
 				if (memcmp(m_Header.Chunk.ID, "RIFF", 4) != 0)

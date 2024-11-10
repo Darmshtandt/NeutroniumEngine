@@ -1,73 +1,65 @@
 #pragma once
 
+class Scence;
+
 class Selector {
 public:
-	Selector() : m_IsChanged(true)
+	enum class SelectedAxis {
+		NONE, X, Y, Z
+	};
+	enum TransformationMode {
+		MODE_TRANSLATE,
+		MODE_SCALE,
+	};
+
+public:
+	Selector() : 
+		m_AxisObject(ObjectTypes::NONE, "Axis"),
+		m_SelectedAxis(SelectedAxis::NONE),
+		m_TransformationMode(MODE_TRANSLATE),
+		m_GridCellSize(1.f),
+		m_IsSnapToGrid(false),
+		m_IsChanged(true)
 	{ 
 	}
 
-	void AddSelect(Object* pObject) {
-		if (pObject) {
-			m_IsChanged = true;
-			auto it = std::find(m_Objects.begin(), m_Objects.end(), pObject);
-			if (it != m_Objects.end()) {
-				pObject->DisableSelectionColor();
-				m_Objects.erase(it);
-			}
-			else {
-				pObject->EnableSelectionColor();
-				m_Objects.push_back(pObject);
-			}
-		}
-		else {
-			ERROR_MSG(L"Selector::AddSelect: Object is nullptr.", L"Error");
-		}
-	} 
-	void Select(Object* pObject) {
-		const Bool isObjectSelected = pObject->IsSelected();
-		const uInt objectCount = m_Objects.size();
+	void Initialize(Scence* pScence, const Nt::String& defaultInitialPath);
 
-		AllDeselect();
-		if ((!isObjectSelected) || objectCount > 1)
-			AddSelect(pObject);
-	}
-	void Deselect(Object* pObject) {
-		auto objectIterator = 
-			std::find(m_Objects.begin(), m_Objects.end(), pObject);
-		if (objectIterator != m_Objects.end()) {
-			m_IsChanged = true;
-			(*objectIterator)->DisableSelectionColor();
-			m_Objects.erase(objectIterator);
-		}
-		else {
-			Nt::Log::Warning(L"This object is not selected.");
-		}
-	}
-	void AllDeselect() {
-		m_IsChanged = true;
-		while (m_Objects.size() > 0) {
-			m_Objects[0]->DisableSelectionColor();
-			m_Objects.erase(m_Objects.begin());
-		}
-	}
+	void Control(const Nt::RenderWindow* pWindow, const Nt::Float3D& cameraPosition, const Nt::Float3D& cameraAngle, Nt::Keyboard& keyboard, Nt::Mouse& mouse);
 
+	void Update(const Nt::Float3D& cameraPosition);
+	void Render(Nt::RenderWindow* pWindow);
 
-	void UnmarkChanged() noexcept {
-		m_IsChanged = false;
-	}
+	void AddSelect(Object* pObject);
+	void Select(Object* pObject);
+	void Deselect(Object* pObject);
+	void AllDeselect();
 
-	const ObjectContainer& GetObjects() const noexcept {
-		return m_Objects;
-	}
-	Bool IsContained(const Object* pObject) const {
-		auto iterator = std::find(m_Objects.begin(), m_Objects.end(), pObject);
-		return (iterator != m_Objects.end());
-	}
-	Bool IsChanged() const noexcept {
-		return m_IsChanged;
-	}
+	void ToggleSnapToGrid(const Bool& isSnapToGrid) noexcept;
+	void ToggleSnapToGrid() noexcept;
+
+	void UnmarkChanged() noexcept;
+
+	const ObjectContainer& GetObjects() const noexcept;
+	Bool IsContained(const Object* pObject) const;
+	Bool IsChanged() const noexcept;
+
+	void SetGridCellSize(const Float& gridCellSize) noexcept;
+	void SetTransformationMode(const TransformationMode& mode) noexcept;
 
 private:
-	ObjectContainer m_Objects;
+	Scence* m_ScencePtr;
+	ObjectContainer m_SelectedObjects;
+	Object m_AxisObject;
+	Nt::Model m_AxisModel;
+	Nt::Model m_AxisScaleModel;
+	Nt::Float2D m_StartMovingCursor;
+	Nt::Float3D m_TotalMovingOffset;
+
+	TransformationMode m_TransformationMode;
+	SelectedAxis m_SelectedAxis;
+
+	Float m_GridCellSize;
+	Bool m_IsSnapToGrid;
 	Bool m_IsChanged;
 };

@@ -30,7 +30,8 @@ public:
 		m_IsInitialized(false),
 		m_IsTestGame(false),
 		m_IsLaunched(false)
-	{ }
+	{ 
+	}
 	~Game() {
 		alcMakeContextCurrent(nullptr);
 		alcDestroyContext(m_pAlContext);
@@ -108,14 +109,23 @@ public:
 		m_IsLaunched = true;
 
 		m_IsThreadTerminated = false;
-		m_Thread = std::thread([&]() {
-			while (m_IsLaunched) {
-				m_pGameScence->Update(m_pWindow->GetFPS() / 1000.f);
-				Sleep(1);
-			}
-			m_IsThreadTerminated = true;
-			});
-		m_Thread.detach();
+		//m_Thread = std::thread([&]() {
+		//	Nt::Timer loopTimeStamp;
+		//	Float deltaTime = 0;
+		//	while (m_IsLaunched) {
+		//		loopTimeStamp.Restart();
+		//		m_pGameScence->Update(deltaTime);
+		//		deltaTime = Float(loopTimeStamp.GetElapsedTimeMs()) / 1000.f;
+
+		//		Int delay = (1000 / m_pWindow->GetFPSLimit()) - loopTimeStamp.GetElapsedTimeMs();
+		//		if (delay < 0)
+		//			delay = 1;
+
+		//		Sleep(delay);
+		//	}
+		//	m_IsThreadTerminated = true;
+		//	});
+		//m_Thread.detach();
 
 		return true;
 	}
@@ -124,18 +134,19 @@ public:
 	void Update(const Float& time) {
 		if (!m_IsInitialized)
 			Raise("Game not initialized");
-		
-		//m_pGameScence->Update(time);
+
+		m_pGameScence->Update(time);
 		m_pWindow->Update();
+
 		if (m_CameraPtr) {
 			alListener3f(AL_POSITION, m_CameraPtr->GetPosition().x, m_CameraPtr->GetPosition().y, m_CameraPtr->GetPosition().z);
 			Nt::CheckAlErrors("Failed to change listener position.");
 
 			Nt::Float3D up;
 			Nt::Float3D forward;
-			forward.x = sin(m_CameraPtr->GetAngle().x * RAD);
-			forward.y = tan(m_CameraPtr->GetAngle().y * RAD);
-			forward.z = cos(m_CameraPtr->GetAngle().z * RAD);
+			forward.x = sinf(m_CameraPtr->GetAngle().x * RADf);
+			forward.y = tanf(m_CameraPtr->GetAngle().y * RADf);
+			forward.z = cosf(m_CameraPtr->GetAngle().z * RADf);
 			forward = forward.GetNormalize();
 
 			Nt::Float3D values[2] = { up, forward };
@@ -218,6 +229,7 @@ private:
 		catch (const Nt::Error& error) {
 			error.Show();
 		}
+
 		m_CameraPtr = nullptr;
 		m_pWindow->SetCurrentCamera(&m_DefaultCamera);
 	}

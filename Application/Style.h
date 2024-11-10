@@ -2,12 +2,12 @@
 
 struct Style {
 	struct Text {
-		Nt::uInt3D Color = { 0, 0, 0 };
+		Nt::Byte3D Color = { 0, 0, 0 };
 		uInt Weight = 400;
 	};
 	struct Handle {
-		Nt::uInt3D BackgroundColor = { 255, 255, 255 };
-		Nt::uInt3D BorderColor = { 128, 128, 128 };
+		Nt::Byte3D BackgroundColor = { 255, 255, 255 };
+		Nt::Byte3D BorderColor = { 128, 128, 128 };
 	};
 	struct HandleElement : public Handle {
 		Text Text;
@@ -30,7 +30,7 @@ struct Style {
 		HandleElement TextEdits;
 		Text Texts;
 	};
-	struct ProjectMenagerWindow : public Handle {
+	struct ProjectManagerWindow : public Handle {
 		Handle ActionWindow;
 		Handle CreationWindow;
 		Handle ProjectList;
@@ -72,21 +72,21 @@ struct Style {
 		FileExplorer.TextEdits.Text.Color = { 42, 161, 152 };
 		FileExplorer.TextEdits.Text.Weight = 700;
 
-		ProjectMenager.BackgroundColor = { 0, 43, 54 };
-		ProjectMenager.BorderColor = { 45, 38, 91 };
+		ProjectManager.BackgroundColor = { 0, 43, 54 };
+		ProjectManager.BorderColor = { 45, 38, 91 };
 
-		ProjectMenager.ProjectList.BackgroundColor = { 0, 21, 27 };
-		ProjectMenager.ProjectList.BorderColor = { 45, 38, 91 };
-		ProjectMenager.ActionWindow.BackgroundColor = { 0, 83, 108 };
-		ProjectMenager.ActionWindow.BorderColor = { 45, 38, 91 };
-		ProjectMenager.CreationWindow.BackgroundColor = { 0, 83, 108 };
-		ProjectMenager.CreationWindow.BorderColor = { 45, 38, 91 };
-		ProjectMenager.Buttons.BackgroundColor = { 0, 83, 108 };
-		ProjectMenager.Buttons.BorderColor = { 45, 38, 91 };
-		ProjectMenager.Headers.Color = { 42, 161, 152 };
-		ProjectMenager.Headers.Weight = 600;
-		ProjectMenager.Texts.Color = { 131, 148, 150 };
-		ProjectMenager.Texts.Weight = 100;
+		ProjectManager.ProjectList.BackgroundColor = { 0, 21, 27 };
+		ProjectManager.ProjectList.BorderColor = { 45, 38, 91 };
+		ProjectManager.ActionWindow.BackgroundColor = { 0, 83, 108 };
+		ProjectManager.ActionWindow.BorderColor = { 45, 38, 91 };
+		ProjectManager.CreationWindow.BackgroundColor = { 0, 83, 108 };
+		ProjectManager.CreationWindow.BorderColor = { 45, 38, 91 };
+		ProjectManager.Buttons.BackgroundColor = { 0, 83, 108 };
+		ProjectManager.Buttons.BorderColor = { 45, 38, 91 };
+		ProjectManager.Headers.Color = { 42, 161, 152 };
+		ProjectManager.Headers.Weight = 600;
+		ProjectManager.Texts.Color = { 131, 148, 150 };
+		ProjectManager.Texts.Weight = 100;
 	}
 
 	void Load(const std::string& filePath) {
@@ -143,21 +143,21 @@ struct Style {
 		FileExplorer.TextEdits.Text.Color = { 42, 152, 161 };
 		FileExplorer.TextEdits.Text.Weight = 700;
 
-		ProjectMenager.BackgroundColor = { 0, 54, 43 };
-		ProjectMenager.BorderColor = { 45, 91, 38 };
+		ProjectManager.BackgroundColor = { 0, 54, 43 };
+		ProjectManager.BorderColor = { 45, 91, 38 };
 
-		ProjectMenager.ProjectList.BackgroundColor = { 0, 27, 21 };
-		ProjectMenager.ProjectList.BorderColor = { 45, 91, 38 };
-		ProjectMenager.ActionWindow.BackgroundColor = { 0, 108, 83 };
-		ProjectMenager.ActionWindow.BorderColor = { 45, 91, 38 };
-		ProjectMenager.CreationWindow.BackgroundColor = { 0, 108, 83 };
-		ProjectMenager.CreationWindow.BorderColor = { 45, 91, 38 };
-		ProjectMenager.Buttons.BackgroundColor = { 0, 108, 83 };
-		ProjectMenager.Buttons.BorderColor = { 45, 91, 38 };
-		ProjectMenager.Headers.Color = { 42, 152, 161 };
-		ProjectMenager.Headers.Weight = 600;
-		ProjectMenager.Texts.Color = { 131, 150, 148 };
-		ProjectMenager.Texts.Weight = 100;
+		ProjectManager.ProjectList.BackgroundColor = { 0, 27, 21 };
+		ProjectManager.ProjectList.BorderColor = { 45, 91, 38 };
+		ProjectManager.ActionWindow.BackgroundColor = { 0, 108, 83 };
+		ProjectManager.ActionWindow.BorderColor = { 45, 91, 38 };
+		ProjectManager.CreationWindow.BackgroundColor = { 0, 108, 83 };
+		ProjectManager.CreationWindow.BorderColor = { 45, 91, 38 };
+		ProjectManager.Buttons.BackgroundColor = { 0, 108, 83 };
+		ProjectManager.Buttons.BorderColor = { 45, 91, 38 };
+		ProjectManager.Headers.Color = { 42, 152, 161 };
+		ProjectManager.Headers.Weight = 600;
+		ProjectManager.Texts.Color = { 131, 150, 148 };
+		ProjectManager.Texts.Weight = 100;
 	}
 	void SetSolarizedRedDarkTheme() {
 		Main.BackgroundColor = { 18, 1, 14 };
@@ -191,21 +191,21 @@ struct Style {
 		FileExplorer.TextEdits.Text.Color = { 152, 42, 161 };
 		FileExplorer.TextEdits.Text.Weight = 700;
 
-		ProjectMenager.BackgroundColor = { 54, 0, 43 };
-		ProjectMenager.BorderColor = { 91, 45, 38 };
+		ProjectManager.BackgroundColor = { 54, 0, 43 };
+		ProjectManager.BorderColor = { 91, 45, 38 };
 
-		ProjectMenager.ProjectList.BackgroundColor = { 27, 0, 21 };
-		ProjectMenager.ProjectList.BorderColor = { 91, 45, 38 };
-		ProjectMenager.ActionWindow.BackgroundColor = { 108, 0, 83 };
-		ProjectMenager.ActionWindow.BorderColor = { 91, 45, 38 };
-		ProjectMenager.CreationWindow.BackgroundColor = { 108, 0, 83 };
-		ProjectMenager.CreationWindow.BorderColor = { 91, 45, 38 };
-		ProjectMenager.Buttons.BackgroundColor = { 108, 0, 83 };
-		ProjectMenager.Buttons.BorderColor = { 91, 45, 38 };
-		ProjectMenager.Headers.Color = { 152, 42, 161 };
-		ProjectMenager.Headers.Weight = 600;
-		ProjectMenager.Texts.Color = { 150, 131, 148 };
-		ProjectMenager.Texts.Weight = 100;
+		ProjectManager.ProjectList.BackgroundColor = { 27, 0, 21 };
+		ProjectManager.ProjectList.BorderColor = { 91, 45, 38 };
+		ProjectManager.ActionWindow.BackgroundColor = { 108, 0, 83 };
+		ProjectManager.ActionWindow.BorderColor = { 91, 45, 38 };
+		ProjectManager.CreationWindow.BackgroundColor = { 108, 0, 83 };
+		ProjectManager.CreationWindow.BorderColor = { 91, 45, 38 };
+		ProjectManager.Buttons.BackgroundColor = { 108, 0, 83 };
+		ProjectManager.Buttons.BorderColor = { 91, 45, 38 };
+		ProjectManager.Headers.Color = { 152, 42, 161 };
+		ProjectManager.Headers.Weight = 600;
+		ProjectManager.Texts.Color = { 150, 131, 148 };
+		ProjectManager.Texts.Weight = 100;
 	}
 	void SetWhite() {
 		Main.BackgroundColor = { 255, 255, 255 };
@@ -239,21 +239,21 @@ struct Style {
 		FileExplorer.TextEdits.Text.Color = { 42, 161, 152 };
 		FileExplorer.TextEdits.Text.Weight = 700;
 
-		ProjectMenager.BackgroundColor = { 255, 255, 255 };
-		ProjectMenager.BorderColor = { 196, 196, 196 };
+		ProjectManager.BackgroundColor = { 255, 255, 255 };
+		ProjectManager.BorderColor = { 196, 196, 196 };
 
-		ProjectMenager.ProjectList.BackgroundColor = { 255, 255, 255 };
-		ProjectMenager.ProjectList.BorderColor = { 196, 196, 196 };
-		ProjectMenager.ActionWindow.BackgroundColor = { 255, 255, 255 };
-		ProjectMenager.ActionWindow.BorderColor = { 196, 196, 196 };
-		ProjectMenager.CreationWindow.BackgroundColor = { 255, 255, 255 };
-		ProjectMenager.CreationWindow.BorderColor = { 196, 196, 196 };
-		ProjectMenager.Buttons.BackgroundColor = { 255, 255, 255 };
-		ProjectMenager.Buttons.BorderColor = { 196, 196, 196 };
-		ProjectMenager.Headers.Color = { 42, 161, 152 };
-		ProjectMenager.Headers.Weight = 600;
-		ProjectMenager.Texts.Color = { 131, 148, 150 };
-		ProjectMenager.Texts.Weight = 100;
+		ProjectManager.ProjectList.BackgroundColor = { 255, 255, 255 };
+		ProjectManager.ProjectList.BorderColor = { 196, 196, 196 };
+		ProjectManager.ActionWindow.BackgroundColor = { 255, 255, 255 };
+		ProjectManager.ActionWindow.BorderColor = { 196, 196, 196 };
+		ProjectManager.CreationWindow.BackgroundColor = { 255, 255, 255 };
+		ProjectManager.CreationWindow.BorderColor = { 196, 196, 196 };
+		ProjectManager.Buttons.BackgroundColor = { 255, 255, 255 };
+		ProjectManager.Buttons.BorderColor = { 196, 196, 196 };
+		ProjectManager.Headers.Color = { 42, 161, 152 };
+		ProjectManager.Headers.Weight = 600;
+		ProjectManager.Texts.Color = { 131, 148, 150 };
+		ProjectManager.Texts.Weight = 100;
 	}
 	void SetDark() {
 		Main.BackgroundColor = { 128, 128, 128 };
@@ -287,21 +287,21 @@ struct Style {
 		FileExplorer.TextEdits.Text.Color = { 42, 161, 152 };
 		FileExplorer.TextEdits.Text.Weight = 700;
 
-		ProjectMenager.BackgroundColor = { 128, 128, 128 };
-		ProjectMenager.BorderColor = { 200, 200, 200 };
+		ProjectManager.BackgroundColor = { 128, 128, 128 };
+		ProjectManager.BorderColor = { 200, 200, 200 };
 
-		ProjectMenager.ProjectList.BackgroundColor = { 128, 128, 128 };
-		ProjectMenager.ProjectList.BorderColor = { 200, 200, 200 };
-		ProjectMenager.ActionWindow.BackgroundColor = { 128, 128, 128 };
-		ProjectMenager.ActionWindow.BorderColor = { 200, 200, 200 };
-		ProjectMenager.CreationWindow.BackgroundColor = { 128, 128, 128 };
-		ProjectMenager.CreationWindow.BorderColor = { 200, 200, 200 };
-		ProjectMenager.Buttons.BackgroundColor = { 128, 128, 128 };
-		ProjectMenager.Buttons.BorderColor = { 200, 200, 200 };
-		ProjectMenager.Headers.Color = { 42, 161, 152 };
-		ProjectMenager.Headers.Weight = 600;
-		ProjectMenager.Texts.Color = { 131, 148, 150 };
-		ProjectMenager.Texts.Weight = 100;
+		ProjectManager.ProjectList.BackgroundColor = { 128, 128, 128 };
+		ProjectManager.ProjectList.BorderColor = { 200, 200, 200 };
+		ProjectManager.ActionWindow.BackgroundColor = { 128, 128, 128 };
+		ProjectManager.ActionWindow.BorderColor = { 200, 200, 200 };
+		ProjectManager.CreationWindow.BackgroundColor = { 128, 128, 128 };
+		ProjectManager.CreationWindow.BorderColor = { 200, 200, 200 };
+		ProjectManager.Buttons.BackgroundColor = { 128, 128, 128 };
+		ProjectManager.Buttons.BorderColor = { 200, 200, 200 };
+		ProjectManager.Headers.Color = { 42, 161, 152 };
+		ProjectManager.Headers.Weight = 600;
+		ProjectManager.Texts.Color = { 131, 148, 150 };
+		ProjectManager.Texts.Weight = 100;
 	}
 	void SetBlack() {
 		Main.BackgroundColor = { 0, 0, 0 };
@@ -335,21 +335,21 @@ struct Style {
 		FileExplorer.TextEdits.Text.Color = { 42, 161, 152 };
 		FileExplorer.TextEdits.Text.Weight = 700;
 
-		ProjectMenager.BackgroundColor = { 0, 0, 0 };
-		ProjectMenager.BorderColor = { 128, 128, 128 };
+		ProjectManager.BackgroundColor = { 0, 0, 0 };
+		ProjectManager.BorderColor = { 128, 128, 128 };
 
-		ProjectMenager.ProjectList.BackgroundColor = { 0, 0, 0 };
-		ProjectMenager.ProjectList.BorderColor = { 128, 128, 128 };
-		ProjectMenager.ActionWindow.BackgroundColor = { 0, 0, 0 };
-		ProjectMenager.ActionWindow.BorderColor = { 128, 128, 128 };
-		ProjectMenager.CreationWindow.BackgroundColor = { 0, 0, 0 };
-		ProjectMenager.CreationWindow.BorderColor = { 128, 128, 128 };
-		ProjectMenager.Buttons.BackgroundColor = { 0, 0, 0 };
-		ProjectMenager.Buttons.BorderColor = { 128, 128, 128 };
-		ProjectMenager.Headers.Color = { 42, 161, 152 };
-		ProjectMenager.Headers.Weight = 600;
-		ProjectMenager.Texts.Color = { 131, 148, 150 };
-		ProjectMenager.Texts.Weight = 100;
+		ProjectManager.ProjectList.BackgroundColor = { 0, 0, 0 };
+		ProjectManager.ProjectList.BorderColor = { 128, 128, 128 };
+		ProjectManager.ActionWindow.BackgroundColor = { 0, 0, 0 };
+		ProjectManager.ActionWindow.BorderColor = { 128, 128, 128 };
+		ProjectManager.CreationWindow.BackgroundColor = { 0, 0, 0 };
+		ProjectManager.CreationWindow.BorderColor = { 128, 128, 128 };
+		ProjectManager.Buttons.BackgroundColor = { 0, 0, 0 };
+		ProjectManager.Buttons.BorderColor = { 128, 128, 128 };
+		ProjectManager.Headers.Color = { 42, 161, 152 };
+		ProjectManager.Headers.Weight = 600;
+		ProjectManager.Texts.Color = { 131, 148, 150 };
+		ProjectManager.Texts.Weight = 100;
 	}
 
 	MainWindow Main;
@@ -357,5 +357,5 @@ struct Style {
 	EngineWindow Engine;
 	PropertyWindow Property;
 	FileExplorerWindow FileExplorer;
-	ProjectMenagerWindow ProjectMenager;
+	ProjectManagerWindow ProjectManager;
 };

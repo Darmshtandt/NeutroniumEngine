@@ -12,6 +12,7 @@
 #include <GameCamera.h>
 #include <GameSound.h>
 #include <GameModel.h>
+#include <Grid.h>
 #include <Selector.h>
 #include <ObjectsTree.h>
 #include <Scence.h>
@@ -19,7 +20,9 @@
 
 #include <FileExplorer.h>
 #include <Project.h>
-#include <ProjectMenager.h>
+#include <ProjectMainPage.h>
+#include <ProjectCreationPage.h>
+#include <ProjectManager.h>
 
 #include <Game.h>
 #include <Engine.h>
@@ -28,17 +31,18 @@
 
 #pragma comment(lib, "Comctl32")
 
+
 int main() {
 	try {
 		Settings settings;
 		settings.Load();
 
-		ProjectMenager projectMenager;
-		projectMenager.Initialize(settings);
-		projectMenager.Run();
+		ProjectManager projectManager;
+		projectManager.Initialize(settings);
+		projectManager.Run();
 
-		if (projectMenager.GetProjectPtr() != nullptr) {
-			Application neutroniumEngine(&projectMenager);
+		if (projectManager.GetProjectPtr() != nullptr) {
+			Application neutroniumEngine(&projectManager);
 			neutroniumEngine.Initialize(settings);
 			neutroniumEngine.Run();
 		}

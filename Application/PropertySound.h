@@ -1,14 +1,14 @@
-#pragma once
+﻿#pragma once
 
 class PropertySound : public PropertyComponent {
 public:
-	enum {
+	enum Buttons {
 		BUTTON_BROWSE,
 		BUTTON_REMOVE,
 		BUTTON_PLAY_AT_START,
 		BUTTON_TOGGLE_LOOPINT,
 	};
-	enum {
+	enum TextEdits {
 		TEXTEDIT_FIRST = 5000,
 		TEXTEDIT_SOUND_PATH = TEXTEDIT_FIRST,
 		TEXTEDIT_ROLLOFF_FACTOR,
@@ -19,109 +19,132 @@ public:
 	};
 
 public:
-	PropertySound() = default;
+	struct LanguageData : Language::_PropertyWindow::_Sound {
+		using ComponentName = Language::_PropertyWindow::_Component;
+
+		Nt::String WindowName;
+	};
+
+public:
+	PropertySound() :
+		m_ContentLayout(3),
+		m_ParametersLayout({ 2, 5 }),
+		m_SoundPathLayout(2),
+		m_SoundPlayerLayout(2),
+		m_Texts(LanguageData::TEXT_COUNT),
+		m_TextEdits(TEXTEDIT_COUNT - TEXTEDIT_FIRST)
+	{
+	}
 
 	void Initialize(const Settings& settings) {
-		m_Language = settings.CurrentLanguage;
+		SetLanguage(settings.CurrentLanguage);
 		m_Style = settings.Styles;
-		m_Padding = { 10, 10, 20, 10 };
+
+		constexpr Nt::IntRect contentPadding = { 10, 10, 10, 10 };
+		constexpr Nt::IntRect parametersPadding = { 0, 0, 0, 10 };
+		const Int cellsHeight = Nt::TextEdit::DefaultSize.y;
 
 		Nt::IntRect windowRect;
 		windowRect.LeftTop = m_ClientRect.LeftTop;
 		windowRect.Right = settings.PropertyWindowRect.Right;
+		windowRect.Bottom = (contentPadding.Top + contentPadding.Bottom) + (parametersPadding.Top + parametersPadding.Bottom);
+		windowRect.Bottom += cellsHeight * (LanguageData::TEXT_COUNT + 2);
 
-		Create(windowRect, m_Language.Window.PropertyComponent.SoundWindow);
+		Create(windowRect, m_LanguageData.WindowName);
 		RemoveStyles(WS_OVERLAPPEDWINDOW);
 		AddStyles(WS_BORDER);
 		SetBackgroundColor(m_Style.Property.BackgroundColor);
 
-		m_Texts.resize(TEXTEDIT_COUNT - TEXTEDIT_FIRST);
-		m_TextEdits.resize(TEXTEDIT_COUNT - TEXTEDIT_FIRST);
-
-		std::wstring texts[] = {
-			m_Language.Window.PropertySound.Sound,
-			m_Language.Window.PropertySound.RolloffFactor,
-			m_Language.Window.PropertySound.ReferenceDistance,
-			m_Language.Window.PropertySound.MaxDistance,
-			m_Language.Window.PropertySound.Gain,
+		const Nt::IntRect contentLayoutRect = {
+			windowRect.Left,
+			windowRect.Top,
+			windowRect.Right - GetSystemMetrics(SM_CXBORDER) - GetSystemMetrics(SM_CXDLGFRAME) * 2,
+			windowRect.Bottom - GetSystemMetrics(SM_CYBORDER) * 2
 		};
 
+		m_ContentLayout.SetParent(*this);
+		m_ContentLayout.SetBackgroundColor(m_Style.Property.BackgroundColor);
+		m_ContentLayout.TogleVertical(true);
+		m_ContentLayout.RemoveStyles(WS_OVERLAPPEDWINDOW);
+		m_ContentLayout.Create(contentLayoutRect, "Sound-content-layout");
+		m_ContentLayout.SetPadding(contentPadding, Nt::UnitType::UNIT_PIXEL);
+		m_ContentLayout.SetCellSize(2, Float(cellsHeight), Nt::UnitType::UNIT_PIXEL);
+		{
+			const Nt::Int firstCellSize = m_ContentLayout.GetCellSize(0) + m_ContentLayout.GetCellSize(1) - cellsHeight;
+			m_ContentLayout.SetCellSize(0, Float(firstCellSize), Nt::UnitType::UNIT_PIXEL);
+		}
+		m_ContentLayout.Show();
+
+		m_ContentLayout.Insert(0, &m_ParametersLayout);
+		m_ParametersLayout.RemoveStyles(WS_OVERLAPPEDWINDOW);
+		m_ParametersLayout.SetBackgroundColor(settings.Styles.Property.BackgroundColor);
+		m_ParametersLayout.Create("Sound-Parameters-layout");
+		m_ParametersLayout.SetPadding(parametersPadding, Nt::UnitType::UNIT_PIXEL);
+		m_ParametersLayout.Show();
+
+		m_ContentLayout.Insert(1, &m_DeleteButton);
+		m_DeleteButton.SetID(BUTTON_REMOVE);
+		m_DeleteButton.AddStyles(BS_CENTER | BS_VCENTER);
+		m_DeleteButton.DisableWindow();
+		m_DeleteButton.Create("Remove sound");
+		m_DeleteButton.Show();
+
+		m_ParametersLayout.Insert({ 1, 0 }, &m_SoundPathLayout);
+		m_SoundPathLayout.SetBackgroundColor(m_Style.Property.BackgroundColor);
+		m_SoundPathLayout.RemoveStyles(WS_OVERLAPPEDWINDOW);
+		m_SoundPathLayout.Create("Sound-path-layout");
+
+		constexpr Int browseButtonSize = 30;
+		m_SoundPathLayout.SetCellSize(1, browseButtonSize, Nt::UnitType::UNIT_PIXEL);
+		m_SoundPathLayout.Show();
+
+		m_SoundPathLayout.Insert(1, &m_BrowseButton);
+		m_BrowseButton.SetID(BUTTON_BROWSE);
+		m_BrowseButton.AddStyles(BS_CENTER | BS_VCENTER);
+		m_BrowseButton.Create("...");
+		m_BrowseButton.Show();
+
 		for (uInt i = 0; i < TEXTEDIT_COUNT - TEXTEDIT_FIRST; ++i) {
+			m_ParametersLayout.Insert({ 0, i }, &m_Texts[i]);
 			m_Texts[i].SetColor(settings.Styles.Property.Texts.Color);
 			m_Texts[i].SetWeight(settings.Styles.Property.Texts.Weight);
-			m_Texts[i].SetText(texts[i]);
+			m_Texts[i].SetText(m_LanguageData.Texts[i]);
 
-			m_TextEdits[i].SetParent(*this);
-			m_TextEdits[i].SetID(i + TEXTEDIT_FIRST);
-			if (TEXTEDIT_FIRST + i == TEXTEDIT_SOUND_PATH)
+			if (TEXTEDIT_FIRST + i == TEXTEDIT_SOUND_PATH) {
 				m_TextEdits[i].AddStyles(ES_READONLY);
-			m_TextEdits[i].Create({ 0, 0, 1, 1 }, "", true);
+				m_SoundPathLayout.Insert(0, &m_TextEdits[i]);
+			}
+			else {
+				m_ParametersLayout.Insert({ 1, i }, &m_TextEdits[i]);
+			}
+
+			m_TextEdits[i].SetID(i + TEXTEDIT_FIRST);
+			m_TextEdits[i].Create("", true);
 			m_TextEdits[i].SetBackgroundColor(m_Style.Property.TextEdits.BackgroundColor);
 			m_TextEdits[i].SetTextColor(m_Style.Property.TextEdits.Text.Color);
 			m_TextEdits[i].SetTextWeight(m_Style.Property.TextEdits.Text.Weight);
 			m_TextEdits[i].Show();
 		}
 
-		Nt::IntRect buttonRect = { };
-		buttonRect.Top = m_Padding.Top;
-		buttonRect.RightBottom = { 24, 24 };
+		m_ContentLayout.Insert(2, &m_SoundPlayerLayout);
+		m_SoundPlayerLayout.SetBackgroundColor(m_Style.Property.BackgroundColor);
+		m_SoundPlayerLayout.RemoveStyles(WS_OVERLAPPEDWINDOW);
+		m_SoundPlayerLayout.Create("Sound-player-layout");
+		m_SoundPlayerLayout.Show();
 
-		Nt::IntRect textEditRect = { };
-		textEditRect.Left = 150;
-		textEditRect.Top = buttonRect.Top;
-		textEditRect.Right = m_ClientRect.Right - textEditRect.Left - buttonRect.Right - m_Padding.Right;
-		textEditRect.Bottom = buttonRect.Bottom;
-
-		Nt::Float2D textPosition = m_Padding.LeftTop;
-		m_Texts[TEXTEDIT_SOUND_PATH - TEXTEDIT_FIRST].SetPosition(textPosition);
-		m_TextEdits[TEXTEDIT_SOUND_PATH - TEXTEDIT_FIRST].SetWindowRect(textEditRect);
-
-		buttonRect.Left = textEditRect.Left + textEditRect.Right;
-		m_BrowseButton.SetParent(*this);
-		m_BrowseButton.SetID(BUTTON_BROWSE);
-		m_BrowseButton.AddStyles(BS_CENTER | BS_VCENTER);
-		m_BrowseButton.Create(buttonRect, "...");
-		m_BrowseButton.Show();
-
-		textEditRect.Right += buttonRect.Right;
-		for (uInt i = 1; i < TEXTEDIT_COUNT - TEXTEDIT_FIRST; ++i) {
-			textPosition.y += textEditRect.Bottom + 10;
-			textEditRect.Top += textEditRect.Bottom + 10;
-			m_Texts[i].SetPosition(textPosition);
-			m_TextEdits[i].SetWindowRect(textEditRect);
-		}
-
-		buttonRect.Left = m_Padding.Left;
-		buttonRect.Top += textEditRect.Top + textEditRect.Bottom + 10;
-		buttonRect.Right = m_ClientRect.Right - buttonRect.Left - m_Padding.Right;
-		buttonRect.Bottom = 24;
-		m_DeleteButton.SetParent(*this);
-		m_DeleteButton.SetID(BUTTON_REMOVE);
-		m_DeleteButton.AddStyles(BS_CENTER | BS_VCENTER);
-		m_DeleteButton.DisableWindow();
-		m_DeleteButton.Create(buttonRect, "Remove sound");
-		m_DeleteButton.Show();
-
-		buttonRect.Top += buttonRect.Bottom + 10;
-		buttonRect.Right = (m_ClientRect.Right - buttonRect.Left - m_Padding.Right) / 2;
-		m_PlayAtStartButton.SetParent(*this);
+		m_SoundPlayerLayout.Insert(0, &m_PlayAtStartButton);
 		m_PlayAtStartButton.SetID(BUTTON_PLAY_AT_START);
 		m_PlayAtStartButton.AddStyles(BS_CENTER | BS_CHECKBOX | BS_AUTOCHECKBOX);
 		m_PlayAtStartButton.DisableWindow();
-		m_PlayAtStartButton.Create(buttonRect, "Play at start");
+		m_PlayAtStartButton.Create("Play at start");
 		m_PlayAtStartButton.Show();
 
-		buttonRect.Left = buttonRect.Right;
-		m_ToggleLoopingButton.SetParent(*this);
+		m_SoundPlayerLayout.Insert(1, &m_ToggleLoopingButton);
 		m_ToggleLoopingButton.SetID(BUTTON_TOGGLE_LOOPINT);
 		m_ToggleLoopingButton.AddStyles(BS_CENTER | BS_CHECKBOX | BS_AUTOCHECKBOX);
 		m_ToggleLoopingButton.DisableWindow();
-		m_ToggleLoopingButton.Create(buttonRect, "Loop");
+		m_ToggleLoopingButton.Create("Loop");
 		m_ToggleLoopingButton.Show();
-
-		windowRect.Bottom = buttonRect.Top + buttonRect.Bottom;
-		windowRect.Bottom += m_Padding.Bottom;
-		SetWindowRect(windowRect);
 	}
 	void Update() {
 		if (!IsEnabled())
@@ -158,6 +181,7 @@ public:
 		m_SelectedSoundPtr = nullptr;
 		m_TextEdits[TEXTEDIT_SOUND_PATH - TEXTEDIT_FIRST].SetText(
 			(selectedObjectCount > 1) ? "..." : "No selected");
+
 		m_DeleteButton.DisableWindow();
 		m_PlayAtStartButton.DisableWindow();
 	}
@@ -172,13 +196,14 @@ public:
 				return;
 
 			if (!IsValidPath(GetRootPath(), filePath)) {
-				WarningBox(m_Language.Messages.AddingFile.wstr().c_str(), L"Warning");
+				WarningBox(L"To add a file, place it in the project's root folder.", L"Warning");
 				return;
 			}
 			filePath.erase(filePath.begin(), filePath.begin() + GetRootPath().length() + 1);
 
 			if (m_SelectedSoundPtr)
 				m_SelectedSoundPtr->Load(filePath);
+
 			m_TextEdits[TEXTEDIT_SOUND_PATH - TEXTEDIT_FIRST].SetText(filePath);
 			m_DeleteButton.EnableWindow();
 		}
@@ -198,17 +223,13 @@ public:
 		}
 	}
 	void SetLanguage(const Language& language) {
-		m_Language = language;
-		std::wstring texts[] = {
-			m_Language.Window.PropertySound.Sound,
-			m_Language.Window.PropertySound.RolloffFactor,
-			m_Language.Window.PropertySound.ReferenceDistance,
-			m_Language.Window.PropertySound.MaxDistance,
-			m_Language.Window.PropertySound.Gain,
-		};
+		m_LanguageData = (LanguageData)language.PropertyWindow.Sound;
+		m_LanguageData.WindowName =
+			language.PropertyWindow.Component.Texts[LanguageData::ComponentName::TEXT_SOUNDWINDOW];
+		SetName(m_LanguageData.WindowName);
 
-		for (uInt i = 0; i < TEXTEDIT_COUNT - TEXTEDIT_FIRST; ++i)
-			m_Texts[i].SetText(texts[i]);
+		for (uInt i = 0; i < LanguageData::TEXT_COUNT; ++i)
+			m_Texts[i].SetText(m_LanguageData.Texts[i]);
 
 	}
 	void SetScence(Scence* pScence) {
@@ -218,6 +239,10 @@ public:
 	}
 
 private:
+	Nt::BoxLayout m_ContentLayout;
+	Nt::BoxLayout m_SoundPathLayout;
+	Nt::BoxLayout m_SoundPlayerLayout;
+	Nt::GridLayout m_ParametersLayout;
 	GameSound* m_SelectedSoundPtr = nullptr;
 	Scence* m_pScence;
 	std::vector<Nt::Text> m_Texts;
@@ -226,16 +251,15 @@ private:
 	Nt::Button m_DeleteButton;
 	Nt::Button m_PlayAtStartButton;
 	Nt::Button m_ToggleLoopingButton;
-	Nt::IntRect m_Padding;
-	Language m_Language;
+	LanguageData m_LanguageData;
 	Style m_Style;
 
 private:
-	void _WMPaint(HDC& hdc, PAINTSTRUCT& paint) override {
+	void _WMPaint([[maybe_unused]] HDC& hdc, [[maybe_unused]] PAINTSTRUCT& paint) override {
 		for (Nt::Text& text : m_Texts)
 			text.Draw(*this);
 	}
-	void _WMCommand(const Long& param_1, const Long& param_2) override {
+	void _WMCommand(const Long& param_1, [[maybe_unused]] const Long& param_2) override {
 		const uInt id = LOWORD(param_1);
 		const uInt command = HIWORD(param_1);
 

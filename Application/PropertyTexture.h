@@ -1,16 +1,11 @@
 #pragma once
 
 class PropertyTexture : public PropertyComponent {
-public:
+private:
 	enum Buttons {
 		BUTTON_SELECT_TEXTURE = 9999,
 		BUTTON_CLAMP_U,
 		BUTTON_CLAMP_V,
-	};
-	enum Texts {
-		TEXT_OFFSET, TEXT_SCALE, TEXT_ROTATE, 
-		TEXT_CLAMP_U, TEXT_CLAMP_V,
-		TEXT_COUNT
 	};
 	enum TextEdits {
 		TEXTEDIT_OFFSET_X, TEXTEDIT_OFFSET_Y, 
@@ -20,94 +15,98 @@ public:
 	};
 
 public:
+	struct LanguageData : Language::_PropertyWindow::_Texture {
+		using ComponentName = Language::_PropertyWindow::_Component;
+
+		Nt::String WindowName;
+	};
+
+public:
 	PropertyTexture() noexcept : 
-		m_Texts(TEXT_COUNT),
+		m_ContentLayout(2),
+		m_ParametersLayout({ 3, 5 }),
+		m_Texts(LanguageData::TEXT_COUNT),
 		m_TextEdits(TEXTEDIT_COUNT),
 		m_IsWindowEnabled(false)
 	{ 
 	}
 
 	void Initialize(const Settings& settings) {
-		m_Language = settings.CurrentLanguage;
+		SetLanguage(settings.CurrentLanguage);
 		m_Style = settings.Styles;
-		m_PaddingRect = { 10, 10, 10, 10 };
+
+		constexpr Nt::IntRect contentPadding(10, 10, 20, 10);
+		constexpr Nt::IntRect textureButtonRect(0, 0, 100, 100);
 
 		Nt::IntRect windowRect = m_ClientRect;
-		windowRect.Right = settings.PropertyWindowRect.Right;
+		windowRect.Right = settings.PropertyWindowRect.Right - GetSystemMetrics(SM_CXDLGFRAME) * 2;
+		windowRect.Bottom = 
+			(textureButtonRect.Top + textureButtonRect.Bottom) + (contentPadding.Top + contentPadding.Bottom);
 
-		Create(windowRect, m_Language.Window.PropertyComponent.TextureWindow);
+		Create(windowRect, m_LanguageData.WindowName);
 		RemoveStyles(WS_OVERLAPPEDWINDOW);
 		AddStyles(WS_BORDER);
 		SetBackgroundColor(m_Style.Property.BackgroundColor);
 
-		m_TextureButton.SetParent(*this);
+		const Nt::IntRect contentLayoutRect(windowRect.LeftTop, windowRect.RightBottom - 1);
+
+		m_ContentLayout.SetParent(*this);
+		m_ContentLayout.SetBackgroundColor(m_Style.Property.BackgroundColor);
+		m_ContentLayout.RemoveStyles(WS_OVERLAPPEDWINDOW);
+		m_ContentLayout.Create(contentLayoutRect, "Texture-content-layout");
+		m_ContentLayout.SetPadding(contentPadding, Nt::UnitType::UNIT_PIXEL);
+		m_ContentLayout.SetGap(20, Nt::UnitType::UNIT_PIXEL);
+		m_ContentLayout.SetCellSize(0, 0.66f, Nt::UnitType::UNIT_PERCENTAGE);
+		m_ContentLayout.Show();
+
+		m_ContentLayout.Insert(0, &m_TextureButton);
 		m_TextureButton.SetID(BUTTON_SELECT_TEXTURE);
 		m_TextureButton.AddStyles(BS_CENTER | BS_VCENTER | WS_VISIBLE);
-		m_TextureButton.Create({ m_PaddingRect.LeftTop, { 100, 100 } }, "No texture");
+		m_TextureButton.Create("No texture");
 		m_TextureButton.DisableWindow();
-		//m_TextureButton.SetOnClick(std::bind(&PropertyTexture::ChanGeTexture, this));
 
-		const std::wstring texts[] = {
-			m_Language.Window.PropertyTexture.Offset,
-			m_Language.Window.PropertyTexture.Scale,
-			m_Language.Window.PropertyTexture.Rotate,
-			m_Language.Window.PropertyTexture.ClampU,
-			m_Language.Window.PropertyTexture.ClampV,
-		};
+		m_ContentLayout.Insert(1, &m_ParametersLayout);
+		m_ParametersLayout.SetBackgroundColor(m_Style.Property.BackgroundColor);
+		m_ParametersLayout.RemoveStyles(WS_OVERLAPPEDWINDOW);
+		m_ParametersLayout.Create("Texture-Parameters-layout");
+		m_ParametersLayout.Show();
 
-		Nt::uInt2D textPosition;
-		textPosition = m_PaddingRect.LeftTop;
-		textPosition.x += m_TextureButton.GetClientRect().Right + 10;
-		for (uInt i = 0; i < TEXT_COUNT; ++i) {
-			m_Texts[i].SetText(texts[i]);
-			m_Texts[i].SetPosition(textPosition);
+		for (uInt i = 0; i < LanguageData::TEXT_COUNT; ++i) {
+			m_Texts[i].SetText(m_LanguageData.Texts[i]);
 			m_Texts[i].SetColor(m_Style.Property.Texts.Color);
 			m_Texts[i].SetWeight(m_Style.Property.Texts.Weight);
-			textPosition.y += 20;
+
+			m_ParametersLayout.Insert(Nt::uInt2D(0, i), &m_Texts[i]);
 		}
 
-		Nt::uIntRect textEditRect(textPosition, { 40, 20 });
-		textEditRect.Left += 70;
-		textEditRect.Top = m_PaddingRect.Top;
 		for (uInt i = 0; i < TEXTEDIT_COUNT; ++i) {
-			m_TextEdits[i].SetParent(*this);
+			if (i % 2 == 0)
+				m_ParametersLayout.Insert(Nt::uInt2D(2, i / 2), &m_TextEdits[i]);
+			else
+				m_ParametersLayout.Insert(Nt::uInt2D(1, i / 2), &m_TextEdits[i]);
+
 			m_TextEdits[i].SetID(i);
 			m_TextEdits[i].SetBackgroundColor(m_Style.Property.TextEdits.BackgroundColor);
 			m_TextEdits[i].SetTextColor(m_Style.Property.TextEdits.Text.Color);
 			m_TextEdits[i].SetTextWeight(m_Style.Property.TextEdits.Text.Weight);
-			m_TextEdits[i].Create(textEditRect, "0.0", true);
+			m_TextEdits[i].Create("0.0", true);
 			m_TextEdits[i].DisableWindow();
 			m_TextEdits[i].Show();
-
-			if (i % 2 == 0) {
-				textEditRect.Left += m_TextEdits[i].GetClientRect().Right;
-			}
-			else {
-				textEditRect.Left -= m_TextEdits[i].GetClientRect().Right;
-				textEditRect.Top += 20;
-			}
 		}
 
-		Nt::uIntRect checkBoxRect = textEditRect;
-		checkBoxRect.Right = GetSystemMetrics(SM_CXMENUCHECK);
-		checkBoxRect.Bottom = GetSystemMetrics(SM_CYMENUCHECK);
-		m_CheckboxClampU.SetParent(*this);
+		m_ParametersLayout[1][3].ToggleClampToEdge(false);
+		m_ParametersLayout.Insert(Nt::uInt2D(1, 3), &m_CheckboxClampU);
 		m_CheckboxClampU.SetID(BUTTON_CLAMP_U);
 		m_CheckboxClampU.AddStyles(BS_CHECKBOX | BS_AUTOCHECKBOX | WS_VISIBLE);
-		m_CheckboxClampU.Create(checkBoxRect, "");
+		m_CheckboxClampU.Create("");
 		m_CheckboxClampU.DisableWindow();
 
-		checkBoxRect.Top += 20;
-		m_CheckboxClampV.SetParent(*this);
+		m_ParametersLayout[1][4].ToggleClampToEdge(false);
+		m_ParametersLayout.Insert(Nt::uInt2D(1, 4), &m_CheckboxClampV);
 		m_CheckboxClampV.SetID(BUTTON_CLAMP_V);
 		m_CheckboxClampV.AddStyles(BS_CHECKBOX | BS_AUTOCHECKBOX | WS_VISIBLE);
-		m_CheckboxClampV.Create(checkBoxRect, "");
+		m_CheckboxClampV.Create("");
 		m_CheckboxClampV.DisableWindow();
-
-		windowRect.Bottom = m_TextureButton.GetClientRect().Top;
-		windowRect.Bottom += m_TextureButton.GetClientRect().Bottom;
-		windowRect.Bottom += m_PaddingRect.Bottom;
-		SetSize(windowRect.RightBottom);
 	}
 	void Update() {
 		if (!IsEnabled())
@@ -144,7 +143,7 @@ public:
 				return;
 
 			if (!IsValidPath(GetRootPath(), filePath)) {
-				WarningBox(m_Language.Messages.AddingFile.wstr().c_str(), L"Warning");
+				WarningBox(L"To add a file, place it in the project's root folder.", L"Warning");
 				return;
 			}
 			filePath.erase(filePath.begin(), filePath.begin() + GetRootPath().length() + 1);
@@ -155,6 +154,7 @@ public:
 
 			m_Bitmap.Delete();
 			m_Bitmap.Create(texture.GetSize(), texture.GetData());
+
 			m_TextureButton.AddStyles(BS_BITMAP);
 			m_TextureButton.SetImage(m_Bitmap);
 		}
@@ -169,35 +169,32 @@ public:
 			m_TextEdits[i].SetTextColor(m_Style.Property.TextEdits.Text.Color);
 			m_TextEdits[i].SetTextWeight(m_Style.Property.TextEdits.Text.Weight);
 
-			if (i < TEXT_COUNT) {
+			if (i < LanguageData::TEXT_COUNT) {
 				m_Texts[i].SetColor(m_Style.Property.Texts.Color);
 				m_Texts[i].SetWeight(m_Style.Property.Texts.Weight);
 			}
 		}
 	}
 	void SetLanguage(const Language& language) {
-		m_Language = language;
-		const std::wstring texts[] = {
-			m_Language.Window.PropertyTexture.Offset,
-			m_Language.Window.PropertyTexture.Scale,
-			m_Language.Window.PropertyTexture.Rotate,
-			m_Language.Window.PropertyTexture.ClampU,
-			m_Language.Window.PropertyTexture.ClampV,
-		};
+		m_LanguageData = (LanguageData)language.PropertyWindow.Texture;
+		m_LanguageData.WindowName =
+			language.PropertyWindow.Component.Texts[LanguageData::ComponentName::TEXT_TEXTUREWINDOW];
+		SetName(m_LanguageData.WindowName);
 
-		for (uInt i = 0; i < TEXT_COUNT; ++i)
-			m_Texts[i].SetText(texts[i]);
+		for (uInt i = 0; i < LanguageData::TEXT_COUNT; ++i)
+			m_Texts[i].SetText(m_LanguageData.Texts[i]);
 	}
 
 private:
-	Nt::IntRect m_PaddingRect;
+	Nt::BoxLayout m_ContentLayout;
+	Nt::GridLayout m_ParametersLayout;
+	LanguageData m_LanguageData;
 	Nt::GDI::Bitmap m_Bitmap;
 	Nt::Button m_TextureButton;
 	Nt::Button m_CheckboxClampU;
 	Nt::Button m_CheckboxClampV;
 	std::vector<Nt::Text> m_Texts;
 	std::vector<Nt::TextEdit> m_TextEdits;
-	Language m_Language;
 	Style m_Style;
 	Bool m_IsWindowEnabled;
 
@@ -240,11 +237,10 @@ private:
 		m_TextureButton.RemoveStyles(BS_BITMAP);
 	}
 
-	void _WMPaint(HDC& hdc, PAINTSTRUCT& paint) override {
-		for (Nt::Text& text : m_Texts)
-			text.Draw(*this);
-	}
-	void _WMCommand(const Long& param_1, const Long& param_2) override {
+	void _WMCommand(const Long& param_1, [[maybe_unused]] const Long& param_2) override {
+		if (!m_IsWindowEnabled)
+			return;
+
 		const uInt id = LOWORD(param_1);
 		const uInt command = HIWORD(param_1);
 

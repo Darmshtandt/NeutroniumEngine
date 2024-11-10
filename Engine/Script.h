@@ -31,7 +31,8 @@ public:
 	};
 
 public:
-	Script() :
+	Script(Lua* pLua) :
+		m_pLua(pLua),
 		m_LuaUpdate(nullptr),
 		m_LuaStart(nullptr)
 	{
@@ -48,7 +49,11 @@ public:
 		if (!m_IsInitialized)
 			Raise("Script not initialized");
 
+		if (!m_IsLoaded)
+			return;
+
 		try {
+			assert(_SetThisObject());
 			const luabridge::LuaResult result = m_LuaStart();
 			if (result.hasFailed())
 				throw std::exception(result.errorMessage().c_str());
@@ -64,6 +69,7 @@ public:
 
 		if (m_IsStarted) {
 			try {
+				assert(_SetThisObject());
 				const luabridge::LuaResult result = m_LuaUpdate(time);
 				if (result.hasFailed())
 					throw std::exception(result.errorMessage().c_str());
@@ -151,6 +157,7 @@ private:
 		return std::find_if(m_Data.begin(), m_Data.end(),
 			[&](const Data& data) { return (data.Name == name); });
 	}
+	Bool _SetThisObject();
 
 	std::string _GetLastError() const {
 		std::string errorMsg = lua_tostring(m_pLua->GetState(), -1);

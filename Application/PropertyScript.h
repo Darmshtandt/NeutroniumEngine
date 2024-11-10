@@ -110,7 +110,7 @@ public:
 			}
 		}
 
-		Nt::IntRect GetRect() const noexcept {
+		Nt::IntRect GetRect() const {
 			if (!m_IsCreated)
 				Raise("Control is not created.");
 			return m_pHandle->GetClientRect();
@@ -133,20 +133,33 @@ public:
 		Bool m_IsCreated = false;
 	};
 
-	enum {
+	enum TextEdits {
 		TEXTEDIT_SCRIPT_PATH = 3500,
+	};
+
+	enum Buttons {
 		BUTTON_BROWSE,
 		BUTTON_REMOVE,
 	};
 
 public:
-	PropertyScript() = default;
-	~PropertyScript() {
+	struct LanguageData : Language::_PropertyWindow::_Script {
+		using ComponentName = Language::_PropertyWindow::_Component;
+
+		Nt::String WindowName;
+	};
+
+public:
+	PropertyScript(Scence* pScence) {
+		SetScence(pScence);
+	}
+	~PropertyScript() override {
 		ClearControls();
 	}
 
 	void Initialize(const Settings& settings) {
-		m_Language = settings.CurrentLanguage;
+		SetLanguage(settings.CurrentLanguage);
+
 		m_Style = settings.Styles;
 		m_Padding = { 10, 10, 20, 10 };
 
@@ -154,7 +167,7 @@ public:
 		windowRect.LeftTop = m_ClientRect.LeftTop;
 		windowRect.Right = settings.PropertyWindowRect.Right;
 
-		Create(windowRect, m_Language.Window.PropertyComponent.ScriptWindow);
+		Create(windowRect, m_LanguageData.WindowName);
 		RemoveStyles(WS_OVERLAPPEDWINDOW);
 		AddStyles(WS_BORDER);
 		SetBackgroundColor(m_Style.Property.BackgroundColor);
@@ -162,7 +175,7 @@ public:
 		m_ScriptText.SetPosition(m_Padding.LeftTop);
 		m_ScriptText.SetColor(settings.Styles.Property.Texts.Color);
 		m_ScriptText.SetWeight(settings.Styles.Property.Texts.Weight);
-		m_ScriptText.SetText(m_Language.Window.PropertyScript.Script);
+		m_ScriptText.SetText(m_LanguageData.Texts[LanguageData::TEXT_SCRIPT]);
 
 		Nt::IntRect buttonRect = { };
 		buttonRect.Top = m_Padding.Top;
@@ -263,8 +276,8 @@ public:
 			delete(pControl);
 		m_Controls.clear();
 
-		const Nt::IntRect buttonRect = m_DeleteButton.GetClientRect();
-		SetSize({ GetClientRect().Right, buttonRect.Top + buttonRect.Bottom + m_Padding.Bottom });
+		const Nt::IntRect buttonRect = m_DeleteButton.GetWindowRect();
+		SetSize({ GetClientRect().Right, buttonRect.Top + m_Padding.Bottom });
 	}
 
 	void BrowseScript() {
@@ -277,13 +290,13 @@ public:
 				return;
 
 			if (!IsValidPath(GetRootPath(), filePath)) {
-				WarningBox(m_Language.Messages.AddingFile.wstr().c_str(), L"Warning");
+				WarningBox(L"To add a file, place it in the project's root folder.", L"Warning");
 				return;
 			}
 			filePath.erase(filePath.begin(), filePath.begin() + GetRootPath().length() + 1);
 
 			for (Object* pObject : m_SelectorPtr->GetObjects())
-				pObject->AttachScript(m_pScence, filePath);
+				pObject->AttachScript(m_pScence->GetLua(), m_pScence, filePath);
 			
 			_UpdateControls();
 
@@ -304,8 +317,12 @@ public:
 		m_ScriptPathTextEdit.SetTextWeight(m_Style.Property.TextEdits.Text.Weight);
 	}
 	void SetLanguage(const Language& language) {
-		m_Language = language;
-		m_ScriptText.SetText(m_Language.Window.PropertyScript.Script);
+		m_LanguageData = (LanguageData)language.PropertyWindow.Script;
+		m_LanguageData.WindowName =
+			language.PropertyWindow.Component.Texts[LanguageData::ComponentName::TEXT_SCRIPTWINDOW];
+		SetName(m_LanguageData.WindowName);
+
+		m_ScriptText.SetText(m_LanguageData.Texts[LanguageData::TEXT_SCRIPT]);
 	}
 	void SetScence(Scence* pScence) {
 		if (pScence == nullptr)
@@ -314,6 +331,7 @@ public:
 	}
 
 private:
+	LanguageData m_LanguageData;
 	std::vector<Control*> m_Controls;
 	Scence* m_pScence;
 	Nt::Text m_ScriptText;
@@ -321,7 +339,6 @@ private:
 	Nt::Button m_BrowseButton;
 	Nt::Button m_DeleteButton;
 	Nt::IntRect m_Padding;
-	Language m_Language;
 	Style m_Style;
 
 private:
@@ -358,13 +375,13 @@ private:
 		}
 	}
 
-	void _WMPaint(HDC& hdc, PAINTSTRUCT& paint) override {
+	void _WMPaint([[maybe_unused]] HDC& hdc, [[maybe_unused]] PAINTSTRUCT& paint) override {
 		m_ScriptText.Draw(*this);
 		for (Control* pControl : m_Controls)
 			if (pControl->GetType() == Control::TEXTEDIT)
 				pControl->GetText().Draw(*this);
 	}
-	void _WMCommand(const Long& param_1, const Long& param_2) override {
+	void _WMCommand(const Long& param_1, [[maybe_unused]] const Long& param_2) override {
 		const uInt id = LOWORD(param_1);
 		const uInt command = HIWORD(param_1);
 

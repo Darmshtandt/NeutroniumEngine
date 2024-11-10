@@ -17,7 +17,7 @@ public:
 	constexpr uInt ClassType() const noexcept override {
 		return 0;
 	}
-	static ISerialization* New(const uInt& ClassType) {
+	static ISerialization* New([[maybe_unused]] const uInt& ClassType) {
 		return new Project;
 	}
 

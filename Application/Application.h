@@ -2,15 +2,16 @@
 
 class Application : private Nt::Window {
 public:
-	explicit Application(ProjectMenager* projectMenagerPtr) :
-		m_ProjectMenagerPtr(projectMenagerPtr),
+	explicit Application(ProjectManager* projectManagerPtr) :
+		m_ProjectManagerPtr(projectManagerPtr),
 		m_pProject(nullptr),
 		m_pEngine(new Engine),
 		m_pObjectsTree(new ObjectsTree),
 		m_pPropertyWindow(new PropertyWindow),
 		m_pFileExplorer(new FileExplorer),
 		m_IsChanged(false)
-	{ }
+	{ 
+	}
 	~Application() {
 		Nt::ResourceManager::Clear();
 
@@ -29,25 +30,28 @@ public:
 		Create(m_Settings.MainWindowRect, APPLICATION_NAME);
 		SetMenu(m_ProgramMenu.GetNtMenu());
 
-		m_pObjectsTree->Initialize(m_Settings);
+		m_DefaultInitialPath = std::current_path();
+		for (Int i = m_DefaultInitialPath.string().length() - 1; i >= 0; --i) {
+			std::string path = m_DefaultInitialPath.string();
+			if (path[i] == '\\') {
+				path.erase(i + 1, path.length());
+				m_DefaultInitialPath = path;
+				break;
+			}
+		}
+
+		SetIcon(m_DefaultInitialPath.string() + "Images\\Logo.ico");
+
+		m_pObjectsTree->Initialize(m_Settings, m_DefaultInitialPath.string());
 		m_pObjectsTree->SetParent(*this);
 		m_pObjectsTree->Show();
 
-		m_pEngine->Initialize(m_Settings);
+		m_pEngine->Initialize(m_Settings, m_DefaultInitialPath.string());
 		m_pEngine->SetParent(*this);
 		m_pEngine->BindObjectsTree(m_pObjectsTree);
 		m_pEngine->Show();
 
-		m_DefaultInitialPath = std::current_path();
-
-		g_TextureCameraIndex =
-			Nt::ResourceManager::Add(new Nt::Texture(
-				m_DefaultInitialPath.string() + "\\..\\Images\\Camera.tga"));
-		g_TextureSoundIndex =
-			Nt::ResourceManager::Add(new Nt::Texture(
-				m_DefaultInitialPath.string() + "\\..\\Images\\Sound.tga"));
-
-		m_pProject = m_ProjectMenagerPtr->GetProjectPtr();
+		m_pProject = m_ProjectManagerPtr->GetProjectPtr();
 		if (m_pProject == nullptr)
 			Raise("Project pointer is nullptr");
 
@@ -62,10 +66,9 @@ public:
 		m_pFileExplorer->SetParent(*this);
 		m_pFileExplorer->SetRootPath(m_RootPath);
 		m_pFileExplorer->Show();
-
 	}
 	void Run() {
-		this->ShowMaximized();
+		ShowMaximized();
 
 		Nt::Event event;
 		while (IsOpened()) {
@@ -76,7 +79,7 @@ public:
 			{
 				switch (event.Type) {
 				case Nt::Event::WINDOW_RESIZE:
-					m_Settings.ComputeWindowRect(GetClientRect());
+					m_Settings.ComputeWindowRect(GetWindowRect());
 
 					m_pObjectsTree->SetRect(m_Settings.ObjectsTreeWindowRect);
 					m_pPropertyWindow->SetWindowRect(m_Settings.PropertyWindowRect);
@@ -124,7 +127,7 @@ public:
 
 		if (config.ScencePath != "") {
 			if (!IsValidPath(m_RootPath, config.ScencePath)) {
-				WarningBox(m_Settings.CurrentLanguage.Messages.AddingFile.wstr().c_str(), L"Warning");
+				WarningBox(L"To add a file, place it in the project's root folder.", L"Warning");
 				return;
 			}
 			config.ScencePath.erase(config.ScencePath.begin(), config.ScencePath.begin() + m_RootPath.length() + 1);
@@ -187,10 +190,6 @@ public:
 	void SetLanguage(const std::string& fileName) {
 		if (fileName == "en.ntelc")
 			m_Settings.CurrentLanguage = Language();
-		else if (fileName == "ru.ntelc")
-			m_Settings.CurrentLanguage.SetRu();
-		else if (fileName == "sk.ntelc")
-			m_Settings.CurrentLanguage.SetSk();
 
 		//m_Settings.CurrentLanguage.Load(m_DefaultInitialPath.string() + "\\..\\Locales\\" + fileName);
 		m_pObjectsTree->SetLanguage(m_Settings.CurrentLanguage);
@@ -206,7 +205,7 @@ public:
 private:
 	Nt::String m_RootPath;
 	std::path m_DefaultInitialPath;
-	ProjectMenager* m_ProjectMenagerPtr;
+	ProjectManager* m_ProjectManagerPtr;
 	Project* m_pProject;
 	FileExplorer* m_pFileExplorer;
 	PropertyWindow* m_pPropertyWindow;
@@ -242,7 +241,7 @@ private:
 			}
 		}
 	}
-	void _WMCommand(const Long& param_1, const Long& param_2) override {
+	void _WMCommand(const Long& param_1, [[maybe_unused]] const Long& param_2) override {
 		switch (param_1) {
 		case ProgramMenu::MENU_BUILD:
 			Build();
@@ -270,25 +269,25 @@ private:
 			break;
 
 		case ProgramMenu::MENU_CREATE_PRIMITIV_CUBE:
-			m_pEngine->CreateCube();
+			m_pEngine->CreatePrimitive(PrimitiveTypes::CUBE);
 			break;
 		case ProgramMenu::MENU_CREATE_PRIMITIV_QUAD:
-			m_pEngine->CreateQuad();
+			m_pEngine->CreatePrimitive(PrimitiveTypes::QUAD);
 			break;
 		case ProgramMenu::MENU_CREATE_PRIMITIV_PLANE:
-			m_pEngine->CreatePlane();
+			m_pEngine->CreatePrimitive(PrimitiveTypes::PLANE);
 			break;
 		case ProgramMenu::MENU_CREATE_PRIMITIV_PYRAMID:
-			m_pEngine->CreatePyramid();
+			m_pEngine->CreatePrimitive(PrimitiveTypes::PYRAMID);
 			break;
 		case ProgramMenu::MENU_CREATE_ENTITY_CAMERA:
-			m_pEngine->CreateCamera();
+			m_pEngine->CreateEntity(EntityTypes::CAMERA);
 			break;
 		case ProgramMenu::MENU_CREATE_ENTITY_SOUND:
-			m_pEngine->CreateSound();
+			m_pEngine->CreateEntity(EntityTypes::SOUND);
 			break;
 		case ProgramMenu::MENU_CREATE_ENTITY_MODEL:
-			m_pEngine->CreateModel();
+			m_pEngine->CreateEntity(EntityTypes::MODEL);
 			break;
 
 		case ProgramMenu::MENU_THEME_SOLARIZED_DARK:
@@ -306,7 +305,7 @@ private:
 
 				SetTheme(styleNames[param_1 - ProgramMenu::MENU_THEME_SOLARIZED_DARK]);
 				for (uInt i = ProgramMenu::MENU_THEME_SOLARIZED_DARK; i <= ProgramMenu::MENU_THEME_WHITE; ++i)
-					m_ProgramMenu.GetNtMenu().CheckItem(i, (i == param_1));
+					m_ProgramMenu.GetNtMenu().CheckItem(i, (Long(i) == param_1));
 			}
 			break;
 

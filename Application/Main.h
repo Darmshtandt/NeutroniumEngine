@@ -2,9 +2,29 @@
 
 #define WIN32LEAN_AND_MEAN
 
+#ifdef WIN32
+#	define _BitScanForward64 _BitScanForward
+#endif
+#ifdef WIN32
+#	define _BitScanReverse64 _BitScanReverse
+#endif
+
+#pragma warning(disable : 4996)
+
+
+#include <thread>
+#include <mutex>
+
 #include <Windows.h>
 #include <AL/al.h>
 #include <AL/alc.h>
+
+#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
+#include <CGAL/boost/graph/convert_nef_polyhedron_to_polygon_mesh.h>
+#include <CGAL/Exact_integer.h>
+#include <CGAL/Polyhedron_3.h>
+#include <CGAL/Surface_mesh.h>
+#include <CGAL/Nef_polyhedron_3.h>
 
 #include <NtStdH.h>
 #include <Nt/Graphics.h>
@@ -13,9 +33,12 @@
 #include <Sound.h>
 #include <Collider.h>
 
+extern "C" {
 #include <Lua/lua.hpp>
+}
 #include <LuaBridge/LuaBridge.h>
 
+#pragma comment(lib, "OpenAL32")
 #pragma comment(lib, "OpenAL32")
 
 #ifdef _DEBUG
@@ -27,8 +50,6 @@
 #	pragma comment(lib, "NeutroniumGraphics32")
 #	pragma comment(lib, "NeutroniumPhysics32")
 #endif
-
-#pragma warning(disable : 4996)
 
 #define APPLICATION_NAME "Neutronium Engine"
 
@@ -58,17 +79,13 @@ using Nt::cwString;
 using Nt::Word;
 using Nt::DWord;
 
-inline uInt g_TextureCameraIndex = -1;
-inline uInt g_TextureSoundIndex = -1;
-
 __inline Bool IsValidPath(const Nt::String& rootPath, const Nt::String& verifiablePath) {
-	if (rootPath.length() <= verifiablePath.length()) {
-		for (uInt i = 0; i < rootPath.length(); ++i)
-			if (rootPath[i] != verifiablePath[i])
-				return false;
-	}
-	else {
+	if (rootPath.length() > verifiablePath.length())
 		return false;
+
+	for (uInt i = 0; i < rootPath.length(); ++i) {
+		if (rootPath[i] != verifiablePath[i])
+			return false;
 	}
 	return true;
 }

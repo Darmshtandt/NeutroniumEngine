@@ -2,12 +2,6 @@
 
 class PropertyTransform : public PropertyComponent {
 private:
-	enum TextIDs {
-		TEXT_POSITION, TEXT_X, TEXT_Y, TEXT_Z,
-		TEXT_SIZE, TEXT_WIDTH, TEXT_HEIGHT, TEXT_LENGTH,
-		TEXT_ANGLE, TEXT_ROLL, TEXT_PITCH, TEXT_YAW,
-		TEXT_COUNT
-	};
 	enum TextEditIDs {
 		TEXTEDIT_X, TEXTEDIT_Y, TEXTEDIT_Z,
 		TEXTEDIT_WIDTH, TEXTEDIT_HEIGHT, TEXTEDIT_LENGTH,
@@ -16,159 +10,78 @@ private:
 	};
 
 public:
+	struct LanguageData : Language::_PropertyWindow::_Transform {
+		using ComponentName = Language::_PropertyWindow::_Component;
+
+		Nt::String WindowName;
+	};
+
+public:
 	PropertyTransform() noexcept :
-		m_MainLayout({ 2, 3 }),
-		m_LayoutPosition(3),
-		m_LayoutSize(3),
-		m_LayoutRotation(3)
+		m_ContentLayout({ 2, 12 }),
+		m_Texts(LanguageData::TEXT_COUNT),
+		m_TextEdits(TEXTEDIT_COUNT)
 	{
 	}
 
 	void Initialize(const Settings& settings) override {
-		Nt::IntRect windowRect;
-		windowRect.LeftTop = m_ClientRect.LeftTop;
-		windowRect.Right = settings.PropertyWindowRect.Right;
-		windowRect.Bottom = 500;
+		SetLanguage(settings.CurrentLanguage);
 
-		Create(windowRect, settings.CurrentLanguage.Window.PropertyComponent.TransformWindow);
+		constexpr Nt::FloatRect HeaderTextPadding(0.f, 5.f, 0.f, 0.f);
+		constexpr Nt::FloatRect nonHeaderTextPadding(10.f, 0.f, 0.f, 0.f);
+
+		Nt::IntRect windowRect = m_ClientRect;
+		windowRect.Right = settings.PropertyWindowRect.Right - GetSystemMetrics(SM_CXDLGFRAME) * 2;
+		windowRect.Bottom = Nt::TextEdit::DefaultSize.y + Int(HeaderTextPadding.Top + HeaderTextPadding.Bottom) / 3;
+		windowRect.Bottom *= LanguageData::TEXT_COUNT;
+
 		RemoveStyles(WS_OVERLAPPEDWINDOW);
 		AddStyles(WS_BORDER);
-		//SetBackgroundColor(settings.Styles.Property.BackgroundColor);
+		Create(windowRect, m_LanguageData.WindowName);
+		SetBackgroundColor(settings.Styles.Property.BackgroundColor);
 
-		m_MainLayout.SetBackgroundColor(Nt::Float3D(Nt::Colors::Black));
-		m_MainLayout.RemoveStyles(WS_OVERLAPPEDWINDOW);
-		m_MainLayout.Create(windowRect, "");
-		m_MainLayout.SetParent(*this);
-		m_MainLayout.SetGap({ 0, 10 }, Nt::UnitType::UNIT_PIXEL);
-		m_MainLayout.Show();
+		m_ContentLayout.SetParent(*this);
+		m_ContentLayout.RemoveStyles(WS_OVERLAPPEDWINDOW);
+		m_ContentLayout.SetBackgroundColor(settings.Styles.Property.BackgroundColor);
+		m_ContentLayout.Create(m_ClientRect, "Transform-layout");
+		m_ContentLayout.SetPadding({ 10, 5, 10, 10 }, Nt::UnitType::UNIT_PIXEL);
+		m_ContentLayout.Show();
 
-		const std::wstring texts[] = {
-			settings.CurrentLanguage.PropertyWindow.Position.wstr().c_str(),
-			L"X", L"Y", L"Z",
-			settings.CurrentLanguage.PropertyWindow.Size.wstr().c_str(),
-			settings.CurrentLanguage.PropertyWindow.Size_Width.wstr().c_str(),
-			settings.CurrentLanguage.PropertyWindow.Size_Height.wstr().c_str(),
-			settings.CurrentLanguage.PropertyWindow.Size_Length.wstr().c_str(),
-			settings.CurrentLanguage.PropertyWindow.Angle.wstr().c_str(),
-			L"R", L"P", L"Y"
-		};
+		uInt textEditID = 0;
+		for (uInt i = 0; i < LanguageData::TEXT_COUNT; ++i) {
+			m_Texts[i].DisableDefaultRectSize();
+			m_Texts[i].SetText(m_LanguageData.Texts[i]);
 
-		m_Texts.resize(TEXT_COUNT);
-		for (uInt i = 0; i < m_Texts.size(); ++i)
-			m_Texts[i].SetText(texts[i]);
-
-		m_LayoutPosition.RemoveStyles(WS_OVERLAPPEDWINDOW);
-		m_LayoutSize.RemoveStyles(WS_OVERLAPPEDWINDOW);
-		m_LayoutRotation.RemoveStyles(WS_OVERLAPPEDWINDOW);
-
-		m_LayoutPosition.Create("");
-		m_LayoutSize.Create("");
-		m_LayoutRotation.Create("");
-
-		m_MainLayout.Insert({ 1, 0 }, &m_LayoutPosition);
-		m_MainLayout.Insert({ 1, 1 }, &m_LayoutSize);
-		m_MainLayout.Insert({ 1, 2 }, &m_LayoutRotation);
-
-		m_LayoutPosition.UpdateContent();
-		m_LayoutSize.UpdateContent();
-		m_LayoutRotation.UpdateContent();
-
-		m_LayoutPosition.TogleVertical(true);
-		m_LayoutSize.TogleVertical(true);
-		m_LayoutRotation.TogleVertical(true);
-
-		m_TextEdits.resize(TEXTEDIT_COUNT);
-		for (uInt i = 0; i < 3; ++i) {
-			for (uInt j = 0; j < 3; ++j) {
-				const uInt ttextEditIndex = (i * 3 + j);
-
-				Nt::TextEdit& textEdit = m_TextEdits[ttextEditIndex];
-				textEdit.SetID(i - i / 4);
-				textEdit.Create("0.0", true);
-				textEdit.SetBackgroundColor(settings.Styles.Property.TextEdits.BackgroundColor);
-				textEdit.SetTextColor(settings.Styles.Property.TextEdits.Text.Color);
-				textEdit.SetTextWeight(settings.Styles.Property.TextEdits.Text.Weight);
-				textEdit.DisableWindow();
-
-				const uInt cellIndex = (i + j) % 3;
-
-				switch (i) {
-				case 0:
-					m_LayoutPosition.Insert(cellIndex, &textEdit);
-					break;
-				case 1:
-					m_LayoutSize.Insert(cellIndex, &textEdit);
-					break;
-				case 2:
-					m_LayoutRotation.Insert(cellIndex, &textEdit);
-					break;
-				}
-
-				textEdit.Show();
-			}
-		}
-
-		m_LayoutPosition.Show();
-		m_LayoutSize.Show();
-		m_LayoutRotation.Show();
-		return;
-
-
-		//const std::wstring texts[] = {
-		//	settings.CurrentLanguage.PropertyWindow.Position.wstr().c_str(),
-		//	L"X", L"Y", L"Z",
-		//	settings.CurrentLanguage.PropertyWindow.Size.wstr().c_str(),
-		//	settings.CurrentLanguage.PropertyWindow.Size_Width.wstr().c_str(),
-		//	settings.CurrentLanguage.PropertyWindow.Size_Height.wstr().c_str(),
-		//	settings.CurrentLanguage.PropertyWindow.Size_Length.wstr().c_str(),
-		//	settings.CurrentLanguage.PropertyWindow.Angle.wstr().c_str(),
-		//	L"R", L"P", L"Y"
-		//};
-
-		Nt::Int2D textPosition = { 10, 5 };
-		Nt::IntRect textEditRect = {
-			70,
-			0,
-			m_ClientRect.Right - 70 * 2,
-			25
-		};
-		const Int lineIndent = 25;
-
-		for (uInt i = 0; i < TEXT_COUNT; ++i) {
 			const Bool isHeader = (i % 4 == 0);
-			if (i > 0) {
-				const Int mult = (isHeader) ? 2 : 1;
-
-				textEditRect.Top += lineIndent * mult;
-				textPosition.y += lineIndent * mult;
-			}
-
-			Nt::Text text(textPosition, texts[i]);
-			text.DisableBackground();
-
 			if (isHeader) {
-				text.SetColor(settings.Styles.Property.HeaderTexts.Color);
-				text.SetWeight(settings.Styles.Property.HeaderTexts.Weight);
+				m_Texts[i].SetColor(settings.Styles.Property.HeaderTexts.Color);
+				m_Texts[i].SetWeight(settings.Styles.Property.HeaderTexts.Weight);
+
+				m_ContentLayout[0][i].SetPadding(HeaderTextPadding, Nt::UnitType::UNIT_PIXEL);
 			}
 			else {
-				text.SetColor(settings.Styles.Property.Texts.Color);
-				text.SetWeight(settings.Styles.Property.Texts.Weight);
+				m_Texts[i].SetColor(settings.Styles.Property.Texts.Color);
+				m_Texts[i].SetWeight(settings.Styles.Property.Texts.Weight);
 
-				Nt::TextEdit& textEdit = m_TextEdits[i - i / 4 - 1];
-				textEdit.SetParent(*this);
-				textEdit.SetID(i - i / 4);
-				textEdit.Create(textEditRect, "0.0", true);
-				textEdit.SetBackgroundColor(settings.Styles.Property.TextEdits.BackgroundColor);
-				textEdit.SetTextColor(settings.Styles.Property.TextEdits.Text.Color);
-				textEdit.SetTextWeight(settings.Styles.Property.TextEdits.Text.Weight);
-				textEdit.DisableWindow();
-				textEdit.Show();
+				Nt::TextEdit* textEditPtr = &m_TextEdits[textEditID];
+
+				m_ContentLayout[0][i].SetPadding(nonHeaderTextPadding, Nt::UnitType::UNIT_PIXEL);
+				m_ContentLayout.Insert(Nt::uInt2D(1, i), textEditPtr);
+
+				textEditPtr->SetID(textEditID);
+				textEditPtr->Create("0.0", true);
+				textEditPtr->SetBackgroundColor(settings.Styles.Property.TextEdits.BackgroundColor);
+				textEditPtr->SetTextColor(settings.Styles.Property.TextEdits.Text.Color);
+				textEditPtr->SetTextWeight(settings.Styles.Property.TextEdits.Text.Weight);
+				textEditPtr->DisableWindow();
+
+				textEditPtr->Show();
+
+				++textEditID;
 			}
-			m_Texts[i] = text;
-		}
 
-		windowRect.Bottom = textPosition.y + 20 + lineIndent / 2;
-		SetWindowRect(windowRect);
+			m_ContentLayout.Insert({ 0, i }, &m_Texts[i]);
+		}
 	}
 
 	void Update() override {
@@ -190,6 +103,7 @@ public:
 
 	void SetTheme(const Style& style) override {
 		SetBackgroundColor(style.Property.BackgroundColor);
+		m_ContentLayout.SetBackgroundColor(style.Property.BackgroundColor);
 
 		for (uInt i = 0; i < m_Texts.size(); ++i) {
 			const Bool isHeader = (i % 4 == 0);
@@ -210,35 +124,22 @@ public:
 		}
 	}
 	void SetLanguage(const Language& language) override {
-		SetName(language.Window.PropertyWindow);
+		m_LanguageData = (LanguageData)language.PropertyWindow.Transform;
+		m_LanguageData.WindowName = 
+			language.PropertyWindow.Component.Texts[LanguageData::ComponentName::TEXT_TRANSFORMWINDOW];
+		SetName(m_LanguageData.WindowName);
 
-		const std::wstring texts[] = {
-			language.PropertyWindow.Position.wstr().c_str(),
-			L"X", L"Y", L"Z",
-			language.PropertyWindow.Size.wstr().c_str(),
-			language.PropertyWindow.Size_Width.wstr().c_str(),
-			language.PropertyWindow.Size_Height.wstr().c_str(),
-			language.PropertyWindow.Size_Length.wstr().c_str(),
-			language.PropertyWindow.Angle.wstr().c_str(),
-			L"R", L"P", L"Y"
-		};
-		for (uInt i = 0; i < TEXT_COUNT; ++i)
-			m_Texts[i].SetText(texts[i]);
+		for (uInt i = 0; i < LanguageData::TEXT_COUNT; ++i)
+			m_Texts[i].SetText(m_LanguageData.Texts[i]);
 	}
 
 private:
-	Nt::BoxLayout m_LayoutPosition;
-	Nt::BoxLayout m_LayoutSize;
-	Nt::BoxLayout m_LayoutRotation;
-	Nt::GridLayout m_MainLayout;
+	LanguageData m_LanguageData;
+	Nt::GridLayout m_ContentLayout;
 	std::vector<Nt::TextEdit> m_TextEdits;
 	std::vector<Nt::Text> m_Texts;
 
 private:
-	void _WMPaint(HDC& hdc, PAINTSTRUCT& paint) override {
-		for (Nt::Text& text : m_Texts)
-			text.Draw(*this);
-	}
 	void _WMCommand(const Long& param_1, const Long& param_2) override {
 		if (HIWORD(param_1) == EN_UPDATE && param_2 != 0 && m_SelectorPtr->GetObjects().size() == 1) {
 			const HWND hwnd = (HWND)param_2;
@@ -247,11 +148,11 @@ private:
 			GetWindowText(hwnd, wText.data(), wText.length() + 1);
 
 			const uInt id = GetWindowLongPtr(hwnd, GWLP_ID);
-			const Bool isPosition = ((id - 1) / 3 == 0);
-			const Bool isSize = ((id - 1) / 3 == 1);
-			const Bool isAngle = ((id - 1) / 3 == 2);
+			const Bool isPosition = (id / 3 == 0);
+			const Bool isSize = (id / 3 == 1);
+			const Bool isAngle = (id / 3 == 2);
 
-			const uInt coordinate = (id - 1) % 3;
+			const uInt coordinate = id % 3;
 			try {
 				const Float value = Nt::String(wText);
 

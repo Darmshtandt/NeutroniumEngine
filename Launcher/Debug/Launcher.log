@@ -1,61 +1,43 @@
 ﻿  Main.cpp
-C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Utilities.h(28,1): warning C4005: 'Raise': macro redefinition
-C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Core\Utilities.h(27,1): message : see previous definition of 'Raise'
-C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Icon.h(170,19): warning C4018: '>': signed/unsigned mismatch
-C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Layouts\GridLayout.h(210,71): warning C4244: '*=': conversion from 'Nt::Float' to 'Nt::Int', possible loss of data
-C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Graphics\Layouts\GridLayout.h(248,70): warning C4244: '*=': conversion from 'Nt::Float' to 'Nt::Int', possible loss of data
-C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RayCast.h(31,40): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
-C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\RayCast.h(31,34): warning C4244: 'initializing': conversion from 'double' to 'const Nt::Float', possible loss of data
-C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics\Collision.h(286,29): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
-C:\Users\kings\Desktop\Nový priečinok\Neutronium\Include\Nt\Physics.h(17,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Wave.h(46,36): warning C4244: 'initializing': conversion from 'std::streamoff' to 'Nt::Int', possible loss of data
-C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Wave.h(46,24): warning C4244: 'initializing': conversion from 'std::streamoff' to 'const Nt::Int', possible loss of data
-C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Engine\Collider.h(300,29): warning C4244: 'initializing': conversion from 'double' to 'Nt::Float', possible loss of data
-C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(28,98): warning C4244: '=': conversion from 'Nt::Float' to '_Ty', possible loss of data
-          with
-          [
-              _Ty=Nt::uInt
-          ]
-C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(43,54): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
-          with
-          [
-              _Ty=Nt::uInt
-          ]
-C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(44,56): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
-          with
-          [
-              _Ty=Nt::uInt
-          ]
-C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(48,57): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
-          with
-          [
-              _Ty=Nt::uInt
-          ]
-C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Application\Settings.h(53,51): warning C4244: '=': conversion from 'float' to '_Ty', possible loss of data
-          with
-          [
-              _Ty=Nt::uInt
-          ]
-C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Game\Game.h(136,19): warning C4244: '=': conversion from 'double' to '_Ty', possible loss of data
-          with
-          [
-              _Ty=Nt::Float
-          ]
-C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Game\Game.h(137,19): warning C4244: '=': conversion from 'double' to '_Ty', possible loss of data
-          with
-          [
-              _Ty=Nt::Float
-          ]
-C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Game\Game.h(138,19): warning C4244: '=': conversion from 'double' to '_Ty', possible loss of data
-          with
-          [
-              _Ty=Nt::Float
-          ]
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Libraries\Include\CGAL\cpp_float.h(30,29): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned long', possible loss of data
+C:\Users\Пользователь\source\repos\NeutroniumEngine\Libraries\Include\CGAL\cpp_float.h(42,29): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned long', possible loss of data
   Lua.lib(lapi.obj) : MSIL .netmodule or module compiled with /GL found; restarting link with /LTCG; add /LTCG to the link command line to improve linker performance
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/LTCG' specification
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+MSVCRTD.lib(initializers.obj) : warning LNK4098: defaultlib 'msvcrt.lib' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
   Finished generating code
+Lua.lib(lapi.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lapi.obj)' or at ''; linking object as if no debug info
+Lua.lib(lauxlib.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lauxlib.obj)' or at ''; linking object as if no debug info
+Lua.lib(ldebug.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(ldebug.obj)' or at ''; linking object as if no debug info
+Lua.lib(linit.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(linit.obj)' or at ''; linking object as if no debug info
+Lua.lib(lstate.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lstate.obj)' or at ''; linking object as if no debug info
+Lua.lib(lvm.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lvm.obj)' or at ''; linking object as if no debug info
+Lua.lib(ltable.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(ltable.obj)' or at ''; linking object as if no debug info
+Lua.lib(lobject.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lobject.obj)' or at ''; linking object as if no debug info
+Lua.lib(ldo.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(ldo.obj)' or at ''; linking object as if no debug info
+Lua.lib(lgc.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lgc.obj)' or at ''; linking object as if no debug info
+Lua.lib(lfunc.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lfunc.obj)' or at ''; linking object as if no debug info
+Lua.lib(lzio.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lzio.obj)' or at ''; linking object as if no debug info
+Lua.lib(lstring.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lstring.obj)' or at ''; linking object as if no debug info
+Lua.lib(ldump.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(ldump.obj)' or at ''; linking object as if no debug info
+Lua.lib(ltm.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(ltm.obj)' or at ''; linking object as if no debug info
+Lua.lib(lopcodes.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lopcodes.obj)' or at ''; linking object as if no debug info
+Lua.lib(ltablib.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(ltablib.obj)' or at ''; linking object as if no debug info
+Lua.lib(lbaselib.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lbaselib.obj)' or at ''; linking object as if no debug info
+Lua.lib(lutf8lib.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lutf8lib.obj)' or at ''; linking object as if no debug info
+Lua.lib(loadlib.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(loadlib.obj)' or at ''; linking object as if no debug info
+Lua.lib(loslib.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(loslib.obj)' or at ''; linking object as if no debug info
+Lua.lib(lstrlib.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lstrlib.obj)' or at ''; linking object as if no debug info
+Lua.lib(lmathlib.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lmathlib.obj)' or at ''; linking object as if no debug info
+Lua.lib(liolib.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(liolib.obj)' or at ''; linking object as if no debug info
+Lua.lib(ldblib.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(ldblib.obj)' or at ''; linking object as if no debug info
+Lua.lib(lcorolib.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lcorolib.obj)' or at ''; linking object as if no debug info
+Lua.lib(lmem.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lmem.obj)' or at ''; linking object as if no debug info
+Lua.lib(llex.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(llex.obj)' or at ''; linking object as if no debug info
+Lua.lib(lctype.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lctype.obj)' or at ''; linking object as if no debug info
+Lua.lib(lundump.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lundump.obj)' or at ''; linking object as if no debug info
+Lua.lib(lparser.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lparser.obj)' or at ''; linking object as if no debug info
+Lua.lib(lcode.obj) : warning LNK4099: PDB '' was not found with 'Lua.lib(lcode.obj)' or at ''; linking object as if no debug info
 glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
-  Launcher.vcxproj -> C:\Users\kings\Desktop\Nový priečinok\NeutroniumEngine\Bin\Debug\Launcher.exe
+  Launcher.vcxproj -> C:\Users\Пользователь\source\repos\NeutroniumEngine\Bin\Debug\Launcher.exe

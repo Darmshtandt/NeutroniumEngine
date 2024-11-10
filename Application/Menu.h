@@ -45,42 +45,42 @@ public:
 		_InitializeItem_Create(language);
 		_InitializeItem_Settings(language);
 
-		m_Menu.AddSubMenu(m_Menu_File, m_FlagStringPopupDraw, language.Menu.File);
-		m_Menu.AddSubMenu(m_Menu_View, m_FlagStringPopupDraw, language.Menu.View);
-		m_Menu.AddSubMenu(m_Menu_Create, m_FlagStringPopupDraw, language.Menu.Create);
-		m_Menu.AddSubMenu(m_Menu_Settings, m_FlagStringPopupDraw, language.Menu.Settings);
+		m_Menu.AddSubMenu(m_Menu_File, m_FlagStringPopupDraw, language.Menu.Texts[Language::_Menu::TEXT_FILE]);
+		m_Menu.AddSubMenu(m_Menu_View, m_FlagStringPopupDraw, language.Menu.Texts[Language::_Menu::TEXT_VIEW]);
+		m_Menu.AddSubMenu(m_Menu_Create, m_FlagStringPopupDraw, language.Menu.Texts[Language::_Menu::TEXT_CREATE]);
+		m_Menu.AddSubMenu(m_Menu_Settings, m_FlagStringPopupDraw, language.Menu.Texts[Language::_Menu::TEXT_SETTINGS]);
 	}
 
 	void SetLanguage(Language& language) {
-		m_Menu.ChangeItemText(m_Menu_File, language.Menu.File);
-		m_Menu.ChangeItemText(m_Menu_View, language.Menu.View);
+		m_Menu.ChangeItemText(m_Menu_File, language.Menu.Texts[Language::_Menu::TEXT_FILE]);
+		m_Menu.ChangeItemText(m_Menu_View, language.Menu.Texts[Language::_Menu::TEXT_VIEW]);
 
-		m_Menu.ChangeItemText(m_Menu_Create, language.Menu.Create);
-		m_Menu.ChangeItemText(m_Menu_Create_Primitive, language.Menu.Create_Primitive);
-		m_Menu.ChangeItemText(m_Menu_Create_Entity, language.Menu.Create_Entity);
+		m_Menu.ChangeItemText(m_Menu_Create, language.Menu.Texts[Language::_Menu::TEXT_CREATE]);
+		m_Menu.ChangeItemText(m_Menu_Create_Primitive, language.Menu.Texts[Language::_Menu::TEXT_CREATE_PRIMITIVE]);
+		m_Menu.ChangeItemText(m_Menu_Create_Entity, language.Menu.Texts[Language::_Menu::TEXT_CREATE_ENTITY]);
 
-		m_Menu.ChangeItemText(m_Menu_Settings, language.Menu.Settings);
-		m_Menu.ChangeItemText(m_Menu_Settings_Theme, language.Menu.Settings_Theme);
-		m_Menu.ChangeItemText(m_Menu_Settings_Language, language.Menu.Settings_Language);
+		m_Menu.ChangeItemText(m_Menu_Settings, language.Menu.Texts[Language::_Menu::TEXT_SETTINGS]);
+		m_Menu.ChangeItemText(m_Menu_Settings_Theme, language.Menu.Texts[Language::_Menu::TEXT_SETTINGS_THEME]);
+		m_Menu.ChangeItemText(m_Menu_Settings_Language, language.Menu.Texts[Language::_Menu::TEXT_SETTINGS_LANGUAGE]);
 
-		m_Menu.ChangeItemText(MENU_BUILD, language.Menu.File_Build);
-		m_Menu.ChangeItemText(MENU_NEW, language.Menu.File_New);
-		m_Menu.ChangeItemText(MENU_OPEN, language.Menu.File_Open);
-		m_Menu.ChangeItemText(MENU_SAVE, language.Menu.File_Save);
-		m_Menu.ChangeItemText(MENU_SAVEAS, language.Menu.File_SaveAs);
-		m_Menu.ChangeItemText(MENU_CLOSE, language.Menu.File_Close);
+		m_Menu.ChangeItemText(MENU_BUILD, language.Menu.Texts[Language::_Menu::TEXT_FILE_BUILD]);
+		m_Menu.ChangeItemText(MENU_NEW, language.Menu.Texts[Language::_Menu::TEXT_FILE_NEW]);
+		m_Menu.ChangeItemText(MENU_OPEN, language.Menu.Texts[Language::_Menu::TEXT_FILE_OPEN]);
+		m_Menu.ChangeItemText(MENU_SAVE, language.Menu.Texts[Language::_Menu::TEXT_FILE_SAVE]);
+		m_Menu.ChangeItemText(MENU_SAVEAS, language.Menu.Texts[Language::_Menu::TEXT_FILE_SAVEAS]);
+		m_Menu.ChangeItemText(MENU_CLOSE, language.Menu.Texts[Language::_Menu::TEXT_FILE_CLOSE]);
 		
-		m_Menu.ChangeItemText(MENU_ENABLE_OBJECTS_TREE, language.Menu.View_ObjectsTree);
-		m_Menu.ChangeItemText(MENU_ENABLE_FILE_EXPLORER, language.Menu.View_FileExplorer);
-		m_Menu.ChangeItemText(MENU_ENABLE_PROPERTY, language.Menu.View_Property);
+		m_Menu.ChangeItemText(MENU_ENABLE_OBJECTS_TREE, language.Menu.Texts[Language::_Menu::TEXT_VIEW_OBJECTSTREE]);
+		m_Menu.ChangeItemText(MENU_ENABLE_FILE_EXPLORER, language.Menu.Texts[Language::_Menu::TEXT_VIEW_FILEEXPLORER]);
+		m_Menu.ChangeItemText(MENU_ENABLE_PROPERTY, language.Menu.Texts[Language::_Menu::TEXT_VIEW_PROPERTY]);
 
-		m_Menu.ChangeItemText(MENU_CREATE_PRIMITIV_CUBE, language.Menu.Create_Primitive_Cube);
-		m_Menu.ChangeItemText(MENU_CREATE_PRIMITIV_PYRAMID, language.Menu.Create_Primitive_Pyramid);
-		m_Menu.ChangeItemText(MENU_CREATE_PRIMITIV_QUAD, language.Menu.Create_Primitive_Quad);
-		m_Menu.ChangeItemText(MENU_CREATE_PRIMITIV_PLANE, language.Menu.Create_Primitive_Plane);
-		m_Menu.ChangeItemText(MENU_CREATE_ENTITY_CAMERA, language.Menu.Create_Entity_Camera);
-		m_Menu.ChangeItemText(MENU_CREATE_ENTITY_SOUND, language.Menu.Create_Entity_Sound);
-		m_Menu.ChangeItemText(MENU_CREATE_ENTITY_MODEL, language.Menu.Create_Entity_Model);
+		m_Menu.ChangeItemText(MENU_CREATE_PRIMITIV_CUBE, language.Menu.Texts[Language::_Menu::TEXT_CREATE_PRIMITIVE_CUBE]);
+		m_Menu.ChangeItemText(MENU_CREATE_PRIMITIV_PYRAMID, language.Menu.Texts[Language::_Menu::TEXT_CREATE_PRIMITIVE_PYRAMID]);
+		m_Menu.ChangeItemText(MENU_CREATE_PRIMITIV_QUAD, language.Menu.Texts[Language::_Menu::TEXT_CREATE_PRIMITIVE_QUAD]);
+		m_Menu.ChangeItemText(MENU_CREATE_PRIMITIV_PLANE, language.Menu.Texts[Language::_Menu::TEXT_CREATE_PRIMITIVE_PLANE]);
+		m_Menu.ChangeItemText(MENU_CREATE_ENTITY_CAMERA, language.Menu.Texts[Language::_Menu::TEXT_CREATE_ENTITY_CAMERA]);
+		m_Menu.ChangeItemText(MENU_CREATE_ENTITY_SOUND, language.Menu.Texts[Language::_Menu::TEXT_CREATE_ENTITY_SOUND]);
+		m_Menu.ChangeItemText(MENU_CREATE_ENTITY_MODEL, language.Menu.Texts[Language::_Menu::TEXT_CREATE_ENTITY_MODEL]);
 	}
 
 	Nt::Menu& GetNtMenu() noexcept {
@@ -105,30 +105,30 @@ private:
 
 private:
 	void _InitializeItem_File(const Language& language) {
-		m_Menu_File.Add(Nt::Menu::FLAG_STRING, MENU_BUILD, language.Menu.File_Build);
-		m_Menu_File.Add(Nt::Menu::FLAG_STRING, MENU_NEW, language.Menu.File_New);
-		m_Menu_File.Add(Nt::Menu::FLAG_STRING, MENU_OPEN, language.Menu.File_Open);
-		m_Menu_File.Add(Nt::Menu::FLAG_STRING, MENU_SAVE, language.Menu.File_Save);
-		m_Menu_File.Add(Nt::Menu::FLAG_STRING, MENU_SAVEAS, language.Menu.File_SaveAs);
-		m_Menu_File.Add(Nt::Menu::FLAG_STRING, MENU_CLOSE, language.Menu.File_Close);
+		m_Menu_File.Add(Nt::Menu::FLAG_STRING, MENU_BUILD, language.Menu.Texts[Language::_Menu::TEXT_FILE_BUILD]);
+		m_Menu_File.Add(Nt::Menu::FLAG_STRING, MENU_NEW, language.Menu.Texts[Language::_Menu::TEXT_FILE_NEW]);
+		m_Menu_File.Add(Nt::Menu::FLAG_STRING, MENU_OPEN, language.Menu.Texts[Language::_Menu::TEXT_FILE_OPEN]);
+		m_Menu_File.Add(Nt::Menu::FLAG_STRING, MENU_SAVE, language.Menu.Texts[Language::_Menu::TEXT_FILE_SAVE]);
+		m_Menu_File.Add(Nt::Menu::FLAG_STRING, MENU_SAVEAS, language.Menu.Texts[Language::_Menu::TEXT_FILE_SAVEAS]);
+		m_Menu_File.Add(Nt::Menu::FLAG_STRING, MENU_CLOSE, language.Menu.Texts[Language::_Menu::TEXT_FILE_CLOSE]);
 	}
 	void _InitializeItem_View(const Language& language) {
-		m_Menu_View.Add(m_FlagStringCheckedDraw, MENU_ENABLE_OBJECTS_TREE, language.Menu.View_ObjectsTree);
-		m_Menu_View.Add(m_FlagStringCheckedDraw, MENU_ENABLE_FILE_EXPLORER, language.Menu.View_FileExplorer);
-		m_Menu_View.Add(m_FlagStringCheckedDraw, MENU_ENABLE_PROPERTY, language.Menu.View_Property);
+		m_Menu_View.Add(m_FlagStringCheckedDraw, MENU_ENABLE_OBJECTS_TREE, language.Menu.Texts[Language::_Menu::TEXT_VIEW_OBJECTSTREE]);
+		m_Menu_View.Add(m_FlagStringCheckedDraw, MENU_ENABLE_FILE_EXPLORER, language.Menu.Texts[Language::_Menu::TEXT_VIEW_FILEEXPLORER]);
+		m_Menu_View.Add(m_FlagStringCheckedDraw, MENU_ENABLE_PROPERTY, language.Menu.Texts[Language::_Menu::TEXT_VIEW_PROPERTY]);
 	}
 	void _InitializeItem_Create(const Language& language) {
-		m_Menu_Create_Primitive.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_PRIMITIV_CUBE, language.Menu.Create_Primitive_Cube);
-		m_Menu_Create_Primitive.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_PRIMITIV_QUAD, language.Menu.Create_Primitive_Quad);
-		m_Menu_Create_Primitive.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_PRIMITIV_PLANE, language.Menu.Create_Primitive_Plane);
-		m_Menu_Create_Primitive.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_PRIMITIV_PYRAMID, language.Menu.Create_Primitive_Pyramid);
+		m_Menu_Create_Primitive.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_PRIMITIV_CUBE, language.Menu.Texts[Language::_Menu::TEXT_CREATE_PRIMITIVE_CUBE]);
+		m_Menu_Create_Primitive.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_PRIMITIV_QUAD, language.Menu.Texts[Language::_Menu::TEXT_CREATE_PRIMITIVE_QUAD]);
+		m_Menu_Create_Primitive.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_PRIMITIV_PLANE, language.Menu.Texts[Language::_Menu::TEXT_CREATE_PRIMITIVE_PLANE]);
+		m_Menu_Create_Primitive.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_PRIMITIV_PYRAMID, language.Menu.Texts[Language::_Menu::TEXT_CREATE_PRIMITIVE_PYRAMID]);
 
-		m_Menu_Create_Entity.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_ENTITY_CAMERA, language.Menu.Create_Entity_Camera);
-		m_Menu_Create_Entity.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_ENTITY_SOUND, language.Menu.Create_Entity_Sound);
-		m_Menu_Create_Entity.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_ENTITY_MODEL, language.Menu.Create_Entity_Model);
+		m_Menu_Create_Entity.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_ENTITY_CAMERA, language.Menu.Texts[Language::_Menu::TEXT_CREATE_ENTITY_CAMERA]);
+		m_Menu_Create_Entity.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_ENTITY_SOUND, language.Menu.Texts[Language::_Menu::TEXT_CREATE_ENTITY_SOUND]);
+		m_Menu_Create_Entity.Add(Nt::Menu::FLAG_STRING, MENU_CREATE_ENTITY_MODEL, language.Menu.Texts[Language::_Menu::TEXT_CREATE_ENTITY_MODEL]);
 
-		m_Menu_Create.AddSubMenu(m_Menu_Create_Primitive, m_FlagStringPopupDraw, language.Menu.Create_Primitive);
-		m_Menu_Create.AddSubMenu(m_Menu_Create_Entity, m_FlagStringPopupDraw, language.Menu.Create_Entity);
+		m_Menu_Create.AddSubMenu(m_Menu_Create_Primitive, m_FlagStringPopupDraw, language.Menu.Texts[Language::_Menu::TEXT_CREATE_PRIMITIVE]);
+		m_Menu_Create.AddSubMenu(m_Menu_Create_Entity, m_FlagStringPopupDraw, language.Menu.Texts[Language::_Menu::TEXT_CREATE_ENTITY]);
 	}
 	void _InitializeItem_Settings(const Language& language) {
 		m_Menu_Settings_Theme.Add(m_FlagStringCheckedDraw, MENU_THEME_SOLARIZED_DARK, L"Solarized Dark");
@@ -138,11 +138,11 @@ private:
 		m_Menu_Settings_Theme.Add(m_FlagStringUncheckedDraw, MENU_THEME_BLACK, L"Black");
 		m_Menu_Settings_Theme.Add(m_FlagStringUncheckedDraw, MENU_THEME_WHITE, L"White");
 
-		m_Menu_Settings_Language.Add(m_FlagStringCheckedDraw, MENU_LANGUAGE_ENGLISH, language.Menu.Settings_Language_English);
-		m_Menu_Settings_Language.Add(m_FlagStringUncheckedDraw, MENU_LANGUAGE_RUSSIAN, language.Menu.Settings_Language_Russian);
-		m_Menu_Settings_Language.Add(m_FlagStringUncheckedDraw, MENU_LANGUAGE_SLOVAK, language.Menu.Settings_Language_Slovak);
+		m_Menu_Settings_Language.Add(m_FlagStringCheckedDraw, MENU_LANGUAGE_ENGLISH, language.Menu.Texts[Language::_Menu::TEXT_SETTINGS_LANGUAGE_ENGLISH]);
+		m_Menu_Settings_Language.Add(m_FlagStringUncheckedDraw, MENU_LANGUAGE_RUSSIAN, language.Menu.Texts[Language::_Menu::TEXT_SETTINGS_LANGUAGE_RUSSIAN]);
+		m_Menu_Settings_Language.Add(m_FlagStringUncheckedDraw, MENU_LANGUAGE_SLOVAK, language.Menu.Texts[Language::_Menu::TEXT_SETTINGS_LANGUAGE_SLOVAK]);
 
-		m_Menu_Settings.AddSubMenu(m_Menu_Settings_Theme, m_FlagStringPopupDraw, language.Menu.Settings_Theme);
-		m_Menu_Settings.AddSubMenu(m_Menu_Settings_Language, m_FlagStringPopupDraw, language.Menu.Settings_Language);
+		m_Menu_Settings.AddSubMenu(m_Menu_Settings_Theme, m_FlagStringPopupDraw, language.Menu.Texts[Language::_Menu::TEXT_SETTINGS_THEME]);
+		m_Menu_Settings.AddSubMenu(m_Menu_Settings_Language, m_FlagStringPopupDraw, language.Menu.Texts[Language::_Menu::TEXT_SETTINGS_LANGUAGE]);
 	}
 };
