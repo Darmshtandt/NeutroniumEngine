@@ -1,6 +1,6 @@
 .vs/
 Libraries/
-Bin/Debug/
+Bin/*
 
 Application/Debug/
 Application/Release/
@@ -22,6 +22,4 @@ TerrainSculptor/Debug/
 TerrainSculptor/Release/
 TerrainSculptor/x64/
 
-Application/Debug/
-Application/Release/
-Application/x64/
+Player.lua

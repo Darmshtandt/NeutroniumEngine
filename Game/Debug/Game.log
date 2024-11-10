@@ -1,8 +1,0 @@
-﻿  Game.cpp
-C:\Users\Пользователь\source\repos\NeutroniumEngine\Libraries\Include\CGAL\cpp_float.h(30,29): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned long', possible loss of data
-C:\Users\Пользователь\source\repos\NeutroniumEngine\Libraries\Include\CGAL\cpp_float.h(42,29): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned long', possible loss of data
-  Main.cpp
-C:\Users\Пользователь\source\repos\NeutroniumEngine\Libraries\Include\CGAL\cpp_float.h(30,29): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned long', possible loss of data
-C:\Users\Пользователь\source\repos\NeutroniumEngine\Libraries\Include\CGAL\cpp_float.h(42,29): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned long', possible loss of data
-  Generating Code...
-  Game.vcxproj -> C:\Users\Пользователь\source\repos\NeutroniumEngine\Bin\Debug\Game.lib

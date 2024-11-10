@@ -428,10 +428,10 @@ private:
 	}
 	void _CSG() {
 		if (m_Selector.GetObjects().size() > 1) {
-			using Kernel = CGAL::Homogeneous<CGAL::Exact_integer>;
-			using NefPolyhedron = CGAL::Nef_polyhedron_3<Kernel>;
-			using Polyhedron = CGAL::Polyhedron_3<Kernel>;
-			using SurfaceMesh = CGAL::Surface_mesh<CGAL::Exact_predicates_exact_constructions_kernel::Point_3>;
+			//using Kernel = CGAL::Homogeneous<CGAL::Exact_integer>;
+			//using NefPolyhedron = CGAL::Nef_polyhedron_3<Kernel>;
+			//using Polyhedron = CGAL::Polyhedron_3<Kernel>;
+			//using SurfaceMesh = CGAL::Surface_mesh<CGAL::Exact_predicates_exact_constructions_kernel::Point_3>;
 
 			/*NefPolyhedron nefOperationResult;
 			for (const Object* pObject : m_Selector.GetObjects()) {
