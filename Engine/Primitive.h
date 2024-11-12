@@ -68,7 +68,7 @@ public:
 			Raise("Error primitive type");
 			break;
 		}
-		_UpdateColliders();
+		_RecreateColliders();
 	}
 
 
@@ -116,7 +116,7 @@ public:
 
 		pMesh->SetShape(shape);
 		IObject::SetSize(correctSize);
-		_UpdateColliders();
+		_RecreateColliders();
 	}
 	void SetTextureOffset(const Nt::Float2D& textureOffset) {
 		if (m_TextureOffset == textureOffset)

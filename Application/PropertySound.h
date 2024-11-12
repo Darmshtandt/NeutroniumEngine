@@ -9,8 +9,7 @@ public:
 		BUTTON_TOGGLE_LOOPINT,
 	};
 	enum TextEdits {
-		TEXTEDIT_FIRST = 5000,
-		TEXTEDIT_SOUND_PATH = TEXTEDIT_FIRST,
+		TEXTEDIT_SOUND_PATH,
 		TEXTEDIT_ROLLOFF_FACTOR,
 		TEXTEDIT_REFERENCE_DISNANCE,
 		TEXTEDIT_MAX_DISNANCE,
@@ -32,7 +31,7 @@ public:
 		m_SoundPathLayout(2),
 		m_SoundPlayerLayout(2),
 		m_Texts(LanguageData::TEXT_COUNT),
-		m_TextEdits(TEXTEDIT_COUNT - TEXTEDIT_FIRST)
+		m_TextEdits(TEXTEDIT_COUNT)
 	{
 	}
 
@@ -104,13 +103,13 @@ public:
 		m_BrowseButton.Create("...");
 		m_BrowseButton.Show();
 
-		for (uInt i = 0; i < TEXTEDIT_COUNT - TEXTEDIT_FIRST; ++i) {
+		for (uInt i = 0; i < TEXTEDIT_COUNT; ++i) {
 			m_ParametersLayout.Insert({ 0, i }, &m_Texts[i]);
 			m_Texts[i].SetColor(settings.Styles.Property.Texts.Color);
 			m_Texts[i].SetWeight(settings.Styles.Property.Texts.Weight);
 			m_Texts[i].SetText(m_LanguageData.Texts[i]);
 
-			if (TEXTEDIT_FIRST + i == TEXTEDIT_SOUND_PATH) {
+			if (i == TEXTEDIT_SOUND_PATH) {
 				m_TextEdits[i].AddStyles(ES_READONLY);
 				m_SoundPathLayout.Insert(0, &m_TextEdits[i]);
 			}
@@ -118,7 +117,7 @@ public:
 				m_ParametersLayout.Insert({ 1, i }, &m_TextEdits[i]);
 			}
 
-			m_TextEdits[i].SetID(i + TEXTEDIT_FIRST);
+			m_TextEdits[i].SetID(i);
 			m_TextEdits[i].Create("", true);
 			m_TextEdits[i].SetBackgroundColor(m_Style.Property.TextEdits.BackgroundColor);
 			m_TextEdits[i].SetTextColor(m_Style.Property.TextEdits.Text.Color);
@@ -147,26 +146,37 @@ public:
 		m_ToggleLoopingButton.Show();
 	}
 	void Update() {
+		if (m_SelectorPtr == nullptr) {
+			Raise("Selector pointer is nullptr");
+			return;
+		}
+
 		if (!IsEnabled())
 			return;
-		if (!m_SelectorPtr)
-			Raise("Selector pointer is nullptr");
+
 		if (!m_SelectorPtr->IsChanged())
 			return;
 
-		const uInt selectedObjectCount = m_SelectorPtr->GetObjects().size();
+		const uInt selectedObjectCount = m_SelectorPtr->GetObjectCount();
+
 		if (selectedObjectCount == 1) {
-			Object* pObject = m_SelectorPtr->GetObjects()[0];
+			Object* pObject = m_SelectorPtr->GetObjectPtr(0);
+			if (pObject == nullptr) {
+				Raise("Null object selected");
+				return;
+			}
+
 			if (pObject->ObjectType == ObjectTypes::ENTITY) {
 				Entity* pEntity = UpcastObjectToEntity(pObject);
+
 				if (pEntity->GetEntityType() == EntityTypes::SOUND) {
 					m_SelectedSoundPtr = UpcastEntityToGameSound(pEntity);
 
-					m_TextEdits[TEXTEDIT_SOUND_PATH - TEXTEDIT_FIRST].SetText(m_SelectedSoundPtr->GetFilePath());
-					m_TextEdits[TEXTEDIT_ROLLOFF_FACTOR - TEXTEDIT_FIRST].SetText(m_SelectedSoundPtr->GetRolloffFactor());
-					m_TextEdits[TEXTEDIT_REFERENCE_DISNANCE - TEXTEDIT_FIRST].SetText(m_SelectedSoundPtr->GetReferenceDistance());
-					m_TextEdits[TEXTEDIT_MAX_DISNANCE - TEXTEDIT_FIRST].SetText(m_SelectedSoundPtr->GetMaxDistance());
-					m_TextEdits[TEXTEDIT_GAIN - TEXTEDIT_FIRST].SetText(m_SelectedSoundPtr->GetGain());
+					m_TextEdits[TEXTEDIT_SOUND_PATH].SetText(m_SelectedSoundPtr->GetFilePath());
+					m_TextEdits[TEXTEDIT_ROLLOFF_FACTOR].SetText(m_SelectedSoundPtr->GetRolloffFactor());
+					m_TextEdits[TEXTEDIT_REFERENCE_DISNANCE].SetText(m_SelectedSoundPtr->GetReferenceDistance());
+					m_TextEdits[TEXTEDIT_MAX_DISNANCE].SetText(m_SelectedSoundPtr->GetMaxDistance());
+					m_TextEdits[TEXTEDIT_GAIN].SetText(m_SelectedSoundPtr->GetGain());
 
 					m_DeleteButton.EnableWindow();
 					m_PlayAtStartButton.EnableWindow();
@@ -179,7 +189,7 @@ public:
 		}
 
 		m_SelectedSoundPtr = nullptr;
-		m_TextEdits[TEXTEDIT_SOUND_PATH - TEXTEDIT_FIRST].SetText(
+		m_TextEdits[TEXTEDIT_SOUND_PATH].SetText(
 			(selectedObjectCount > 1) ? "..." : "No selected");
 
 		m_DeleteButton.DisableWindow();
@@ -187,33 +197,27 @@ public:
 	}
 
 	void BrowseSound() {
-		const uInt selectedObjectCount = m_SelectorPtr->GetObjects().size();
-		if (m_SelectorPtr && selectedObjectCount > 0) {
-			const cwString filter = L"Sound (*.wav)\0*.wav\0All (*.*)\0*.*";
+		if (m_SelectedSoundPtr == nullptr)
+			return;
 
-			Nt::String filePath = Nt::OpenFileDialog(GetRootPath().wstr().c_str(), filter);
-			if (filePath.size() == 0)
-				return;
+		const std::string filePath = _Browse(L"Sound (*.wav)\0*.wav\0All (*.*)\0*.*");
 
-			if (!IsValidPath(GetRootPath(), filePath)) {
-				WarningBox(L"To add a file, place it in the project's root folder.", L"Warning");
-				return;
-			}
-			filePath.erase(filePath.begin(), filePath.begin() + GetRootPath().length() + 1);
+		if (filePath.empty())
+			return;
 
-			if (m_SelectedSoundPtr)
-				m_SelectedSoundPtr->Load(filePath);
+		m_SelectedSoundPtr->Load(filePath);
 
-			m_TextEdits[TEXTEDIT_SOUND_PATH - TEXTEDIT_FIRST].SetText(filePath);
-			m_DeleteButton.EnableWindow();
-		}
+		m_TextEdits[TEXTEDIT_SOUND_PATH].SetText(filePath);
+
+		m_DeleteButton.EnableWindow();
 	}
 
 	void SetTheme(const Style& style) {
 		m_Style = style;
 
 		SetBackgroundColor(m_Style.Property.BackgroundColor);
-		for (uInt i = 0; i < TEXTEDIT_COUNT - TEXTEDIT_FIRST; ++i) {
+
+		for (uInt i = 0; i < TEXTEDIT_COUNT; ++i) {
 			m_Texts[i].SetColor(m_Style.Property.Texts.Color);
 			m_Texts[i].SetWeight(m_Style.Property.Texts.Weight);
 
@@ -226,31 +230,38 @@ public:
 		m_LanguageData = (LanguageData)language.PropertyWindow.Sound;
 		m_LanguageData.WindowName =
 			language.PropertyWindow.Component.Texts[LanguageData::ComponentName::TEXT_SOUNDWINDOW];
+
 		SetName(m_LanguageData.WindowName);
 
 		for (uInt i = 0; i < LanguageData::TEXT_COUNT; ++i)
 			m_Texts[i].SetText(m_LanguageData.Texts[i]);
 
 	}
-	void SetScence(Scence* pScence) {
-		if (pScence == nullptr)
+	void SetScence(Scene* pScence) {
+		if (pScence == nullptr) {
 			Raise("Scence pointer is null.");
+			return;
+		}
+
 		m_pScence = pScence;
 	}
 
 private:
+	std::vector<Nt::Text> m_Texts;
+	std::vector<Nt::TextEdit> m_TextEdits;
+
 	Nt::BoxLayout m_ContentLayout;
 	Nt::BoxLayout m_SoundPathLayout;
 	Nt::BoxLayout m_SoundPlayerLayout;
 	Nt::GridLayout m_ParametersLayout;
-	GameSound* m_SelectedSoundPtr = nullptr;
-	Scence* m_pScence;
-	std::vector<Nt::Text> m_Texts;
-	std::vector<Nt::TextEdit> m_TextEdits;
+
 	Nt::Button m_BrowseButton;
 	Nt::Button m_DeleteButton;
 	Nt::Button m_PlayAtStartButton;
 	Nt::Button m_ToggleLoopingButton;
+
+	GameSound* m_SelectedSoundPtr = nullptr;
+	Scene* m_pScence;
 	LanguageData m_LanguageData;
 	Style m_Style;
 
@@ -260,6 +271,9 @@ private:
 			text.Draw(*this);
 	}
 	void _WMCommand(const Long& param_1, [[maybe_unused]] const Long& param_2) override {
+		if (m_SelectedSoundPtr == nullptr)
+			return;
+
 		const uInt id = LOWORD(param_1);
 		const uInt command = HIWORD(param_1);
 
@@ -269,45 +283,52 @@ private:
 			case BUTTON_BROWSE:
 				BrowseSound();
 				break;
+
 			case BUTTON_REMOVE:
-				if (m_SelectedSoundPtr) {
-					m_SelectedSoundPtr->Unload();
-					m_TextEdits[TEXTEDIT_SOUND_PATH].SetText("No selected");
-				}
+				m_SelectedSoundPtr->Unload();
+
+				m_TextEdits[TEXTEDIT_SOUND_PATH].SetText("No selected");
+
 				m_DeleteButton.DisableWindow();
 				break;
+
 			case BUTTON_PLAY_AT_START:
-				if (m_SelectedSoundPtr) {
-					if (m_PlayAtStartButton.IsChecked())
-						m_SelectedSoundPtr->EnablePlaingAtStart();
-					else
-						m_SelectedSoundPtr->DisablePlaingAtStart();
-				}
+				if (m_PlayAtStartButton.IsChecked())
+					m_SelectedSoundPtr->EnablePlaingAtStart();
+				else
+					m_SelectedSoundPtr->DisablePlaingAtStart();
+
 				break;
+
 			case BUTTON_TOGGLE_LOOPINT:
 				m_SelectedSoundPtr->ToggleLooping(m_ToggleLoopingButton.IsChecked());
 				break;
 			}
+
 			break;
+
 		case EN_UPDATE:
-			if (m_SelectedSoundPtr) {
-				switch (id) {
-				case TEXTEDIT_SOUND_PATH:
-					break;
-				case TEXTEDIT_ROLLOFF_FACTOR:
-					m_SelectedSoundPtr->SetRolloffFactor(m_TextEdits[id - TEXTEDIT_FIRST].GetText());
-					break;
-				case TEXTEDIT_REFERENCE_DISNANCE:
-					m_SelectedSoundPtr->SetReferenceDistance(m_TextEdits[id - TEXTEDIT_FIRST].GetText());
-					break;
-				case TEXTEDIT_MAX_DISNANCE:
-					m_SelectedSoundPtr->SetMaxDistance(m_TextEdits[id - TEXTEDIT_FIRST].GetText());
-					break;
-				case TEXTEDIT_GAIN:
-					m_SelectedSoundPtr->SetGain(m_TextEdits[id - TEXTEDIT_FIRST].GetText());
-					break;
-				}
+			switch (id) {
+			case TEXTEDIT_SOUND_PATH:
+				break;
+
+			case TEXTEDIT_ROLLOFF_FACTOR:
+				m_SelectedSoundPtr->SetRolloffFactor(m_TextEdits[id].GetText());
+				break;
+
+			case TEXTEDIT_REFERENCE_DISNANCE:
+				m_SelectedSoundPtr->SetReferenceDistance(m_TextEdits[id].GetText());
+				break;
+
+			case TEXTEDIT_MAX_DISNANCE:
+				m_SelectedSoundPtr->SetMaxDistance(m_TextEdits[id].GetText());
+				break;
+
+			case TEXTEDIT_GAIN:
+				m_SelectedSoundPtr->SetGain(m_TextEdits[id].GetText());
+				break;
 			}
+
 			break;
 		}
 	}

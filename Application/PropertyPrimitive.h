@@ -18,7 +18,7 @@ public:
 	};
 
 public:
-	PropertyPrimitive(Scence* pScence) {
+	PropertyPrimitive(Scene* pScence) {
 		SetScence(pScence);
 	}
 
@@ -67,11 +67,13 @@ public:
 		if (!IsEnabled())
 			return;
 
-		if (!m_SelectorPtr)
+		if (m_SelectorPtr == nullptr) {
 			Raise("Selector pointer is nullptr");
+			return;
+		}
 
-		if (m_SelectorPtr->GetObjects().size() == 1 && m_SelectorPtr->IsChanged())
-			Button_SetCheck(m_ButtonInivisible.GetHandle(), m_SelectorPtr->GetObjects()[0]->IsInvisible());
+		if (m_SelectorPtr->GetObjectCount() == 1 && m_SelectorPtr->IsChanged())
+			m_ButtonInivisible.SetCheck(m_SelectorPtr->GetObjectPtr(0)->IsInvisible());
 	}
 
 	void SetTheme(const Style& style) override {
@@ -86,7 +88,7 @@ public:
 
 		m_ButtonAdd.SetName(m_LanguageData.Texts[LanguageData::TEXT_INVISIBLE]);
 	}
-	void SetScence(Scence* pScence) {
+	void SetScence(Scene* pScence) {
 		if (pScence == nullptr)
 			Raise("Scence pointer is nullptr.");
 		m_ScencePtr = pScence;
@@ -94,7 +96,7 @@ public:
 
 private:
 	LanguageData m_LanguageData;
-	Scence* m_ScencePtr = nullptr;
+	Scene* m_ScencePtr = nullptr;
 	Nt::Button m_ButtonAdd;
 	Nt::Button m_ButtonSplit;
 	Nt::Button m_ButtonInivisible;
@@ -103,31 +105,33 @@ private:
 
 private:
 	void _WMCommand(const Long& param_1, [[maybe_unused]] const Long& param_2) override {
+		if (m_SelectorPtr == nullptr)
+			return;
+
 		const uInt id = LOWORD(param_1);
 		const uInt command = HIWORD(param_1);
 
 		try {
-			if (m_SelectorPtr == nullptr)
-				return;
-
 			switch (command) {
 			case BN_CLICKED:
-				if (m_SelectorPtr != nullptr) {
-					switch (id - ID) {
-					case BUTTON_JOIN:
-						break;
-					case BUTTON_SPLIT:
-						break;
-					case BUTTON_INVISIBLE:
-						for (Object* pObject : m_SelectorPtr->GetObjects()) {
-							if (IsDlgButtonChecked(m_hwnd, id))
-								pObject->EnableInvisible();
-							else
-								pObject->DisableInvisible();
-						}
-						break;
+				switch (id - ID) {
+				case BUTTON_JOIN:
+					break;
+
+				case BUTTON_SPLIT:
+					break;
+
+				case BUTTON_INVISIBLE:
+					for (Object* pObject : m_SelectorPtr->GetObjectContaiter()) {
+						if (m_ButtonInivisible.IsChecked())
+							pObject->EnableInvisible();
+						else
+							pObject->DisableInvisible();
 					}
+
+					break;
 				}
+
 				break;
 			}
 		}

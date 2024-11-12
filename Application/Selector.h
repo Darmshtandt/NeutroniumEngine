@@ -1,6 +1,6 @@
 #pragma once
 
-class Scence;
+class Scene;
 
 class Selector {
 public:
@@ -18,12 +18,13 @@ public:
 		m_SelectedAxis(SelectedAxis::NONE),
 		m_TransformationMode(MODE_TRANSLATE),
 		m_GridCellSize(1.f),
+		m_ScencePtr(nullptr),
 		m_IsSnapToGrid(false),
 		m_IsChanged(true)
 	{ 
 	}
 
-	void Initialize(Scence* pScence, const Nt::String& defaultInitialPath);
+	void Initialize(Scene* pScence, const Nt::String& defaultInitialPath);
 
 	void Control(const Nt::RenderWindow* pWindow, const Nt::Float3D& cameraPosition, const Nt::Float3D& cameraAngle, Nt::Keyboard& keyboard, Nt::Mouse& mouse);
 
@@ -40,17 +41,22 @@ public:
 
 	void UnmarkChanged() noexcept;
 
-	const ObjectContainer& GetObjects() const noexcept;
+	const ObjectContainer& GetObjectContaiter() const noexcept;
+	Object* GetObjectPtr(const uInt& index) const noexcept;
+
+	uInt GetObjectCount() const noexcept;
 	Bool IsContained(const Object* pObject) const;
 	Bool IsChanged() const noexcept;
+	Bool IsEmpty() const noexcept;
 
 	void SetGridCellSize(const Float& gridCellSize) noexcept;
 	void SetTransformationMode(const TransformationMode& mode) noexcept;
 
 private:
-	Scence* m_ScencePtr;
 	ObjectContainer m_SelectedObjects;
+	Scene* m_ScencePtr;
 	Object m_AxisObject;
+
 	Nt::Model m_AxisModel;
 	Nt::Model m_AxisScaleModel;
 	Nt::Float2D m_StartMovingCursor;

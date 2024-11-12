@@ -15,7 +15,7 @@ public:
 	}
 
 	void Render(Nt::Renderer* pRenderer) const override {
-		if (IsVisible()) {
+		if (IsRenderEnabled()) {
 			const Nt::Renderer::DrawingMode prevDrawingMode = pRenderer->GetDrawingMode();
 
 			pRenderer->SetDrawingMode(Nt::Renderer::DrawingMode::LINES);

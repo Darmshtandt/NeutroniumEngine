@@ -72,10 +72,9 @@ public:
 
 		Nt::Event event;
 		while (IsOpened()) {
-			PeekMessages();
-			while (PopEvent(&event) || m_pObjectsTree->PopEvent(&event)
-				|| m_pPropertyWindow->PopEvent(&event) || m_pFileExplorer->PopEvent(&event)
-				|| m_pEngine->PopEvent(&event))
+			while (PeekMessages(&event) || m_pObjectsTree->PeekMessages(&event)
+				|| m_pPropertyWindow->PeekMessages(&event) || m_pFileExplorer->PeekMessages(&event)
+				|| m_pEngine->PeekMessages(&event))
 			{
 				switch (event.Type) {
 				case Nt::Event::WINDOW_RESIZE:

@@ -38,7 +38,7 @@ public:
 	{
 	}
 
-	void Initialize(Scence* pScence);
+	void Initialize(Scene* pScence);
 	void Uninitialize() {
 		m_pLua->Uninitialize();
 	}

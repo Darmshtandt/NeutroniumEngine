@@ -79,7 +79,8 @@ using Nt::cwString;
 using Nt::Word;
 using Nt::DWord;
 
-__inline Bool IsValidPath(const Nt::String& rootPath, const Nt::String& verifiablePath) {
+_NODISCARD
+__inline Bool IsValidPath(const Nt::String& rootPath, const Nt::String& verifiablePath) noexcept {
 	if (rootPath.length() > verifiablePath.length())
 		return false;
 

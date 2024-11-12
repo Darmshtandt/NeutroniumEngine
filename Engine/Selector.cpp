@@ -6,12 +6,12 @@
 #include <Lua.h>
 #include <Script.h>
 #include <Object.h>
-#include <Scence.h>
+#include <Scene.h>
 #include <Grid.h>
 #include <Selector.h>
 
 
-void Selector::Initialize(Scence* pScence, const Nt::String& defaultInitialPath) {
+void Selector::Initialize(Scene* pScence, const Nt::String& defaultInitialPath) {
 	if (pScence == nullptr)
 		Raise("Scence pointer is null");
 
@@ -141,18 +141,18 @@ void Selector::Control(const Nt::RenderWindow* pWindow, const Nt::Float3D& camer
 }
 
 void Selector::Update(const Nt::Float3D& cameraPosition) {
-	if (m_AxisObject.IsVisible()) {
+	if (m_AxisObject.IsRenderEnabled()) {
 		const Float newSize = (m_AxisObject.GetPosition() - cameraPosition / 2.f).Length() / 5.f;
 		//m_AxisObject.SetSize({ newSize, newSize, newSize });
 	}
 
 	if (m_IsChanged) {
-		if (m_SelectedObjects.size() > 0) {
+		if (!m_SelectedObjects.empty()) {
 			m_AxisObject.SetPosition(m_SelectedObjects[0]->GetPosition());
-			m_AxisObject.Show();
+			m_AxisObject.EnableRender();
 		}
 		else {
-			m_AxisObject.Hide();
+			m_AxisObject.DisableRender();
 		}
 	}
 }
@@ -218,8 +218,20 @@ void Selector::UnmarkChanged() noexcept {
 	m_IsChanged = false;
 }
 
-const ObjectContainer& Selector::GetObjects() const noexcept {
+const ObjectContainer& Selector::GetObjectContaiter() const noexcept {
 	return m_SelectedObjects;
+}
+Object* Selector::GetObjectPtr(const uInt& index) const noexcept {
+	if (index >= m_SelectedObjects.size()) {
+		Raise("Out of range");
+		return nullptr;
+	}
+
+	return m_SelectedObjects[index];
+}
+
+uInt Selector::GetObjectCount() const noexcept {
+	return m_SelectedObjects.size();
 }
 Bool Selector::IsContained(const Object* pObject) const {
 	auto iterator = std::find(m_SelectedObjects.begin(), m_SelectedObjects.end(), pObject);
@@ -227,6 +239,9 @@ Bool Selector::IsContained(const Object* pObject) const {
 }
 Bool Selector::IsChanged() const noexcept {
 	return m_IsChanged;
+}
+Bool Selector::IsEmpty() const noexcept {
+	return (m_SelectedObjects.size() == 0);
 }
 
 void Selector::SetGridCellSize(const Float& gridCellSize) noexcept {

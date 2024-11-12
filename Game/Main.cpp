@@ -12,5 +12,5 @@
 #include <GameModel.h>
 #include <Selector.h>
 #include <ObjectsTree.h>
-#include <Scence.h>
+#include <Scene.h>
 #include <Game.h>

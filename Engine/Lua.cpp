@@ -13,7 +13,7 @@
 #include <GameModel.h>
 #include <Selector.h>
 #include <ObjectsTree.h>
-#include <Scence.h>
+#include <Scene.h>
 #include <EnumWrapper.h>
 
 namespace luabridge {
@@ -125,7 +125,7 @@ void AddVectorToLua(Lua* pLua, const std::string& className) {
 		.endClass();
 }
 
-void Lua::Initialize(Scence* pScence) {
+void Lua::Initialize(Scene* pScence) {
 	if (pScence == nullptr)
 		Raise("Scence pointer is null");
 	if (m_pState != nullptr) {
@@ -329,18 +329,18 @@ void Lua::Initialize(Scence* pScence) {
 		.endClass();
 
 	GetGlobalNamespace()
-		.beginClass<Scence>("Scence")
+		.beginClass<Scene>("Scence")
 		.addConstructor<void(*)()>()
-		.addFunction("AddObject", &Scence::AddObject)
-		.addFunction("RemoveObject", &Scence::RemoveObject)
-		.addFunction("Clear", &Scence::Clear)
-		.addFunction("AllowIntersectionOfLayers", &Scence::AllowIntersectionOfLayers)
-		.addFunction("GetAllObjects", &Scence::GetObjects)
-		.addFunction("GetObjectByName", &Scence::GetObjectPtrByName)
-		.addFunction("GetObject", &Scence::GetObjectPtr)
-		.addFunction("GetSoundByName", &Scence::GetSoundPtrByName)
-		.addFunction("GetModelByName", &Scence::GetModelPtrByName)
-		.addFunction("GetCameraByName", &Scence::GetCameraPtrByName)
+		.addFunction("AddObject", &Scene::AddObject)
+		.addFunction("RemoveObject", &Scene::RemoveObject)
+		.addFunction("Clear", &Scene::Clear)
+		.addFunction("AllowIntersectionOfLayers", &Scene::AllowLayerOverlap)
+		.addFunction("GetAllObjects", &Scene::GetObjects)
+		.addFunction("GetObjectByName", &Scene::GetObjectPtrByName)
+		.addFunction("GetObject", &Scene::GetObjectPtr)
+		.addFunction("GetSoundByName", &Scene::GetSoundPtrByName)
+		.addFunction("GetModelByName", &Scene::GetModelPtrByName)
+		.addFunction("GetCameraByName", &Scene::GetCameraPtrByName)
 		.endClass();
 
 	GetGlobalNamespace()

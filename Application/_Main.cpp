@@ -15,7 +15,7 @@
 #include <Grid.h>
 #include <Selector.h>
 #include <ObjectsTree.h>
-#include <Scence.h>
+#include <Scene.h>
 #include <PropertyWindow.h>
 
 #include <FileExplorer.h>

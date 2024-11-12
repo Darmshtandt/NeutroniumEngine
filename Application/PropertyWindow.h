@@ -32,7 +32,7 @@ public:
 			SAFE_DELETE(&pComponent);
 	}
 
-	void Initialize(const Settings& settings, const Nt::String& rootPath, Selector* selectorPtr, Scence* pScence) {
+	void Initialize(const Settings& settings, const Nt::String& rootPath, Selector* selectorPtr, Scene* pScence) {
 		if (!std::exists(std::path(rootPath)))
 			Raise("Root folder path is not valid.");
 		else if (selectorPtr == nullptr)
@@ -67,19 +67,24 @@ public:
 		m_IsInitialized = true;
 	}
 
-	Bool PopEvent(Nt::Event* pEvent) {
-		if (!Window::PopEvent(pEvent)) {
-			for (PropertyComponent* pComponent : m_Components)
-				if (pComponent->PopEvent(pEvent))
+	Bool PeekMessages(Nt::Event* pEvent) {
+		if (!Window::PeekMessages(pEvent)) {
+			for (PropertyComponent* pComponent : m_Components) {
+				if (pComponent->PeekMessages(pEvent))
 					return true;
+			}
+
 			return false;
 		}
+
 		return true;
 	}
 
 	void EnableCompotent(const Components& component, const Bool& isEnabled) {
-		if (!m_IsInitialized)
+		if (!m_IsInitialized) {
 			Raise("PropertyWindow is not initialized");
+			return;
+		}
 
 		if (m_Components[component]->IsEnabled() != isEnabled) {
 			if (isEnabled)
@@ -90,82 +95,93 @@ public:
 	}
 
 	void Update() {
-		if (m_SelectorPtr == nullptr)
+		if (m_SelectorPtr == nullptr) {
 			Raise("Selection pointer is null.");
+			return;
+		}
 
-		if (m_SelectorPtr->IsChanged()) {
-			if (m_SelectorPtr->GetObjects().size() == 0) {
-				EnableCompotent(COMPONENT_TEXTURE, false);
-				EnableCompotent(COMPONENT_SCRIPT, false);
-				EnableCompotent(COMPONENT_RIGIDBODY, false);
-				EnableCompotent(COMPONENT_PRIMITIVE, false);
-				EnableCompotent(COMPONENT_SOUND, false);
-				EnableCompotent(COMPONENT_MODEL, false);
+		if (!m_SelectorPtr->IsChanged())
+			return;
+
+		if (m_SelectorPtr->IsEmpty()) {
+			EnableCompotent(COMPONENT_TEXTURE, false);
+			EnableCompotent(COMPONENT_SCRIPT, false);
+			EnableCompotent(COMPONENT_RIGIDBODY, false);
+			EnableCompotent(COMPONENT_PRIMITIVE, false);
+			EnableCompotent(COMPONENT_SOUND, false);
+			EnableCompotent(COMPONENT_MODEL, false);
+			return;
+		}
+
+		Bool modelPropEnabled = false;
+		Bool soundPropEnabled = false;
+		Bool primitivePropEnabled = true;
+		Bool texturePropEnabled = true;
+
+		for (const Object* pObject : m_SelectorPtr->GetObjectContaiter()) {
+			if (pObject == nullptr) {
+				Raise("Null object selected");
 				return;
 			}
 
-			Bool modelPropEnabled = false;
-			Bool soundPropEnabled = false;
-			Bool primitivePropEnabled = true;
-			Bool texturePropEnabled = true;
-			for (const Object* pObject : m_SelectorPtr->GetObjects()) {
-				if (pObject == nullptr)
-					Raise("Object pointer is null.");
+			switch (pObject->ObjectType) {
+			case ObjectTypes::PRIMITIVE:
+				break;
 
-				switch (pObject->ObjectType) {
-				case ObjectTypes::PRIMITIVE:
-					break;
-				case ObjectTypes::ENTITY:
-				{
-					const Entity* pEntity = dynamic_cast<const Entity*>(pObject);
-					if (pEntity == nullptr)
-						Raise("Failed to upcast entity.");
+			case ObjectTypes::ENTITY: {
+				const Entity* pEntity = UpcastObjectToEntity(const_cast<Object*>(pObject));
 
-					soundPropEnabled = (pEntity->GetEntityType() == EntityTypes::SOUND);
-					modelPropEnabled = (pEntity->GetEntityType() == EntityTypes::MODEL);
-					primitivePropEnabled = texturePropEnabled = modelPropEnabled;
-				}
-					break;
-				default:
-					Raise("Non-existent object type specified");
-				}
+				soundPropEnabled = (pEntity->GetEntityType() == EntityTypes::SOUND);
+				modelPropEnabled = (pEntity->GetEntityType() == EntityTypes::MODEL);
+
+				primitivePropEnabled = texturePropEnabled = modelPropEnabled;
 			}
-
-			EnableCompotent(COMPONENT_TEXTURE, texturePropEnabled);
-			EnableCompotent(COMPONENT_SCRIPT, true);
-			EnableCompotent(COMPONENT_RIGIDBODY, true);
-			EnableCompotent(COMPONENT_PRIMITIVE, primitivePropEnabled);
-			EnableCompotent(COMPONENT_SOUND, soundPropEnabled);
-			EnableCompotent(COMPONENT_MODEL, modelPropEnabled);
-
-			Int freeY = 0;
-			for (PropertyComponent* pComponent : m_Components) {
-				if (!pComponent->IsEnabled())
-					continue;
-
-				pComponent->SetPosition({ 0, freeY });
-				pComponent->Update();
-
-				const Nt::IntRect rect = pComponent->GetWindowRect();
-				freeY += rect.Bottom;
+				break;
+			default:
+				Raise("Non-existent object type specified");
 			}
 		}
+
+		EnableCompotent(COMPONENT_TEXTURE, texturePropEnabled);
+		EnableCompotent(COMPONENT_SCRIPT, true);
+		EnableCompotent(COMPONENT_RIGIDBODY, true);
+		EnableCompotent(COMPONENT_PRIMITIVE, primitivePropEnabled);
+		EnableCompotent(COMPONENT_SOUND, soundPropEnabled);
+		EnableCompotent(COMPONENT_MODEL, modelPropEnabled);
+
+		Int freeY = 0;
+		for (PropertyComponent* pComponent : m_Components) {
+			if (!pComponent->IsEnabled())
+				continue;
+
+			pComponent->SetPosition({ 0, freeY });
+			pComponent->Update();
+
+			freeY += pComponent->GetWindowRect().Bottom;
+		}
+
 		m_SelectorPtr->UnmarkChanged();
 	}
 
 	void SetTheme(const Style& style) {
-		if (!m_IsInitialized)
+		if (!m_IsInitialized) {
 			Raise("PropertyWindow is not initialized");
+			return;
+		}
 
 		SetBackgroundColor(style.Property.BackgroundColor);
+
 		for (PropertyComponent* pComponent : m_Components)
 			pComponent->SetTheme(style);
 	}
 	void SetLanguage(const Language& language) {
-		if (!m_IsInitialized)
+		if (!m_IsInitialized) {
 			Raise("PropertyWindow is not initialized");
+			return;
+		}
 
 		SetName(language.Window.Texts[Language::_WindowNames::TEXT_PROPERTYWINDOW]);
+
 		for (PropertyComponent* pComponent : m_Components) {
 			pComponent->SetLanguage(language);
 			pComponent->InvalidateRect(nullptr, true);

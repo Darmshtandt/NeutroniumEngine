@@ -51,13 +51,13 @@ public:
 			Raise("Scence path is empty.");
 
 		m_pWindow = pWindow;
-		m_pGameScence = new Scence;
+		m_pGameScence = new Scene;
 		m_pGameScence->Load(scencePath);
 
 		_InitializeOpenAL();
 		m_IsInitialized = true;
 	}
-	void InitializeTestGame(Nt::RenderWindow* pWindow, Scence* pScence) {
+	void InitializeTestGame(Nt::RenderWindow* pWindow, Scene* pScence) {
 		m_IsTestGame = true;
 
 		if (m_IsInitialized) {
@@ -92,7 +92,7 @@ public:
 				return false;
 			}
 
-			m_pGameScence = new Scence(*m_pEngineScence);
+			m_pGameScence = new Scene(*m_pEngineScence);
 		}
 
 		try {
@@ -177,8 +177,8 @@ private:
 	Nt::RenderWindow* m_pWindow;
 	Nt::Camera m_DefaultCamera;
 	GameCamera* m_CameraPtr;
-	Scence* m_pEngineScence;
-	Scence* m_pGameScence;
+	Scene* m_pEngineScence;
+	Scene* m_pGameScence;
 	
 	Bool m_IsInitialized;
 	Bool m_IsTestGame;

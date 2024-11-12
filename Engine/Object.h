@@ -21,14 +21,14 @@ public:
 		ObjectType(type),
 		m_Name(name)
 	{
-		_UpdateColliders();
+		_RecreateColliders();
 	}
 	Object(const ObjectTypes& type, const std::string& name, const Nt::Mesh& mesh) :
 		m_Model(mesh),
 		ObjectType(type),
 		m_Name(name)
 	{
-		_UpdateColliders();
+		_RecreateColliders();
 	}
 	Object(const Object& object) :
 		RigidBody(object),
@@ -41,15 +41,17 @@ public:
 		m_IsColliderShowed(object.m_IsColliderShowed),
 		m_IsInvisible(object.m_IsInvisible)
 	{
-		_UpdateColliders();
+		_RecreateColliders();
 	}
 	~Object() {
 		RemoveScript();
-		delete(m_pCollider);
+
+		SAFE_DELETE(&m_pCollider);
 	}
 
 	void Write(std::ostream& stream) const override {
 		m_Model.Write(stream);
+
 		Nt::Serialization::WriteAll(stream, 
 			m_GravityDirection, m_G, m_Friction, 
 			IsPhysicsEnabled(), IsEnabledCollision(), IsEnabledGravitation(),
@@ -64,6 +66,7 @@ public:
 		Bool isEnabledGravitation = false;
 
 		m_Model.Read(stream);
+
 		Nt::Serialization::ReadAll(stream, 
 			m_GravityDirection, m_G, m_Friction,
 			isPhysicsEnabled, isEnabledCollision, isEnabledGravitation,
@@ -84,44 +87,49 @@ public:
 		else
 			DisableGravitation();
 
-		_UpdateColliders();
+		_RecreateColliders();
 	}
 	constexpr uInt Sizeof() const noexcept override {
-		return sizeof(*this);
+		return sizeof(Object);
 	}
 	constexpr uInt ClassType() const noexcept {
 		return uInt(ObjectTypes::NONE);
 	}
-	static ISerialization* New(const uInt& ClassType);
+	static ISerialization* New(const uInt& classType);
 
 	virtual void Start() {
-		if (m_pScript) {
+		if (m_pScript != nullptr) {
 			m_ScriptData = m_pScript->GetScriptData();
 			m_pScript->Start();
 		}
-		Activate();
+
+		RigidBody::Activate();
+
 		m_IsStarted = true;
 	}
 	virtual void Stop() {
-		if (m_pScript)
+		if (m_pScript != nullptr)
 			m_pScript->Stop();
-		Deactivate();
+
+		RigidBody::Deactivate();
+
 		m_IsStarted = false;
 	}
 
 	virtual void Update(const Float& time) {
-		if (m_pScript)
+		if (m_pScript != nullptr)
 			m_pScript->Update(time);
 
 		RigidBody::Update(time);
+
 		m_Model.SetPosition(m_Position);
 		m_Model.SetAngle(m_Angle);
 
-		if (m_pCollider)
+		if (m_pCollider != nullptr)
 			m_pCollider->SetLocalWorld(LocalToWorld());
 	}
 	virtual void Render(Nt::Renderer* pRenderer) const override {
-		if (!IsVisible())
+		if (!IsRenderEnabled())
 			return;
 
 		if (m_IsStarted && m_IsInvisible)
@@ -165,13 +173,14 @@ public:
 		m_IsColliderShowed = false;
 	}
 
-	void AttachScript(Lua* pLua, Scence* pScence, const Nt::String& filePath) {
+	void AttachScript(Lua* pLua, Scene* pScence, const Nt::String& filePath, const std::vector<Script::Data>& data) {
 		if (m_pScript)
 			delete(m_pScript);
 
 		m_pScript = new Script(pLua);
 		m_pScript->Initialize(pScence);
 		m_pScript->Load(filePath, this);
+		m_pScript->SetScriptData(data);
 	}
 	void RemoveScript() {
 		SAFE_DELETE(&m_pScript);
@@ -210,8 +219,11 @@ public:
 		return m_Model;
 	}
 	Nt::Collider::PointContainer GetColliderPointContainer() const {
-		if (m_pCollider == nullptr)
+		if (m_pCollider == nullptr) {
 			Raise("Collider pointer is null");
+			return { };
+		}
+
 		return m_pCollider->GetPointContainer();
 	}
 	Script* GetScript() const noexcept {
@@ -241,6 +253,9 @@ public:
 	Bool IsStarted() const noexcept {
 		return m_IsStarted;
 	}
+	Bool IsActivePhycisc() const noexcept {
+		return RigidBody::IsActive();;
+	}
 
 	void SetName(const Nt::String& newName) {
 		m_Name = newName;
@@ -259,20 +274,20 @@ public:
 	}
 	void SetMesh(const uInt& meshIndex) {
 		m_Model.SetMesh(meshIndex);
-		_UpdateColliders();
+		_RecreateColliders();
 	}
 	void SetMesh(const Nt::Mesh& mesh) {
 		m_Model.SetMesh(mesh);
-		_UpdateColliders();
+		_RecreateColliders();
 	}
 	void SetModel(const Nt::Model& newModel) {
 		m_Model = newModel;
-		_UpdateColliders();
+		_RecreateColliders();
 	}
 	virtual void SetPosition(const Nt::Float3D& position) override {
 		m_Model.SetPosition(position);
 		IObject::SetPosition(position);
-		_UpdateColliders();
+		_RecreateColliders();
 	}
 	virtual void SetSize(const Nt::Float3D& size) override {
 		if (m_Model.GetMeshPtr())
@@ -280,7 +295,7 @@ public:
 
 		m_Model.SetSize(size);
 		IObject::SetSize(size);
-		_UpdateColliders();
+		_RecreateColliders();
 	}
 	virtual void SetAngle(const Nt::Float3D& angle) override {
 		m_Model.SetAngle(angle);
@@ -299,22 +314,28 @@ public:
 		IObject::SetColor(color);
 	}
 
+private:
+	using RigidBody::IsActive;
+
 protected:
 	std::vector<Script::Data> m_ScriptData;
+	std::string m_LayerName = "Main";
+	std::string m_Name;
+
 	Nt::Collider* m_pCollider = nullptr;
+	Nt::Model m_Model;
+
 	Object* m_ParentPtr = nullptr;
 	Script* m_pScript = nullptr;
-	Nt::Model m_Model;
-	std::string m_Name;
-	std::string m_LayerName = "Main";
+
 	Bool m_IsSelected = false;
 	Bool m_IsColliderShowed = false;
 	Bool m_IsInvisible = false;
 	Bool m_IsStarted = false;
 
 protected:
-	void _UpdateColliders() {
-		if (m_pCollider)
+	void _RecreateColliders() {
+		if (m_pCollider != nullptr)
 			delete(m_pCollider);
 
 		m_pCollider = new Nt::Collider;

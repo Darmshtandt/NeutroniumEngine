@@ -30,8 +30,7 @@ public:
 
 		Nt::Event event;
 		while (m_MainWindow.IsOpened()) {
-			m_MainWindow.PeekMessages();
-			while (m_MainWindow.PopEvent(&event)) {
+			while (m_MainWindow.PeekMessages(&event)) {
 				switch (event.Type) {
 				case Nt::Event::WINDOW_CLOSE:
 					m_CreationPage.Hide();

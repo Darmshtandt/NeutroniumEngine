@@ -10,31 +10,39 @@ public:
 		};
 
 	public:
+		Control(const Control& control) = delete;
+
 		Control(const Types& type, const std::string& name, const std::string& variableName) :
 			m_Type(type),
 			m_Name(name),
 			m_VariableName(variableName)
 		{
 		}
-		Control(const Control& control) = delete;
 
 		~Control() {
 			delete(m_pHandle);
 		}
 
 		void Create(const Style& style, const uInt& id, const Nt::IntRect& rect, HandleWindow* pParent, Object* pObject) {
-			if (m_IsCreated)
+			if (m_IsCreated) {
 				Raise("Control already created.");
-			if (pParent == nullptr)
+				return;
+			}
+
+			if (pParent == nullptr) {
 				Raise("Parent pointer is null.");
-			if (pObject == nullptr)
+				return;
+			}
+
+			if (pObject == nullptr) {
 				Raise("Object pointer is null.");
+				return;
+			}
 
 			m_ObjectPtr = pObject;
 
 			switch (m_Type) {
-			case TEXTEDIT:
-			{
+			case TEXTEDIT: {
 				Nt::IntRect textRect = rect;
 				textRect.Right /= 2;
 
@@ -55,48 +63,66 @@ public:
 				pTextEdit->SetTextColor(style.Property.TextEdits.Text.Color);
 				pTextEdit->SetTextWeight(style.Property.TextEdits.Text.Weight);
 				pTextEdit->Show();
+
 				m_pHandle = pTextEdit;
 			}
 				break;
+
 			case CHECKBOX:
 				m_pHandle = new Nt::Button(*pParent, rect, id, m_Name);
 				break;
+
 			default:
 				Raise("Failed control type.");
+				return;
 			}
+
 			m_IsCreated = true;
 		}
 
 		void Update() {
-			if (m_ObjectPtr == nullptr)
-				Raise("Object pointer is null.");
+			if (m_ObjectPtr == nullptr) {
+				Raise("Object pointer is null");
+				return;
+			}
 
 			Script* pScript = m_ObjectPtr->GetScript();
-			if (pScript == nullptr)
-				Raise("Script pointer is null.");
+			if (pScript == nullptr) {
+				Raise("Script pointer is null");
+				return;
+			}
 
 			switch (m_Type) {
-			case TEXTEDIT:
-			{
+			case TEXTEDIT: {
 				Nt::TextEdit* pTextEdit = dynamic_cast<Nt::TextEdit*>(m_pHandle);
-				if (pTextEdit == nullptr)
+				if (pTextEdit == nullptr) {
 					Raise("Failed to upcast HandleWindow to TextEdit");
+					return;
+				}
 				
 				pScript->SetDataValue(m_VariableName, pTextEdit->GetText());
 			}
 				break;
-			case CHECKBOX:
-			{
+
+			case CHECKBOX: {
 				Nt::Button* pCheckbox = dynamic_cast<Nt::Button*>(m_pHandle);
-				if (pCheckbox == nullptr)
+				if (pCheckbox == nullptr) {
 					Raise("Failed to upcast HandleWindow to Button");
+					return;
+				}
 
 				pScript->SetDataValue(m_VariableName, pCheckbox->IsChecked());
 			}
 				break;
+
 			default:
 				Raise("Failed control type.");
+				return;
 			}
+		}
+
+		void RenderText(const Nt::HandleWindow& handle) {
+			m_Text.Draw(handle);
 		}
 
 		void SetValue(const Nt::String& variableValue) {
@@ -104,6 +130,7 @@ public:
 			case Control::TEXTEDIT:
 				dynamic_cast<Nt::TextEdit*>(m_pHandle)->SetText(variableValue);
 				break;
+
 			case Control::CHECKBOX:
 				dynamic_cast<Nt::Button*>(m_pHandle)->SetCheck(variableValue);
 				break;
@@ -111,11 +138,14 @@ public:
 		}
 
 		Nt::IntRect GetRect() const {
-			if (!m_IsCreated)
+			if (!m_IsCreated) {
 				Raise("Control is not created.");
+				return Nt::IntRect();
+			}
+
 			return m_pHandle->GetClientRect();
 		}
-		Nt::Text& GetText() noexcept {
+		const Nt::Text& GetText() noexcept {
 			return m_Text;
 		}
 		uInt GetType() const noexcept {
@@ -123,18 +153,20 @@ public:
 		}
 
 	private:
-		Object* m_ObjectPtr;
 		Nt::HandleWindow* m_pHandle;
-		Types m_Type;
 		Nt::Text m_Text;
+
 		std::string m_VariableName;
 		std::string m_Name;
+
+		Object* m_ObjectPtr;
+		Types m_Type;
 		uInt m_ID;
 		Bool m_IsCreated = false;
 	};
 
 	enum TextEdits {
-		TEXTEDIT_SCRIPT_PATH = 3500,
+		TEXTEDIT_SCRIPT_PATH,
 	};
 
 	enum Buttons {
@@ -150,7 +182,7 @@ public:
 	};
 
 public:
-	PropertyScript(Scence* pScence) {
+	PropertyScript(Scene* pScence) {
 		SetScence(pScence);
 	}
 	~PropertyScript() override {
@@ -159,8 +191,8 @@ public:
 
 	void Initialize(const Settings& settings) {
 		SetLanguage(settings.CurrentLanguage);
+		SetTheme(settings.Styles);
 
-		m_Style = settings.Styles;
 		m_Padding = { 10, 10, 20, 10 };
 
 		Nt::IntRect windowRect;
@@ -216,19 +248,29 @@ public:
 
 		windowRect.Bottom = buttonRect.Top + buttonRect.Bottom;
 		windowRect.Bottom += m_Padding.Bottom;
+
 		SetWindowRect(windowRect);
 	}
 	void Update() {
 		if (!IsEnabled())
 			return;
-		if (!m_SelectorPtr)
-			Raise("Selector pointer is nullptr");
+
+		if (m_SelectorPtr == nullptr) {
+			Raise("Selector pointer is null");
+			return;
+		}
+
 		if (!m_SelectorPtr->IsChanged())
 			return;
 
-		const uInt selectedObjectCount = m_SelectorPtr->GetObjects().size();
+		const uInt selectedObjectCount = m_SelectorPtr->GetObjectCount();
 		if (selectedObjectCount == 1) {
-			Object* pObject = m_SelectorPtr->GetObjects()[0];
+			Object* pObject = m_SelectorPtr->GetObjectPtr(0);
+			if (pObject == nullptr) {
+				Raise("Null object selected");
+				return;
+			}
+
 			const Script* pScript = pObject->GetScript();
 			if (pScript != nullptr) {
 				m_ScriptPathTextEdit.SetText(pScript->GetFilePath());
@@ -241,13 +283,12 @@ public:
 
 		ClearControls();
 
-		m_ScriptPathTextEdit.SetText(
-			(selectedObjectCount > 1) ? "..." : "No selected");
+		m_ScriptPathTextEdit.SetText((selectedObjectCount > 1) ? "..." : "No selected");
 		m_DeleteButton.DisableWindow();
 	}
 
 	void AddField(const Control::Types& type, const Nt::String& name, const Nt::String& variableName, const Nt::String& variableValue) {
-		if (m_SelectorPtr->GetObjects().size() != 1)
+		if (m_SelectorPtr->GetObjectCount() != 1)
 			return;
 
 		Nt::IntRect controlRect;
@@ -256,10 +297,12 @@ public:
 		controlRect.Right = m_ClientRect.Right - m_Padding.Right;
 
 		Control* pControl = new Control(type, name, variableName);
+
 		switch (type) {
 		case Control::TEXTEDIT:
 			controlRect.Bottom = 24;
 			break;
+
 		case Control::CHECKBOX:
 			controlRect.Bottom = GetSystemMetrics(SM_CYMENUCHECK);
 			break;
@@ -267,13 +310,15 @@ public:
 
 		SetSize({ GetClientRect().Right, controlRect.Top + controlRect.Bottom + m_Padding.Bottom });;
 
-		pControl->Create(m_Style, m_Controls.size(), controlRect, this, m_SelectorPtr->GetObjects()[0]);
+		pControl->Create(m_Style, m_Controls.size(), controlRect, this, m_SelectorPtr->GetObjectContaiter()[0]);
 		pControl->SetValue(variableValue);
+
 		m_Controls.push_back(pControl);
 	}
 	void ClearControls() {
 		for (Control* pControl : m_Controls)
 			delete(pControl);
+
 		m_Controls.clear();
 
 		const Nt::IntRect buttonRect = m_DeleteButton.GetWindowRect();
@@ -281,34 +326,25 @@ public:
 	}
 
 	void BrowseScript() {
-		const uInt selectedObjectCount = m_SelectorPtr->GetObjects().size();
-		if (m_SelectorPtr && selectedObjectCount > 0) {
-			const cwString filter = L"Script (*.lua)\0*.lua\0All (*.*)\0*.*";
+		const std::string filePath = _Browse(L"Script (*.lua)\0*.lua\0All (*.*)\0*.*");
 
-			Nt::String filePath = Nt::OpenFileDialog(GetRootPath().wstr().c_str(), filter);
-			if (filePath.size() == 0)
-				return;
+		if (filePath.empty())
+			return;
 
-			if (!IsValidPath(GetRootPath(), filePath)) {
-				WarningBox(L"To add a file, place it in the project's root folder.", L"Warning");
-				return;
-			}
-			filePath.erase(filePath.begin(), filePath.begin() + GetRootPath().length() + 1);
+		for (Object* pObject : m_SelectorPtr->GetObjectContaiter())
+			pObject->AttachScript(m_pScence->GetLua(), m_pScence, filePath, { });
 
-			for (Object* pObject : m_SelectorPtr->GetObjects())
-				pObject->AttachScript(m_pScence->GetLua(), m_pScence, filePath);
-			
-			_UpdateControls();
+		_UpdateControls();
 
-			m_ScriptPathTextEdit.SetText(filePath);
-			m_DeleteButton.EnableWindow();
-		}
+		m_ScriptPathTextEdit.SetText(filePath);
+		m_DeleteButton.EnableWindow();
 	}
 
 	void SetTheme(const Style& style) {
 		m_Style = style;
 
 		SetBackgroundColor(m_Style.Property.BackgroundColor);
+
 		m_ScriptText.SetColor(m_Style.Property.Texts.Color);
 		m_ScriptText.SetWeight(m_Style.Property.Texts.Weight);
 
@@ -320,68 +356,80 @@ public:
 		m_LanguageData = (LanguageData)language.PropertyWindow.Script;
 		m_LanguageData.WindowName =
 			language.PropertyWindow.Component.Texts[LanguageData::ComponentName::TEXT_SCRIPTWINDOW];
+
 		SetName(m_LanguageData.WindowName);
 
 		m_ScriptText.SetText(m_LanguageData.Texts[LanguageData::TEXT_SCRIPT]);
 	}
-	void SetScence(Scence* pScence) {
+	void SetScence(Scene* pScence) {
 		if (pScence == nullptr)
 			Raise("Scence pointer is null.");
 		m_pScence = pScence;
 	}
 
 private:
-	LanguageData m_LanguageData;
 	std::vector<Control*> m_Controls;
-	Scence* m_pScence;
+
+	LanguageData m_LanguageData;
+	Style m_Style;
+	Scene* m_pScence;
+
 	Nt::Text m_ScriptText;
 	Nt::TextEdit m_ScriptPathTextEdit;
 	Nt::Button m_BrowseButton;
 	Nt::Button m_DeleteButton;
 	Nt::IntRect m_Padding;
-	Style m_Style;
 
 private:
 	void _UpdateControls() {
 		ClearControls();
-		if (m_SelectorPtr && m_SelectorPtr->GetObjects().size() == 1) {
-			Object* pObject = m_SelectorPtr->GetObjects()[0];
-			if (pObject == nullptr)
-				Raise("Object pointer is null.");
+
+		if (m_SelectorPtr != nullptr && m_SelectorPtr->GetObjectCount() == 1) {
+			Object* pObject = m_SelectorPtr->GetObjectPtr(0);
+			if (pObject == nullptr) {
+				Raise("Null object selected");
+				return;
+			}
 
 			Script* pScript = pObject->GetScript();
-			if (pScript) {
-				try {
-					luabridge::LuaRef propertyField = 
-						pScript->GetGlobal("PropertyField");
+			if (pScript == nullptr)
+				return;
 
-					if ((!propertyField.isNil()) && propertyField.isFunction()) {
-						const luabridge::LuaResult result = propertyField();
-						if (result.hasFailed())
-							throw std::exception(result.errorMessage().c_str());
+			try {
+				luabridge::LuaRef propertyField = pScript->GetGlobal("PropertyField");
 
-						for (Script::Data& data : pScript->GetScriptData()) {
-							const Control::Types type =
-								(data.Type == Script::Data::BOOL)
-								? Control::CHECKBOX : Control::TEXTEDIT;
-							AddField(type, data.FieldName, data.Name, data.Value);
-						}
+				if (!propertyField.isNil() && propertyField.isFunction()) {
+					const luabridge::LuaResult result = propertyField();
+
+					if (result.hasFailed())
+						throw std::exception(result.errorMessage().c_str());
+
+					for (Script::Data& data : pScript->GetScriptData()) {
+						const Control::Types type =
+							(data.Type == Script::Data::BOOL) ? Control::CHECKBOX : Control::TEXTEDIT;
+
+						AddField(type, data.FieldName, data.Name, data.Value);
 					}
 				}
-				catch (const std::exception& except) {
-					ErrorBoxA(except.what(), "Error");
-				}
+			}
+			catch (const std::exception& except) {
+				ErrorBoxA(except.what(), "Error");
 			}
 		}
 	}
 
 	void _WMPaint([[maybe_unused]] HDC& hdc, [[maybe_unused]] PAINTSTRUCT& paint) override {
 		m_ScriptText.Draw(*this);
-		for (Control* pControl : m_Controls)
+
+		for (Control* pControl : m_Controls) {
 			if (pControl->GetType() == Control::TEXTEDIT)
-				pControl->GetText().Draw(*this);
+				pControl->RenderText(*this);
+		}
 	}
 	void _WMCommand(const Long& param_1, [[maybe_unused]] const Long& param_2) override {
+		if (m_SelectorPtr == nullptr)
+			return;
+
 		const uInt id = LOWORD(param_1);
 		const uInt command = HIWORD(param_1);
 
@@ -391,21 +439,33 @@ private:
 			case BUTTON_BROWSE:
 				BrowseScript();
 				break;
+
 			case BUTTON_REMOVE:
-				if (m_SelectorPtr) {
-					m_ScriptPathTextEdit.SetText("No selected");
-					for (Object* pObject : m_SelectorPtr->GetObjects())
-						pObject->RemoveScript();
+				m_ScriptPathTextEdit.SetText("No selected");
+
+				for (Object* pObject : m_SelectorPtr->GetObjectContaiter()) {
+					if (pObject == nullptr) {
+						Raise("Null object selected");
+						return;
+					}
+
+					pObject->RemoveScript();
 				}
+
 				m_DeleteButton.DisableWindow();
 				break;
+
 			default:
 				m_Controls[id]->Update();
+				break;
 			}
+
 			break;
+
 		case EN_UPDATE:
 			if (id != TEXTEDIT_SCRIPT_PATH)
 				m_Controls[id]->Update();
+
 			break;
 		}
 	}

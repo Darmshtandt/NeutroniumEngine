@@ -6,14 +6,14 @@ public:
 		Entity(name, EntityTypes::MODEL)
 	{
 		m_Model.SetMesh(Nt::Geometry::Cube({ 1.f, 1.f, 1.f }, Nt::Colors::White));
-		_UpdateColliders();
+		_RecreateColliders();
 	}
 
 	void LoadMesh(const Nt::String& filePath) {
 		Nt::Mesh mesh;
 		mesh.LoadFromFile(filePath.c_str());
 		m_Model.SetMesh(mesh);
-		_UpdateColliders();
+		_RecreateColliders();
 	}
 
 	virtual Object* GetCopy() const override {

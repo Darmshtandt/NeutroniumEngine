@@ -7,12 +7,13 @@ class GameSound;
 class GameModel;
 class GameCamera;
 
-class Scence {
+class Scene {
 public:
 	struct Layer {
 		std::vector<Layer> Layers;
 		Nt::String Name;
 	};
+
 	using LayerContainer = std::vector<Layer>;
 
 	enum class Versions {
@@ -21,9 +22,9 @@ public:
 	};
 
 public:
-	Scence();
-	Scence(const Scence& scence);
-	~Scence();
+	Scene();
+	Scene(const Scene& scence);
+	~Scene();
 
 	void Start();
 	void Stop();
@@ -41,7 +42,7 @@ public:
 	void Update(const Float& time);
 	void Render(Nt::Renderer* pRenderer) const;
 
-	void AllowIntersectionOfLayers(const Nt::String& layerName_1, const Nt::String& layerName_2, const Bool& isAllow);
+	void AllowLayerOverlap(const Nt::String& layerName_1, const Nt::String& layerName_2, const Bool& isAllow);
 
 	Bool Load(const std::string& fileName);
 	void Save(const std::string& fileName);
@@ -66,12 +67,10 @@ private:
 	Lua* m_pLua = nullptr;
 	Versions m_Version = Versions::LAST;
 	ObjectContainer m_Objects;
-	ObjectContainer m_Buffer;
+	ObjectContainer m_Clipboard;
 	ObjectsTree* m_ObjectsTreePtr;
-	std::vector<Layer> m_NonIntersectingLayers;
+	std::vector<Layer> m_DisjointLayers;
 
 private:
 	void _Initialize();
-
-	LayerContainer::iterator _FindLayer(LayerContainer& container, const Nt::String& layerName);
 };

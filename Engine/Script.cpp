@@ -16,7 +16,7 @@ namespace luabridge {
 	};
 }
 
-void Script::Initialize(Scence* pScence) {
+void Script::Initialize(Scene* pScence) {
 	if (m_IsInitialized)
 		Raise("The script has already been initialized.");
 

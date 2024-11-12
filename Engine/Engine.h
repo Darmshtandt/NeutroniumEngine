@@ -93,7 +93,7 @@ public:
 			m_GridButton.Show();
 		}
 
-		m_pScence = new Scence;
+		m_pScence = new Scene;
 		m_Selector.Initialize(m_pScence, defaultInitialPath);
 
 		m_pGame = new Game;
@@ -178,8 +178,8 @@ public:
 		}
 	}
 
-	Bool PopEvent(Nt::Event* pEvent) {
-		return m_Window.PopEvent(pEvent);
+	Bool PeekMessages(Nt::Event* pEvent) {
+		return m_Window.PeekMessages(pEvent);
 	}
 	void HandleEvent(const Nt::Event& event) {
 		switch (event.Type) {
@@ -294,7 +294,7 @@ public:
 	Selector* GetSelectorPtr() noexcept {
 		return &m_Selector;
 	}
-	Scence* GetScencePtr() const noexcept {
+	Scene* GetScencePtr() const noexcept {
 		return m_pScence;
 	}
 	Bool IsFly() const noexcept {
@@ -333,7 +333,7 @@ private:
 	Game* m_pGame;
 	Selector m_Selector;
 	ObjectsTree* m_ObjectsTreePtr;
-	Scence* m_pScence;
+	Scene* m_pScence;
 	Settings m_Settings;
 	Nt::String m_FilePath;
 	ViewMode m_Projection;
@@ -427,67 +427,68 @@ private:
 		}
 	}
 	void _CSG() {
-		if (m_Selector.GetObjects().size() > 1) {
-			//using Kernel = CGAL::Homogeneous<CGAL::Exact_integer>;
-			//using NefPolyhedron = CGAL::Nef_polyhedron_3<Kernel>;
-			//using Polyhedron = CGAL::Polyhedron_3<Kernel>;
-			//using SurfaceMesh = CGAL::Surface_mesh<CGAL::Exact_predicates_exact_constructions_kernel::Point_3>;
+		if (m_Selector.GetObjectCount() <= 1)
+			return;
 
-			/*NefPolyhedron nefOperationResult;
-			for (const Object* pObject : m_Selector.GetObjects()) {
-				if (pObject->GetModel().GetMeshPtr() == nullptr)
-					Raise("Model mesh pointer is null. Object name: " + pObject->GetName());
+		//using Kernel = CGAL::Homogeneous<CGAL::Exact_integer>;
+		//using NefPolyhedron = CGAL::Nef_polyhedron_3<Kernel>;
+		//using Polyhedron = CGAL::Polyhedron_3<Kernel>;
+		//using SurfaceMesh = CGAL::Surface_mesh<CGAL::Exact_predicates_exact_constructions_kernel::Point_3>;
 
-				const Nt::Shape shape = pObject->GetModel().GetMeshPtr()->GetShape();
+		/*NefPolyhedron nefOperationResult;
+		for (const Object* pObject : m_Selector.GetObjects()) {
+			if (pObject->GetModel().GetMeshPtr() == nullptr)
+				Raise("Model mesh pointer is null. Object name: " + pObject->GetName());
 
-				Nt::String stringData = "OFF\n";
-				stringData += Nt::String(shape.Vertices.size()) + ' ' + Nt::String(shape.Indices.size() / 3) + " 0\n";
+			const Nt::Shape shape = pObject->GetModel().GetMeshPtr()->GetShape();
 
-				for (const Nt::Vertex& vertex : shape.Vertices) {
-					stringData += Nt::String(vertex.Position.x) + ' ';
-					stringData += Nt::String(vertex.Position.y) + ' ';
-					stringData += Nt::String(vertex.Position.z) + '\n';
-				}
-				for (uInt i = 2; i < shape.Indices.size(); i += 3) {
-					stringData += "3  ";
-					stringData += Nt::String(shape.Indices[i - 2]) + ' ';
-					stringData += Nt::String(shape.Indices[i - 1]) + ' ';
-					stringData += Nt::String(shape.Indices[i - 0]) + '\n';
-				}
+			Nt::String stringData = "OFF\n";
+			stringData += Nt::String(shape.Vertices.size()) + ' ' + Nt::String(shape.Indices.size() / 3) + " 0\n";
 
-				NefPolyhedron nefPolyhedron;
-				{
-					std::stringstream stream(stringData);
-					stream >> nefPolyhedron;
-				}
+			for (const Nt::Vertex& vertex : shape.Vertices) {
+				stringData += Nt::String(vertex.Position.x) + ' ';
+				stringData += Nt::String(vertex.Position.y) + ' ';
+				stringData += Nt::String(vertex.Position.z) + '\n';
+			}
+			for (uInt i = 2; i < shape.Indices.size(); i += 3) {
+				stringData += "3  ";
+				stringData += Nt::String(shape.Indices[i - 2]) + ' ';
+				stringData += Nt::String(shape.Indices[i - 1]) + ' ';
+				stringData += Nt::String(shape.Indices[i - 0]) + '\n';
+			}
 
-				nefOperationResult += nefPolyhedron;
-			}*/
+			NefPolyhedron nefPolyhedron;
+			{
+				std::stringstream stream(stringData);
+				stream >> nefPolyhedron;
+			}
 
-			//SurfaceMesh surfaceMesh;
-			////CGAL::convert_nef_polyhedron_to_polygon_mesh(nefOperationResult, surfaceMesh);
-			//
-			//Nt::Shape newShape;
-			//for (const CGAL::SM_Vertex_index& cgalVertex : surfaceMesh.vertices()) {
-			//	const CGAL::Epeck::Point_3 point = surfaceMesh.point(cgalVertex);
+			nefOperationResult += nefPolyhedron;
+		}*/
 
-			//	Nt::Vertex ntVertex;
-			//	ntVertex.Position.x = (Float)CGAL::to_double(point.x());
-			//	ntVertex.Position.y = (Float)CGAL::to_double(point.y());
-			//	ntVertex.Position.z = (Float)CGAL::to_double(point.z());
-			//	newShape.Vertices.push_back(ntVertex);
-			//}
+		//SurfaceMesh surfaceMesh;
+		////CGAL::convert_nef_polyhedron_to_polygon_mesh(nefOperationResult, surfaceMesh);
+		//
+		//Nt::Shape newShape;
+		//for (const CGAL::SM_Vertex_index& cgalVertex : surfaceMesh.vertices()) {
+		//	const CGAL::Epeck::Point_3 point = surfaceMesh.point(cgalVertex);
 
-			//for (const CGAL::SM_Face_index& face : surfaceMesh.faces()) {
-			//	for (const CGAL::SM_Vertex_index& vertex : surfaceMesh.vertices_around_face(surfaceMesh.halfedge(face)))
-			//		newShape.Indices.push_back(vertex.id());
-			//}
+		//	Nt::Vertex ntVertex;
+		//	ntVertex.Position.x = (Float)CGAL::to_double(point.x());
+		//	ntVertex.Position.y = (Float)CGAL::to_double(point.y());
+		//	ntVertex.Position.z = (Float)CGAL::to_double(point.z());
+		//	newShape.Vertices.push_back(ntVertex);
+		//}
 
-			//Object* pNewObject = new Object(ObjectTypes::PRIMITIVE, m_Selector.GetObjects()[0]->GetName(), newShape);
-			//m_pScence->RemoveSelected(&m_Selector);
-			//m_pScence->AddObject(pNewObject);
-			//m_Selector.Select(pNewObject);
-		}
+		//for (const CGAL::SM_Face_index& face : surfaceMesh.faces()) {
+		//	for (const CGAL::SM_Vertex_index& vertex : surfaceMesh.vertices_around_face(surfaceMesh.halfedge(face)))
+		//		newShape.Indices.push_back(vertex.id());
+		//}
+
+		//Object* pNewObject = new Object(ObjectTypes::PRIMITIVE, m_Selector.GetObjects()[0]->GetName(), newShape);
+		//m_pScence->RemoveSelected(&m_Selector);
+		//m_pScence->AddObject(pNewObject);
+		//m_Selector.Select(pNewObject);
 	}
 	Long _Procedure(const uInt& uMsg, const DWord& param_1, const DWord& param_2) {
 		const uInt id = LOWORD(param_1);

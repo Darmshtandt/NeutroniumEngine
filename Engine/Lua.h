@@ -1,6 +1,6 @@
 #pragma once
 
-class Scence;
+class Scene;
 
 class Lua {
 public:
@@ -12,7 +12,7 @@ public:
 		Uninitialize();
 	}
 
-	void Initialize(Scence* pScence);
+	void Initialize(Scene* pScence);
 
 	void Uninitialize() {
 		if (!m_IsInitialized)
@@ -55,7 +55,7 @@ public:
 	lua_State* GetState() const {
 		return m_pState;
 	}
-	Scence* GetScencePtr() const {
+	Scene* GetScencePtr() const {
 		return m_ScencePtr;
 	}
 
@@ -65,6 +65,6 @@ public:
 
 private:
 	lua_State* m_pState;
-	Scence* m_ScencePtr = nullptr;
+	Scene* m_ScencePtr = nullptr;
 	Bool m_IsInitialized;
 };

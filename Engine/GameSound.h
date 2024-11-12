@@ -16,7 +16,7 @@ public:
 
 		m_Model.SetMesh(doubleSideQuad);
 
-		_UpdateColliders();
+		_RecreateColliders();
 		DisableCollider();
 	}
 	GameSound(const GameSound& sound) :
@@ -152,7 +152,7 @@ private:
 __inline GameSound* UpcastEntityToGameSound(Entity* pEntity) {
 	if (pEntity == nullptr)
 		Raise("Entity pointer is null");
-	if (pEntity->GetEntityType() != EntityTypes::SOUND)
+	else if (pEntity->GetEntityType() != EntityTypes::SOUND)
 		Raise("Entity pointer is not GameSound");
 
 	GameSound* pGameSound = dynamic_cast<GameSound*>(pEntity);

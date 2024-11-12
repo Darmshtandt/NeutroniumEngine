@@ -17,6 +17,11 @@ struct PropertyComponent : protected Nt::Window {
 	virtual void SetLanguage(const Language& language) = 0;
 
 	void SetSelector(Selector* selectorPtr) noexcept {
+		if (selectorPtr == nullptr) {
+			Raise("Selector pointer is null");
+			return;
+		}
+
 		m_SelectorPtr = selectorPtr;
 	}
 
@@ -33,9 +38,11 @@ struct PropertyComponent : protected Nt::Window {
 		}
 	}
 
-	Nt::String GetRootPath() const {
+	_NODISCARD
+	Nt::String GetRootPath() const noexcept {
 		return m_RootPath;
 	}
+	_NODISCARD
 	Bool IsEnabled() const noexcept {
 		return m_IsEnabled;
 	}
@@ -47,7 +54,7 @@ struct PropertyComponent : protected Nt::Window {
 public:
 	using Window::Show;
 	using Window::Hide;
-	using Window::PopEvent;
+	using Window::PeekMessages;
 	using Window::InvalidateRect;
 	using Window::GetHandle;
 	using Window::GetParent;
@@ -64,4 +71,25 @@ protected:
 private:
 	Nt::String m_RootPath;
 	Bool m_IsEnabled;
+
+protected:
+	_NODISCARD
+	std::string _Browse(const std::wstring& filter) const noexcept {
+		if (m_SelectorPtr == nullptr || m_SelectorPtr->IsEmpty())
+			return "";
+
+		Nt::String filePath = Nt::OpenFileDialog(GetRootPath().wstr().c_str(), filter.c_str());
+		if (filePath.empty())
+			return "";
+
+		const std::string rootPath = GetRootPath();
+		if (!IsValidPath(rootPath, filePath)) {
+			WarningBox(L"To add a file, place it in the project's root folder", L"Warning");
+			return "";
+		}
+
+		filePath.erase(filePath.begin(), filePath.begin() + rootPath.length() + 1);
+
+		return filePath;
+	}
 };

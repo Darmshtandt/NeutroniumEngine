@@ -16,6 +16,8 @@ public:
 	{ 
 	}
 
+	static Nt::ISerialization* New(const uInt& classType);
+
 	void Write(std::ostream & stream) const override {
 		Object::Write(stream);
 		Nt::Serialization::WriteAll(stream, m_Type);
@@ -35,10 +37,10 @@ public:
 		m_Type = type;
 	}
 
-	virtual Object* GetCopy() const override {
+	_NODISCARD virtual Object* GetCopy() const override {
 		return new Entity(*this);
 	}
-	EntityTypes GetEntityType() const noexcept {
+	_NODISCARD EntityTypes GetEntityType() const noexcept {
 		return m_Type;
 	}
 
@@ -46,14 +48,23 @@ private:
 	EntityTypes m_Type;
 };
 
+_NODISCARD
 __inline Entity* UpcastObjectToEntity(Object* pObject) {
-	if (pObject == nullptr)
+	if (pObject == nullptr) {
 		Raise("Object pointer is null");
-	if (pObject->ObjectType != ObjectTypes::ENTITY)
+		return nullptr;
+	}
+
+	if (pObject->ObjectType != ObjectTypes::ENTITY) {
 		Raise("Object pointer is not Entity");
+		return nullptr;
+	}
 
 	Entity* pEntity = dynamic_cast<Entity*>(pObject);
-	if (pEntity == nullptr)
+	if (pEntity == nullptr) {
 		Raise("Failed to upcast Object to Entity.");
+		return nullptr;
+	}
+
 	return pEntity;
 }

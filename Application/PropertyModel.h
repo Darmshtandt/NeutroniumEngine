@@ -3,10 +3,10 @@
 class PropertyModel : public PropertyComponent {
 public:
 	enum TextEdits {
-		TEXTEDIT_MODEL_PATH = 5500,
+		TEXTEDIT_MODEL_PATH,
 	};
 	enum Buttons {
-		BUTTON_BROWSE = 5600,
+		BUTTON_BROWSE,
 		BUTTON_REMOVE,
 	};
 
@@ -22,8 +22,8 @@ public:
 
 	void Initialize(const Settings& settings) {
 		SetLanguage(settings.CurrentLanguage);
+		SetTheme(settings.Styles);
 
-		m_Style = settings.Styles;
 		m_Padding = { 10, 10, 20, 10 };
 
 		Nt::IntRect windowRect;
@@ -70,6 +70,7 @@ public:
 		buttonRect.Top += buttonRect.Bottom + 10;
 		buttonRect.Right = m_ClientRect.Right - buttonRect.Left - m_Padding.Right;
 		buttonRect.Bottom = 24;
+
 		m_DeleteButton.SetParent(*this);
 		m_DeleteButton.SetID(BUTTON_REMOVE);
 		m_DeleteButton.AddStyles(BS_CENTER | BS_VCENTER);
@@ -79,19 +80,25 @@ public:
 
 		windowRect.Bottom = buttonRect.Top + buttonRect.Bottom;
 		windowRect.Bottom += m_Padding.Bottom;
+
 		SetWindowRect(windowRect);
 	}
 	void Update() {
+		if (m_SelectorPtr == nullptr) {
+			Raise("Selector pointer is nullptr");
+			return;
+		}
+
 		if (!IsEnabled())
 			return;
-		if (!m_SelectorPtr)
-			Raise("Selector pointer is nullptr");
+
 		if (!m_SelectorPtr->IsChanged())
 			return;
 
-		const uInt selectedObjectCount = m_SelectorPtr->GetObjects().size();
+		const uInt selectedObjectCount = m_SelectorPtr->GetObjectCount();
 		if (selectedObjectCount == 1) {
-			Object* pObject = m_SelectorPtr->GetObjects()[0];
+			Object* pObject = m_SelectorPtr->GetObjectPtr(0);
+
 			const Nt::Mesh* pMesh = pObject->GetModel().GetMeshPtr();
 			if (pMesh != nullptr) {
 				m_ModelPathTextEdit.SetText(pMesh->GetFilePath());
@@ -105,40 +112,31 @@ public:
 	}
 
 	void BrowseModel() {
-		const uInt selectedObjectCount = m_SelectorPtr->GetObjects().size();
-		if (m_SelectorPtr && selectedObjectCount > 0) {
-			const cwString filter = L"Model (*.obj)\0*.obj\0All (*.*)\0*.*";
+		const std::string filePath = _Browse(L"Model (*.obj)\0*.obj\0All (*.*)\0*.*");
 
-			Nt::String filePath = Nt::OpenFileDialog(GetRootPath().wstr().c_str(), filter);
-			if (filePath.size() == 0)
-				return;
+		if (filePath.empty())
+			return;
 
-			if (!IsValidPath(GetRootPath(), filePath)) {
-				WarningBox(L"To add a file, place it in the project's root folder.", L"Warning");
-				return;
-			}
-			filePath.erase(filePath.begin(), filePath.begin() + GetRootPath().length() + 1);
+		Nt::Mesh mesh;
+		mesh.LoadFromFile(filePath);
 
-			Nt::Mesh mesh;
-			mesh.LoadFromFile(filePath);
-
-			Nt::Model model(mesh);
-			for (Object* pObject : m_SelectorPtr->GetObjects()) {
-				Nt::Texture* pTexture = pObject->GetModel().GetTexturePtr();
-				if (pTexture)
-					model.SetTexture(*pTexture);
-				pObject->SetModel(model);
-			}
-
-			m_ModelPathTextEdit.SetText(filePath);
-			m_DeleteButton.EnableWindow();
+		Nt::Model model(mesh);
+		for (Object* pObject : m_SelectorPtr->GetObjectContaiter()) {
+			Nt::Texture* pTexture = pObject->GetModel().GetTexturePtr();
+			if (pTexture)
+				model.SetTexture(*pTexture);
+			pObject->SetModel(model);
 		}
+
+		m_ModelPathTextEdit.SetText(filePath);
+		m_DeleteButton.EnableWindow();
 	}
 
 	void SetTheme(const Style& style) {
 		m_Style = style;
 
 		SetBackgroundColor(m_Style.Property.BackgroundColor);
+
 		m_ModelText.SetColor(m_Style.Property.Texts.Color);
 		m_ModelText.SetWeight(m_Style.Property.Texts.Weight);
 
@@ -154,7 +152,7 @@ public:
 
 		m_ModelText.SetText(m_LanguageData.Texts[LanguageData::TEXT_MODEL]);
 	}
-	void SetScence(Scence* pScence) {
+	void SetScence(Scene* pScence) {
 		if (pScence == nullptr)
 			Raise("Scence pointer is null.");
 		m_pScence = pScence;
@@ -162,7 +160,7 @@ public:
 
 private:
 	LanguageData m_LanguageData;
-	Scence* m_pScence;
+	Scene* m_pScence;
 	Nt::Text m_ModelText;
 	Nt::TextEdit m_ModelPathTextEdit;
 	Nt::Button m_BrowseButton;
@@ -175,6 +173,9 @@ private:
 		m_ModelText.Draw(*this);
 	}
 	void _WMCommand(const Long& param_1, [[maybe_unused]] const Long& param_2) override {
+		if (m_SelectorPtr == nullptr)
+			return;
+
 		const uInt id = LOWORD(param_1);
 		const uInt command = HIWORD(param_1);
 
@@ -184,16 +185,19 @@ private:
 			case BUTTON_BROWSE:
 				BrowseModel();
 				break;
-			case BUTTON_REMOVE:
-				if (m_SelectorPtr) {
+
+			case BUTTON_REMOVE: {
 					m_ModelPathTextEdit.SetText("No selected");
+
 					Nt::Float3D cubeSize = { 1.f, 1.f, 1.f };
 					Nt::Mesh cube = Nt::Geometry::Cube(cubeSize, Nt::Colors::White);
-					for (Object* pObject : m_SelectorPtr->GetObjects()) {
+
+					for (Object* pObject : m_SelectorPtr->GetObjectContaiter()) {
 						if (cubeSize != pObject->GetSize()) {
 							cubeSize = pObject->GetSize();
 							cube = Nt::Geometry::Cube(cubeSize, Nt::Colors::White);
 						}
+						
 						const Nt::Texture* pTexture = pObject->GetModel().GetTexturePtr();
 						if (pTexture)
 							pObject->SetModel(Nt::Model(cube, *pTexture));
@@ -201,10 +205,14 @@ private:
 							pObject->SetModel(Nt::Model(cube));
 					}
 				}
+
 				m_DeleteButton.DisableWindow();
+
 				break;
 			}
+
 			break;
+
 		case EN_UPDATE:
 			break;
 		}

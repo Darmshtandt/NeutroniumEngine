@@ -110,31 +110,36 @@ public:
 		if (!IsEnabled())
 			return;
 
-		if (!m_SelectorPtr)
+		if (m_SelectorPtr == nullptr) {
 			Raise("Selector pointer is nullptr");
-
-		if (m_SelectorPtr->GetObjects().size() == 1) {
-			_EnableWindow();
-			if (m_SelectorPtr->IsChanged()) {
-				const Object* pObject = m_SelectorPtr->GetObjects()[0];
-				m_TextEdits[TEXTEDIT_MASS].SetText(pObject->GetMass());
-				m_TextEdits[TEXTEDIT_FRICTION].SetText(pObject->GetFriction());
-
-				m_Buttons[BUTTON_ACTIVE].SetCheck(pObject->IsPhysicsEnabled());
-				m_Buttons[BUTTON_COLLISION].SetCheck(pObject->IsEnabledCollision());
-				m_Buttons[BUTTON_GRAVITATION].SetCheck(pObject->IsEnabledGravitation());
-				m_Buttons[BUTTON_SHOW_COLLIDER].SetCheck(pObject->IsShowingCollider());
-			}
+			return;
 		}
-		else {
+
+		if (m_SelectorPtr->GetObjectCount() != 1) {
 			_DisableWindow();
+			return;
+		}
+
+		_EnableWindow();
+
+		if (m_SelectorPtr->IsChanged()) {
+			const Object* pObject = m_SelectorPtr->GetObjectPtr(0);
+
+			m_TextEdits[TEXTEDIT_MASS].SetText(pObject->GetMass());
+			m_TextEdits[TEXTEDIT_FRICTION].SetText(pObject->GetFriction());
+
+			m_Buttons[BUTTON_ACTIVE].SetCheck(pObject->IsPhysicsEnabled());
+			m_Buttons[BUTTON_COLLISION].SetCheck(pObject->IsEnabledCollision());
+			m_Buttons[BUTTON_GRAVITATION].SetCheck(pObject->IsEnabledGravitation());
+			m_Buttons[BUTTON_SHOW_COLLIDER].SetCheck(pObject->IsShowingCollider());
 		}
 	}
 
 	void SetTheme(const Style& style) override {
 		m_Style = style;
-
+		
 		SetBackgroundColor(m_Style.Property.BackgroundColor);
+
 		for (uInt i = 0; i < Int(LanguageData::TEXT_COUNT) - Int(BUTTON_COUNT); ++i) {
 			m_TextEdits[i].SetBackgroundColor(m_Style.Property.TextEdits.BackgroundColor);
 			m_TextEdits[i].SetTextColor(m_Style.Property.TextEdits.Text.Color);
@@ -148,6 +153,7 @@ public:
 		m_LanguageData = (LanguageData)language.PropertyWindow.RigidBody;
 		m_LanguageData.WindowName =
 			language.PropertyWindow.Component.Texts[LanguageData::ComponentName::TEXT_RIGIDBODYWINDOW];
+
 		SetName(m_LanguageData.WindowName);
 
 		m_Buttons[BUTTON_ACTIVE].SetName(m_LanguageData.Texts[LanguageData::TEXT_ACTIVE]);
@@ -194,56 +200,62 @@ private:
 			text.Draw(*this);
 	}
 	void _WMCommand(const Long& param_1, [[maybe_unused]] const Long& param_2) override {
+		if (m_SelectorPtr == nullptr)
+			return;
+
 		const uInt id = LOWORD(param_1);
 		const uInt command = HIWORD(param_1);
 
 		try {
-			if (m_SelectorPtr == nullptr)
-				return;
-
-			for (Object* pObject : m_SelectorPtr->GetObjects()) {
-				if (pObject == nullptr)
+			for (Object* pObject : m_SelectorPtr->GetObjectContaiter()) {
+				if (pObject == nullptr) {
 					Raise("Object pointer is null.");
+					return;
+				}
 
 				switch (command) {
 				case BN_CLICKED:
-					if (m_SelectorPtr != nullptr) {
-						const Bool isChecked = m_Buttons[id - ID].IsChecked();
-						switch (id - ID) {
-						case BUTTON_ACTIVE:
-							if (isChecked)
-								pObject->EnablePhysics();
-							else
-								pObject->DisablePhysics();
-							break;
-						case BUTTON_COLLISION:
-							if (isChecked)
-								pObject->EnableCollider();
-							else
-								pObject->DisableCollider();
-							break;
-						case BUTTON_GRAVITATION:
-							if (isChecked)
-								pObject->EnableGravitation();
-							else
-								pObject->DisableGravitation();
-							break;
-						case BUTTON_SHOW_COLLIDER:
-							if (isChecked)
-								pObject->ShowingCollider();
-							else
-								pObject->HidingCollider();
-							break;
-						}
+					switch (id - ID) {
+					case BUTTON_ACTIVE:
+						if (m_Buttons[BUTTON_ACTIVE].IsChecked())
+							pObject->EnablePhysics();
+						else
+							pObject->DisablePhysics();
+						break;
+
+					case BUTTON_COLLISION:
+						if (m_Buttons[BUTTON_COLLISION].IsChecked())
+							pObject->EnableCollider();
+						else
+							pObject->DisableCollider();
+						break;
+
+					case BUTTON_GRAVITATION:
+						if (m_Buttons[BUTTON_GRAVITATION].IsChecked())
+							pObject->EnableGravitation();
+						else
+							pObject->DisableGravitation();
+						break;
+
+					case BUTTON_SHOW_COLLIDER:
+						if (m_Buttons[BUTTON_SHOW_COLLIDER].IsChecked())
+							pObject->ShowingCollider();
+						else
+							pObject->HidingCollider();
+						break;
 					}
+
 					break;
+
 				case EN_UPDATE:
 					switch (id - ID) {
 					case TEXTEDIT_MASS:
 						pObject->SetMass(m_TextEdits[id - ID].GetText());
 						break;
-					//case TEXTEDIT_GRAVITY_DIRECTION:
+
+					case TEXTEDIT_GRAVITY_DIRECTION:
 						break;
+
 					case TEXTEDIT_FRICTION:
 						pObject->SetFriction(m_TextEdits[id - ID].GetText());
 						break;

@@ -14,7 +14,7 @@ public:
 		m_Model.SetMesh(doubleSideQuad);
 		m_Camera.SetPosition({ 0.5f, -0.5f, 0.5f });
 
-		_UpdateColliders();
+		_RecreateColliders();
 		DisableCollider();
 	}
 	GameCamera(const GameCamera& camera) :

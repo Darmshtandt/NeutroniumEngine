@@ -93,7 +93,7 @@ public:
 	using Window::Show;
 	using Window::SetParent;
 	using Window::SetWindowRect;
-	using Window::PopEvent;
+	using Window::PeekMessages;
 
 private:
 	static WNDPROC m_BaseWndProc;
