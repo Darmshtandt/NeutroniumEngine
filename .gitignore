@@ -1,6 +1,7 @@
 .vs/
 Libraries/
 Bin/*
+packages/*
 
 Application/Debug/
 Application/Release/
