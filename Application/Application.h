@@ -1,322 +1,299 @@
 #pragma once
 
-class Application : private Nt::Window {
-public:
-	explicit Application(ProjectManager* projectManagerPtr) :
-		m_ProjectManagerPtr(projectManagerPtr),
-		m_pProject(nullptr),
-		m_pEngine(new Engine),
-		m_pObjectsTree(new ObjectsTree),
-		m_pPropertyWindow(new PropertyWindow),
-		m_pFileExplorer(new FileExplorer),
-		m_IsChanged(false)
-	{ 
-	}
-	~Application() {
-		Nt::ResourceManager::Clear();
+#include <InputContext.h>
+#include <MultiStream.h>
+#include <Nt/Core/EventBus.h>
+#include <ResourceManager.h>
+#include <WorldEditor.h>
 
-		SAFE_DELETE(&m_pObjectsTree);
-		SAFE_DELETE(&m_pPropertyWindow);
-		SAFE_DELETE(&m_pFileExplorer);
-		SAFE_DELETE(&m_pEngine);
+class Application : private Nt::Window {
+	using SharedInputContext = std::shared_ptr<InputContext>;
+	using InputContextHandler = std::function<void(const SharedInputContext& context)>;
+
+public:
+	explicit Application(NotNull<ProjectManager*> projectManagerPtr) :
+		m_ProjectManagerPtr(projectManagerPtr),
+		m_InputContext(new InputContext)
+	{
+		SetEventBus(m_EventBus);
+
+		m_InputContextMap["Application"] = m_InputContext;
+
+		m_EventBus->Subscribe<AddInputContextEvent>([this] (const AddInputContextEvent& e) {
+			if (m_InputContextMap.contains(e.Name)) {
+				Raise("An input context with this name already exists: " + e.Name);
+				return;
+			}
+			if (e.Context.expired()) {
+				Raise("InputContext pointer is null");
+				return;
+			}
+
+			m_InputContextMap[e.Name] = e.Context;
+			});
+
+		m_EventBus->Subscribe<KeyDownEvent>([this] (const KeyDownEvent& e) {
+			ForEachInputContexts([e] (const SharedInputContext& context) {
+				context->AddActiveKey(e.Key);
+				});
+			});
+		m_EventBus->Subscribe<KeyUpEvent>([this] (const KeyUpEvent& e) {
+			ForEachInputContexts([e] (const SharedInputContext& context) {
+				context->RemoveActiveKey(e.Key);
+				});
+			});
+		m_EventBus->Subscribe<ExceptionEvent>([this] (const ExceptionEvent& e) {
+			(void)e;
+			ForEachInputContexts([] (const SharedInputContext& context) {
+				context->ClearActiveKeys();
+				});
+			});
+		m_EventBus->Subscribe<KillFocusEvent>([this] (const KillFocusEvent& e) {
+			(void)e;
+			ForEachInputContexts([] (const SharedInputContext& context) {
+				context->ClearActiveKeys();
+				});
+			});
+
+		m_ObjectsTree.reset(new ObjectsTree(m_EventBus));
+		m_FileExplorer.reset(new FileExplorer());
+		m_Engine.reset(new Engine(m_EventBus));
+	}
+	~Application() noexcept override {
+		m_EventBus->Clear();
+		ResourceManager::Instance().Clear();
 	}
 	
 	void Initialize(const Settings& settings) {
+		Nt::Log::Instance().Message("Initialize Application");
+
 		m_Settings = settings;
-		m_ProgramMenu.Initialize(m_Settings.CurrentLanguage);
+
+		m_InitialPath = m_Settings.Language.InitialPath;
+		m_ProgramMenu = std::make_unique<ProgramMenu>(m_Settings.Language);
 
 		EnableMenu();
 		AddExStyles(WS_EX_CONTROLPARENT);
 		Create(m_Settings.MainWindowRect, APPLICATION_NAME);
-		SetMenu(m_ProgramMenu.GetNtMenu());
+		SetMenu(m_ProgramMenu.get());
+		SetIcon(m_InitialPath + "Images\\Logo.ico");
 
-		m_DefaultInitialPath = std::current_path();
-		for (Int i = m_DefaultInitialPath.string().length() - 1; i >= 0; --i) {
-			std::string path = m_DefaultInitialPath.string();
-			if (path[i] == '\\') {
-				path.erase(i + 1, path.length());
-				m_DefaultInitialPath = path;
-				break;
-			}
-		}
+		m_Engine->Initialize(m_Settings, m_InitialPath);
+		m_Engine->SetParent(*this);
+		m_Engine->Show();
 
-		SetIcon(m_DefaultInitialPath.string() + "Images\\Logo.ico");
+		m_ObjectsTree->Initialize(m_Settings, m_InitialPath);
+		m_ObjectsTree->SetParent(*this);
+		m_ObjectsTree->Show();
 
-		m_pObjectsTree->Initialize(m_Settings, m_DefaultInitialPath.string());
-		m_pObjectsTree->SetParent(*this);
-		m_pObjectsTree->Show();
-
-		m_pEngine->Initialize(m_Settings, m_DefaultInitialPath.string());
-		m_pEngine->SetParent(*this);
-		m_pEngine->BindObjectsTree(m_pObjectsTree);
-		m_pEngine->Show();
-
-		m_pProject = m_ProjectManagerPtr->GetProjectPtr();
-		if (m_pProject == nullptr)
-			Raise("Project pointer is nullptr");
+		m_pProject = RequireNotNull(m_ProjectManagerPtr->GetProjectPtr());
 
 		m_RootPath = m_pProject->GetRootPath();
 		std::current_path(std::path(m_RootPath));
 
-		m_pPropertyWindow->Initialize(m_Settings, m_RootPath, m_pEngine->GetSelectorPtr(), m_pEngine->GetScencePtr());
-		m_pPropertyWindow->SetParent(*this);
-		m_pPropertyWindow->Show();
+		m_PropertyWindow.reset(new PropertyWindow(m_Engine->GetSelector(), m_Engine->GetScene()));
+		m_PropertyWindow->Initialize(m_EventBus, m_Settings, m_RootPath);
+		m_PropertyWindow->SetParent(*this);
+		m_PropertyWindow->Show();
 
-		m_pFileExplorer->Initialize(m_Settings);
-		m_pFileExplorer->SetParent(*this);
-		m_pFileExplorer->SetRootPath(m_RootPath);
-		m_pFileExplorer->Show();
+		m_FileExplorer->Initialize(m_Settings);
+		m_FileExplorer->SetParent(*this);
+		m_FileExplorer->SetRootPath(m_RootPath);
+		m_FileExplorer->Show();
+
+		m_pWorldEditor = m_Engine->GetWorldEditor();
+		
+		m_ProgramMenu->RegisterAction("Menu.File.Build", [this] () { Build(); });
+		m_ProgramMenu->RegisterAction("Menu.File.New", [this] () { m_pWorldEditor->New(); });
+		m_ProgramMenu->RegisterAction("Menu.File.Open", [this] () { m_pWorldEditor->Open(); });
+		m_ProgramMenu->RegisterAction("Menu.File.Save", [this] () { m_pWorldEditor->Save(); });
+		m_ProgramMenu->RegisterAction("Menu.File.SaveAs", [this] () { m_pWorldEditor->SaveAs(); });
+
+		m_ProgramMenu->AttachEditor(m_pWorldEditor);
+		m_ProgramMenu->AttachStyle(&m_Settings.Style);
+
+		Style::MessageBus::Instance().Subscribe(TOPIC_STYLE_CHANGE, [this] (Style* pStyle) {
+			SetTheme(*pStyle);
+			});
+
+		SetTheme(m_Settings.Style);
+
+
+		m_InputContext->AddHotKey(
+			{ Nt::KEY_CONTROL, Nt::KEY_SHIFT, Nt::KEY_S }, [this] () { m_pWorldEditor->SaveAs(); });
+
+		m_InputContext->AddHotKey(
+			{ Nt::KEY_CONTROL, Nt::KEY_SHIFT, Nt::KEY_T }, [this] () { m_Engine->CloseTestGame(); });
+
+		m_InputContext->AddHotKey(
+			{ Nt::KEY_CONTROL, Nt::KEY_O }, [this] () { m_pWorldEditor->Open(); });
+
+		m_InputContext->AddHotKey(
+			{ Nt::KEY_CONTROL, Nt::KEY_S }, [this] () { m_pWorldEditor->Save(); });
+
+		m_InputContext->AddHotKey(
+			{ Nt::KEY_CONTROL, Nt::KEY_T }, [this] () { m_Engine->StartTestGame(); });
+
+		m_InputContext->AddHotKey(
+			{ Nt::KEY_CONTROL, Nt::KEY_F4 }, [this] () { Close(); });
+
+		m_IsInitialized = true;
+
+		Nt::Log::Instance().Successful("Application initialized");
 	}
 	void Run() {
+		Nt::Log::Instance().Message("Run Application");
+
 		ShowMaximized();
 
-		Nt::Event event;
 		while (IsOpened()) {
-			while (PeekMessages(&event) || m_pObjectsTree->PeekMessages(&event)
-				|| m_pPropertyWindow->PeekMessages(&event) || m_pFileExplorer->PeekMessages(&event)
-				|| m_pEngine->PeekMessages(&event))
-			{
-				switch (event.Type) {
-				case Nt::Event::WINDOW_RESIZE:
-					m_Settings.ComputeWindowRect(GetWindowRect());
-
-					m_pObjectsTree->SetRect(m_Settings.ObjectsTreeWindowRect);
-					m_pPropertyWindow->SetWindowRect(m_Settings.PropertyWindowRect);
-					m_pEngine->SetRect(m_Settings.EngineWindowRect);
-					m_pFileExplorer->SetWindowRect(m_Settings.FileExplorerWindowRect);
-					break;
-				case Nt::Event::KEY_UP:
-					switch (event.Value) {
-					case Nt::Keyboard::KEY_F4:
-						Close();
-						goto PopingExit;
-					}
-					break;
-				}
-				m_pEngine->HandleEvent(event);
-			}
-		PopingExit:
+			PeekMessages();
 
 			if (GetActiveWindow() != nullptr) {
-				_Control();
-				m_pPropertyWindow->Update();
-				m_pEngine->Update();
-				m_pEngine->Render();
+				m_Keyboard.Update();
+				m_PropertyWindow->Update();
+				m_Engine->Update();
+				m_Engine->Render();
 
-				if (m_pEngine->IsChanged() != m_IsChanged) {
-					m_IsChanged = m_pEngine->IsChanged();
+				if (m_pWorldEditor->IsChanged() != m_IsChanged) {
+					m_IsChanged = m_pWorldEditor->IsChanged();
 					SetName((m_IsChanged) 
 						? (L'*' + m_Name)
 						: m_Name.substr(0, 1));
 				}
 			}
 			else {
-				if (m_pEngine->IsFly())
-					m_pEngine->DisableFly();
+				m_Engine->DeactivateWindow();
+
 				Sleep(10);
 			}
 		}
-		std::current_path(m_DefaultInitialPath);
+
+		std::current_path(m_InitialPath);
 	}
 
 	void Build() {
-		Game::Config config;
-		config.WindowName = m_pProject->GetName();
-		config.ScencePath = Nt::OpenFileDialog(L"", L"Scence (*.ntascn)\0*.ntascn");
+		Nt::Log::Instance().Message("Build started");
 
-		if (config.ScencePath != "") {
-			if (!IsValidPath(m_RootPath, config.ScencePath)) {
-				WarningBox(L"To add a file, place it in the project's root folder.", L"Warning");
-				return;
-			}
-			config.ScencePath.erase(config.ScencePath.begin(), config.ScencePath.begin() + m_RootPath.length() + 1);
+		try {
+			Game::Config config;
+			config.WindowName = m_pProject->GetName();
+			config.ScenePath = Nt::OpenFileDialog(L"", L"Scene (*.ntascn)\0*.ntascn");
+
+			if (!config.ScenePath.empty())
+				Raise("Scene path is empty");
+
+			if (!IsValidPath(m_RootPath, config.ScenePath))
+				Raise("To add a file, place it in the project's root folder");
+
+			config.ScenePath.erase(config.ScenePath.begin(), config.ScenePath.begin() + m_RootPath.length() + 1);
 
 			const std::path binPath(m_RootPath + "\\Bin\\");
-			if ((!std::directory_entry(binPath).exists()) && (!std::create_directory(binPath))) {
-				ErrorBox(L"Failed to create Bin directory.", L"Error");
-				return;
-			}
+			if ((!std::directory_entry(binPath).exists()) && (!std::create_directory(binPath)))
+				Raise("Failed to create Bin directory");
 
 			std::ofstream configFile(m_RootPath + "\\Bin\\.gameconf");
-			if (!configFile.is_open()) {
-				ErrorBox(L"Failed to create game config file.", L"Error");
-				return;
-			}
+			if (!configFile.is_open())
+				Raise("Failed to create game config file");
 
 			if (m_IsChanged)
-				Save();
+				m_pWorldEditor->Save();
 
 			config.Write(configFile);
 			configFile.close();
 
-			const std::string initialPath = m_DefaultInitialPath.string() + "\\";
-			std::copy_file(std::path(initialPath + "Launcher.exe"), std::path(m_RootPath + "\\Bin\\Game.exe"), std::copy_options::overwrite_existing);
-			std::copy_file(std::path(initialPath + "OpenAL32.dll"), std::path(m_RootPath + "\\Bin\\OpenAL32.dll"), std::copy_options::overwrite_existing);
+			std::copy_file(std::path(m_InitialPath + "Launcher.exe"), std::path(m_RootPath + "\\Bin\\Game.exe"), std::copy_options::overwrite_existing);
+			std::copy_file(std::path(m_InitialPath + "OpenAL32.dll"), std::path(m_RootPath + "\\Bin\\OpenAL32.dll"), std::copy_options::overwrite_existing);
+
 #ifdef _DEBUG
-			std::copy_file(std::path(initialPath + "NeutroniumCore32d.dll"), std::path(m_RootPath + "\\Bin\\NeutroniumCore32d.dll"), std::copy_options::overwrite_existing);
-			std::copy_file(std::path(initialPath + "NeutroniumGraphics32d.dll"), std::path(m_RootPath + "\\Bin\\NeutroniumGraphics32d.dll"), std::copy_options::overwrite_existing);
-			std::copy_file(std::path(initialPath + "NeutroniumPhysics32d.dll"), std::path(m_RootPath + "\\Bin\\NeutroniumPhysics32d.dll"), std::copy_options::overwrite_existing);
+			std::copy_file(std::path(m_InitialPath + "NeutroniumCore32d.dll"), std::path(m_RootPath + "\\Bin\\NeutroniumCore32d.dll"), std::copy_options::overwrite_existing);
+			std::copy_file(std::path(m_InitialPath + "NeutroniumGraphics32d.dll"), std::path(m_RootPath + "\\Bin\\NeutroniumGraphics32d.dll"), std::copy_options::overwrite_existing);
+			std::copy_file(std::path(m_InitialPath + "NeutroniumPhysics32d.dll"), std::path(m_RootPath + "\\Bin\\NeutroniumPhysics32d.dll"), std::copy_options::overwrite_existing);
 #else
-			std::copy_file(std::path(initialPath + "NeutroniumCore32.dll"), std::path(m_RootPath + "\\Bin\\NeutroniumCore32.dll"), std::copy_options::overwrite_existing);
-			std::copy_file(std::path(initialPath + "NeutroniumGraphics32.dll"), std::path(m_RootPath + "\\Bin\\NeutroniumGraphics32.dll"), std::copy_options::overwrite_existing);
-			std::copy_file(std::path(initialPath + "NeutroniumPhysics32.dll"), std::path(m_RootPath + "\\Bin\\NeutroniumPhysics32.dll"), std::copy_options::overwrite_existing);
+			std::copy_file(std::path(m_InitialPath + "NeutroniumCore32.dll"), std::path(m_RootPath + "\\Bin\\NeutroniumCore32.dll"), std::copy_options::overwrite_existing);
+			std::copy_file(std::path(m_InitialPath + "NeutroniumGraphics32.dll"), std::path(m_RootPath + "\\Bin\\NeutroniumGraphics32.dll"), std::copy_options::overwrite_existing);
+			std::copy_file(std::path(m_InitialPath + "NeutroniumPhysics32.dll"), std::path(m_RootPath + "\\Bin\\NeutroniumPhysics32.dll"), std::copy_options::overwrite_existing);
 #endif
 
-
-			InfoBox(L"Build was successful!", L"Build");
+			Nt::Log::Instance().Successful("Build completed");
+			Nt::MessageWindow("Build was successful!", "Build").ShowInfo();
+		}
+		catch (const Nt::Error& error) {
+			Nt::Log::Instance().Error(error.what());
+			Nt::Log::Instance().Message("Build failed");
+			Nt::MessageWindow(error.what(), "Error").ShowError();
 		}
 	}
-	void New() {
-		m_pEngine->New();
-	}
-	void Open() {
-		m_pEngine->Open();
-	}
-	void Save() {
-		m_pEngine->Save(m_pProject->GetRootPath());
-	}
-	void SaveAs() {
-		m_pEngine->SaveAs(m_pProject->GetRootPath());
-	}
 
-	void SetTheme(const std::string& fileName) {
-		m_Settings.Styles.Load(m_DefaultInitialPath.string() + "\\..\\Themes\\" + fileName);
-		m_pObjectsTree->SetTheme(m_Settings.Styles);
-		m_pPropertyWindow->SetTheme(m_Settings.Styles);
-		m_pEngine->SetTheme(m_Settings.Styles);
-		m_pFileExplorer->SetTheme(m_Settings.Styles);
+	void SetTheme(const Style& style) {
+		m_Settings.Style = style;
+
+		m_ObjectsTree->SetTheme(m_Settings.Style);
+		m_PropertyWindow->SetTheme(m_Settings.Style);
+		m_Engine->SetTheme(m_Settings.Style);
+		m_FileExplorer->SetTheme(m_Settings.Style);
 	}
 	void SetLanguage(const std::string& fileName) {
-		if (fileName == "en.ntelc")
-			m_Settings.CurrentLanguage = Language();
+		m_Settings.Language.LoadFromFile(fileName);
 
-		//m_Settings.CurrentLanguage.Load(m_DefaultInitialPath.string() + "\\..\\Locales\\" + fileName);
-		m_pObjectsTree->SetLanguage(m_Settings.CurrentLanguage);
-		m_pPropertyWindow->SetLanguage(m_Settings.CurrentLanguage);
-		m_pEngine->SetLanguage(m_Settings.CurrentLanguage);
-		m_pFileExplorer->SetLanguage(m_Settings.CurrentLanguage);
-		m_ProgramMenu.SetLanguage(m_Settings.CurrentLanguage);
+		m_ObjectsTree->SetLanguage(m_Settings.Language);
+		m_PropertyWindow->SetLanguage(m_Settings.Language);
+		m_Engine->SetLanguage(m_Settings.Language);
+		m_FileExplorer->SetLanguage(m_Settings.Language);
+		m_ProgramMenu->SetLanguage(m_Settings.Language);
 		
-		m_ProgramMenu.SetLanguage(m_Settings.CurrentLanguage);
 		DrawMenuBar(m_hwnd);
 	}
 
 private:
+	std::shared_ptr<Nt::EventBus> m_EventBus = std::make_shared<Nt::EventBus>();
+	std::unique_ptr<ProgramMenu> m_ProgramMenu;
+	std::shared_ptr<InputContext> m_InputContext;
+	std::unordered_map<std::string, std::weak_ptr<InputContext>> m_InputContextMap;
 	Nt::String m_RootPath;
-	std::path m_DefaultInitialPath;
+	std::string m_InitialPath;
 	ProjectManager* m_ProjectManagerPtr;
-	Project* m_pProject;
-	FileExplorer* m_pFileExplorer;
-	PropertyWindow* m_pPropertyWindow;
-	ObjectsTree* m_pObjectsTree;
-	Engine* m_pEngine;
-	ProgramMenu m_ProgramMenu;
+	Project* m_pProject = nullptr;
+
+	std::unique_ptr<FileExplorer> m_FileExplorer;
+	std::unique_ptr<ObjectsTree> m_ObjectsTree;
+	std::unique_ptr<Engine> m_Engine;
+	std::unique_ptr<PropertyWindow> m_PropertyWindow;
+	WorldEditor* m_pWorldEditor = nullptr;
+
 	Nt::Keyboard m_Keyboard;
 	Settings m_Settings;
-	Bool m_IsChanged;
+	Bool m_IsChanged = false;
+	Bool m_IsInitialized = false;
 
 private:
-	void _Control() {
-		const Bool isControlPressed =
-			m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_CONTROL, false);
-		const Bool isShiftPressed =
-			m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_SHIFT, false);
+	void _Resize(const Nt::uInt2D& windowSize) override {
+		(void)windowSize;
+		if (!m_IsInitialized)
+			return;
 
-		m_Keyboard.Update();
-		if (isControlPressed) {
-			if (isShiftPressed) {
-				if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_S, true))
-					SaveAs();
-				else if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_T, true))
-					m_pEngine->CloseTestGame();
-			}
-			else {
-				if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_O, true))
-					Open();
-				else if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_S, true))
-					Save();
-				else if (m_Keyboard.IsKeyPressed(Nt::Keyboard::KEY_T, true))
-					m_pEngine->StartTestGame();
-			}
-		}
+		m_Settings.ComputeWindowRect(GetWindowRect());
+
+		m_ObjectsTree->SetRect(m_Settings.ObjectsTreeWindowRect);
+		m_PropertyWindow->SetWindowRect(m_Settings.PropertyWindowRect);
+		m_Engine->SetRect(m_Settings.EngineWindowRect);
+		m_FileExplorer->SetWindowRect(m_Settings.FileExplorerWindowRect);
 	}
-	void _WMCommand(const Long& param_1, [[maybe_unused]] const Long& param_2) override {
-		switch (param_1) {
-		case ProgramMenu::MENU_BUILD:
-			Build();
-			break;
-		case ProgramMenu::MENU_NEW:
-			New();
-			break;
-		case ProgramMenu::MENU_OPEN:
-			Open();
-			break;
-		case ProgramMenu::MENU_SAVE:
-			Save();
-			break;
-		case ProgramMenu::MENU_SAVEAS:
-			SaveAs();
-			break;
-		case ProgramMenu::MENU_CLOSE:
-			break;
+	void _Command(const Long& param_1, const Long& param_2) override {
+		(void)param_2;
+		m_ProgramMenu->ExecuteAction(param_1);
+	}
+	void ForEachInputContexts(const InputContextHandler& handler) {
+		Assert(handler, "Invalid handler");
 
-		case ProgramMenu::MENU_ENABLE_OBJECTS_TREE:
-			break;
-		case ProgramMenu::MENU_ENABLE_FILE_EXPLORER:
-			break;
-		case ProgramMenu::MENU_ENABLE_PROPERTY:
-			break;
-
-		case ProgramMenu::MENU_CREATE_PRIMITIV_CUBE:
-			m_pEngine->CreatePrimitive(PrimitiveTypes::CUBE);
-			break;
-		case ProgramMenu::MENU_CREATE_PRIMITIV_QUAD:
-			m_pEngine->CreatePrimitive(PrimitiveTypes::QUAD);
-			break;
-		case ProgramMenu::MENU_CREATE_PRIMITIV_PLANE:
-			m_pEngine->CreatePrimitive(PrimitiveTypes::PLANE);
-			break;
-		case ProgramMenu::MENU_CREATE_PRIMITIV_PYRAMID:
-			m_pEngine->CreatePrimitive(PrimitiveTypes::PYRAMID);
-			break;
-		case ProgramMenu::MENU_CREATE_ENTITY_CAMERA:
-			m_pEngine->CreateEntity(EntityTypes::CAMERA);
-			break;
-		case ProgramMenu::MENU_CREATE_ENTITY_SOUND:
-			m_pEngine->CreateEntity(EntityTypes::SOUND);
-			break;
-		case ProgramMenu::MENU_CREATE_ENTITY_MODEL:
-			m_pEngine->CreateEntity(EntityTypes::MODEL);
-			break;
-
-		case ProgramMenu::MENU_THEME_SOLARIZED_DARK:
-		case ProgramMenu::MENU_THEME_SOLARIZED_GREEN_DARK:
-		case ProgramMenu::MENU_THEME_SOLARIZED_RED_DARK:
-		case ProgramMenu::MENU_THEME_DARK:
-		case ProgramMenu::MENU_THEME_BLACK:
-		case ProgramMenu::MENU_THEME_WHITE:
-			{
-				const std::string styleNames[] = {
-					"Solarized Dark.ntethm", "Solarized Green-Dark.ntethm",
-					"Solarized Red-Dark.ntethm", "Dark.ntethm",
-					"Black.ntethm", "White.ntethm"
-				};
-
-				SetTheme(styleNames[param_1 - ProgramMenu::MENU_THEME_SOLARIZED_DARK]);
-				for (uInt i = ProgramMenu::MENU_THEME_SOLARIZED_DARK; i <= ProgramMenu::MENU_THEME_WHITE; ++i)
-					m_ProgramMenu.GetNtMenu().CheckItem(i, (Long(i) == param_1));
+		for (auto it = m_InputContextMap.begin(); it != m_InputContextMap.end();) {
+			if (it->second.expired()) {
+				it = m_InputContextMap.erase(it);
+				continue;
 			}
-			break;
 
-		case ProgramMenu::MENU_LANGUAGE_ENGLISH:
-			SetLanguage("en.ntelc");
-			break;
-		case ProgramMenu::MENU_LANGUAGE_RUSSIAN:
-			SetLanguage("ru.ntelc");
-			break;
-		case ProgramMenu::MENU_LANGUAGE_SLOVAK:
-			SetLanguage("sk.ntelc");
-			break;
+			handler(it->second.lock());
+			++it;
 		}
 	}
 };

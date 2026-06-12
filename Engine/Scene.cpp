@@ -1,43 +1,34 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+
 #include <Main.h>
-#include <Style.h>
-#include <Language.h>
-#include <Settings.h>
 
-#include <Lua.h>
-#include <Script.h>
-#include <Object.h>
-#include <Entity.h>
-#include <GameCamera.h>
-#include <GameSound.h>
-#include <GameModel.h>
+#include <Objects/Entities/GameLight.h>
+
 #include <Selector.h>
-#include <ObjectsTree.h>
 #include <Scene.h>
+#include <Nt/Core/EventBus.h>
 
 
-Scene::Scene() {
-	_Initialize();
+Scene::Scene(const std::weak_ptr<Nt::EventBus>& pBus) :
+	m_pEventBus(pBus),
+	m_LightBuffer(Nt::Buffer::Target::UNIFORM)
+{
+	Assert(!m_pEventBus.expired(), "EventBus pointer is null");
 }
-Scene::Scene(const Scene& scence) {
-	_Initialize();
-
-	for (const Object* pObject : scence.m_Objects) {
-		Object* pCopiedObject = pObject->GetCopy();
-		if (pCopiedObject == nullptr)
-			Raise("Failed to crete object.");
-
+Scene::Scene(const Scene& scene) :
+	m_pEventBus(scene.m_pEventBus),
+	m_LightBuffer(Nt::Buffer::Target::UNIFORM)
+{
+	for (const Object* pObject : scene.m_Objects) {
+		Object* pCopiedObject = RequireNotNull(pObject->GetCopy());
 		pCopiedObject->SetForce({ });
-
-		const Script* pScript = pObject->GetScript();
-		if (pScript != nullptr)
-			pCopiedObject->AttachScript(m_pLua, this, pScript->GetFilePath(), pScript->GetScriptData());
 
 		m_Objects.push_back(pCopiedObject);
 	}
 }
 Scene::~Scene() {
 	Clear();
-	ClearBuffer();
 }
 
 void Scene::Start() {
@@ -50,80 +41,56 @@ void Scene::Stop() {
 }
 
 Object* Scene::RayCastObject(const Nt::Ray& ray, Nt::Float3D* pResultIntersectionPoint) {
-	Float shortestDistance = -FLT_MAX;
+	Float shortestDistance = FLT_MAX;
 	Object* pNearestObject = nullptr;
 
-	for (uInt i = 0; i < m_Objects.size(); ++i) {
-		Object* pObject = m_Objects[i];
-		if (pObject == nullptr)
-			Raise("Object pointer is null.");
-
+	for (Object* pObject : m_Objects) {
 		const Float objectDistance = (ray.Start - pObject->GetPosition()).LengthSquare();
 		const Int faceIndex = pObject->RayCastTest(ray, pResultIntersectionPoint);
 
-		if (faceIndex != -1 && shortestDistance < objectDistance) {
+		if (faceIndex != -1 && shortestDistance > objectDistance) {
 			shortestDistance = objectDistance;
 			pNearestObject = pObject;
 		}
 	}
+
 	return pNearestObject;
 }
 
-void Scene::BindObjectsTree(ObjectsTree* objectsTreePtr) noexcept {
-	m_ObjectsTreePtr = objectsTreePtr;
+void Scene::AddObject(NotNull<Object*> pObject) {
+	m_Objects.push_back(pObject);
+	if (pObject->GetToken() == GameLight::GetClassToken())
+		m_Lights.push_back(pObject.DynamicCast<GameLight*>()->GetData());
 
-	if (m_ObjectsTreePtr != nullptr) {
-		m_ObjectsTreePtr->Clear();
-
-		for (uInt i = 0; i < m_Objects.size(); ++i)
-			m_ObjectsTreePtr->Add(m_Objects[i]);
-	}
+	if (!m_pEventBus.expired())
+		m_pEventBus.lock()->Emmit<EventAddObject>({ pObject });
 }
-
-void Scene::AddObject(Object* pObject) {
-	if (pObject == nullptr) {
-		Raise("Object pointer is null.");
+void Scene::RemoveObject(NotNull<const Object*> pObject) {
+	const auto iterator = std::find(m_Objects.begin(), m_Objects.end(), pObject);
+	if (iterator == m_Objects.end()) {
+		Nt::MessageWindow("Scene::RemoveObject: This object not funded.", "Error").ShowError();
 		return;
 	}
 
-	if (m_ObjectsTreePtr != nullptr)
-		m_ObjectsTreePtr->Add(pObject);
+	if (!m_pEventBus.expired())
+		m_pEventBus.lock()->Emmit<EventRemoveObject>({ *iterator });
 
-	m_Objects.push_back(pObject);
+	delete(*iterator);
+	m_Objects.erase(iterator);
 }
-void Scene::RemoveObject(const Object* pObject) {
-	const auto iterator = std::find(m_Objects.begin(), m_Objects.end(), pObject);
-
-	if (iterator != m_Objects.end()) {
-		delete(*iterator);
-		m_Objects.erase(iterator);
-	}
-	else {
-		ERROR_MSG(L"Scence::RemoveObject: This object is not finded.", L"Error");
-	}
-}
-void Scene::RemoveSelected(Selector* pSelector) {
-	for (Object* pObject : pSelector->GetObjectContaiter())
+void Scene::RemoveSelected(NotNull<Selector*> pSelector) {
+	for (Object* pObject : pSelector->GetObjectContainer())
 		RemoveObject(pObject);
-
-	pSelector->AllDeselect();
-
-	if (m_ObjectsTreePtr != nullptr) {
-		m_ObjectsTreePtr->Clear();
-
-		for (Object* pObject : m_Objects)
-			m_ObjectsTreePtr->Add(pObject);
-	}
+	pSelector->RemoveSelected();
 }
 
 void Scene::Clear() {
 	for (Object* pObject : m_Objects)
 		delete(pObject);
 
+	if (!m_pEventBus.expired())
+		m_pEventBus.lock()->Emmit<EventClear>({ });
 	m_Objects.clear();
-
-	if (m_ObjectsTreePtr != nullptr)
-		m_ObjectsTreePtr->Clear();
 }
 
 void Scene::Update(const Float& time) {
@@ -143,26 +110,39 @@ void Scene::Update(const Float& time) {
 		pPrimaryObject->Collision(pSecondaryObject);
 	};
 
+
+	if (m_Lights.empty()) {
+		m_LightBuffer.SetData(m_LightBuffer.GetSize(), nullptr, Nt::USAGE_STREAMDRAW);
+	}
+	else {
+		const uInt bufferSize = (m_Lights.size() * sizeof(Nt::LightData));
+		m_LightBuffer.SetData(bufferSize, m_Lights.data(), Nt::USAGE_STREAMDRAW);
+	}
+
 	for (Object* pObject : m_Objects) {
 		pObject->Update(time);
-		if ((!pObject->IsActivePhycisc()) || (!pObject->IsEnabledCollision()))
+		if (!(pObject->IsActivePhysics() && pObject->IsEnabledCollision()))
 			continue;
 
 		for (Object* pOtherObject : m_Objects) {
 			if (pOtherObject == pObject)
 				continue;
 
-			if ((!pOtherObject->IsActivePhycisc()) || (!pOtherObject->IsEnabledCollision()))
+			if (!(pOtherObject->IsActivePhysics() && pOtherObject->IsEnabledCollision()))
 				continue;
 
-			if (pObject->IsChanged())
+			if (pObject->IsDirty())
 				handleCollisionIfAllowed(pObject, pOtherObject);
-			else if (pOtherObject->IsChanged())
+			else if (pOtherObject->IsDirty())
 				handleCollisionIfAllowed(pOtherObject, pObject);
 		}
 
-		pObject->UnmarkChanged();
+		pObject->StaticUpdate();
 	}
+
+	const uInt offset = sizeof(Nt::Float4D) + sizeof(Nt::Float3D);
+	for (uInt i = 0; i < m_Lights.size(); ++i)
+		m_LightBuffer.SetSubData(sizeof(Nt::LightData) * i + offset, sizeof(Nt::Float3D), &m_Lights[i].Position);
 }
 void Scene::Render(Nt::Renderer* pRenderer) const {
 	for (Object* pObject : m_Objects)
@@ -171,7 +151,7 @@ void Scene::Render(Nt::Renderer* pRenderer) const {
 
 void Scene::AllowLayerOverlap(const Nt::String& firstLayerName, const Nt::String& secondLayerName, const Bool& isAllow) {
 	if (firstLayerName == secondLayerName) {
-		Nt::Log::Warning("Layer names are the same");
+		Nt::Log::Instance().Warning("Layer names are the same");
 		return;
 	}
 
@@ -201,171 +181,10 @@ void Scene::AllowLayerOverlap(const Nt::String& firstLayerName, const Nt::String
 	else {
 		Layer layer;
 		layer.Name = firstLayerName;
-		layer.Layers.push_back({ LayerContainer(), secondLayerName });
+		layer.Layers.emplace_back(LayerContainer(), secondLayerName);
 
 		m_DisjointLayers.push_back(layer);
 	}
-}
-
-Bool Scene::Load(const std::string& fileName) {
-	std::ifstream file(fileName, std::ios::binary);
-	if (!file.is_open()) {
-		ErrorBox(L"Failed to open file", L"Error");
-		return false;
-	}
-
-	try {
-		Clear();
-		file.read((Char*)&m_Version, sizeof(m_Version));
-
-		uInt objectCount;
-		file.read((Char*)&objectCount, sizeof(uInt));
-
-		for (uInt i = 0; i < objectCount; ++i) {
-			ObjectTypes objectType;
-			file.read((Char*)&objectType, sizeof(ObjectTypes));
-
-			Object* pObject = nullptr;
-			if (objectType == ObjectTypes::ENTITY) {
-				EntityTypes entityType;
-				file.read((Char*)&entityType, sizeof(entityType));
-
-				pObject = dynamic_cast<Object*>(Entity::New(uInt(entityType)));
-			}
-			else {
-				pObject = dynamic_cast<Object*>(Object::New(uInt(objectType)));
-			}
-
-			if (pObject == nullptr) {
-				Raise("Failed to load scence");
-				return false;
-			}
-
-			pObject->Read(file);
-
-			uInt pathLength;
-			file.read((Char*)&pathLength, sizeof(uInt));
-
-			if (pathLength > 0) {
-				std::string scriptFilePath(pathLength, '\0');
-				file.read(scriptFilePath.data(), pathLength);
-
-				if (scriptFilePath != "") {
-					std::vector<Script::Data> data;
-					Nt::Serialization::ReadAll(file, data);
-
-					pObject->AttachScript(m_pLua, this, scriptFilePath, data);
-				}
-			}
-
-			AddObject(pObject);
-		}
-
-		return true;
-	}
-	catch (const Nt::Error& error) {
-		ErrorBoxA(Nt::String(error.what()), error.Caption);
-		Clear();
-	}
-
-	file.close();
-	return false;
-}
-void Scene::Save(const std::string& fileName) {
-	std::ofstream file(fileName, std::ios::binary);
-	if (!file.is_open()) {
-		ErrorBox(L"Failed to save file", L"Error");
-		return;
-	}
-
-	file.write((Char*)&m_Version, sizeof(m_Version));
-
-	const uInt objectCount = m_Objects.size();
-	file.write((Char*)&objectCount, sizeof(uInt));
-
-	for (uInt i = 0; i < objectCount; ++i) {
-		file.write((Char*)&m_Objects[i]->ObjectType, sizeof(ObjectTypes));
-
-		if (m_Objects[i]->ObjectType == ObjectTypes::ENTITY) {
-			const EntityTypes entityType = UpcastObjectToEntity(m_Objects[i])->GetEntityType();
-			file.write((Char*)&entityType, sizeof(EntityTypes));
-		}
-
-		m_Objects[i]->Write(file);
-
-		std::string scriptFilePath;
-		if (m_Objects[i]->GetScript() != nullptr)
-			scriptFilePath = m_Objects[i]->GetScript()->GetFilePath();
-
-		const uInt scriptFilePathLength = scriptFilePath.length();
-		file.write((Char*)&scriptFilePathLength, sizeof(uInt));
-
-		if (scriptFilePathLength > 0) {
-			file.write(scriptFilePath.data(), scriptFilePath.length());
-			Nt::Serialization::WriteAll(file, m_Objects[i]->GetScript()->GetScriptData());
-		}
-	}
-
-	file.close();
-}
-
-void Scene::Copy(Selector* selectorPtr) {
-	if (selectorPtr == nullptr) {
-		Raise("Selection pointer is null.");
-		return;
-	}
-
-	if (selectorPtr->IsEmpty())
-		return;
-	
-	ClearBuffer();
-
-	for (Object* pObject : selectorPtr->GetObjectContaiter()) {
-		Object* pCopiedObject = pObject->GetCopy();
-
-		pCopiedObject->SetForce({ });
-		pCopiedObject->SetLinearAcceleration({ });
-		pCopiedObject->SetLinearVelocity({ });
-
-		m_Clipboard.push_back(pCopiedObject);
-	}
-}
-void Scene::Cut(Selector* selectorPtr) {
-	if (selectorPtr == nullptr) {
-		Raise("Selection pointer is null.");
-		return;
-	}
-	
-	if (selectorPtr->IsEmpty())
-		return;
-
-	Copy(selectorPtr);
-	RemoveSelected(selectorPtr);
-}
-void Scene::Paste(Selector* selectorPtr) {
-	if (selectorPtr == nullptr) {
-		Raise("Selection pointer is null.");
-		return;
-	}
-	
-	if (m_Clipboard.empty())
-		return;
-
-	selectorPtr->AllDeselect();
-
-	for (Object* pObject : m_Clipboard) {
-		pObject->Translate({ 1.f, 1.f, 1.f });
-
-		Object* pCopiedObject = pObject->GetCopy();
-		selectorPtr->AddSelect(pCopiedObject);
-		AddObject(pCopiedObject);
-	}
-}
-void Scene::ClearBuffer() {
-	for (Object* pObject : m_Clipboard)
-		delete(pObject);
-
-	m_Clipboard.clear();
 }
 
 Object* Scene::operator [] (const uInt& index) const {
@@ -378,6 +197,12 @@ Lua* Scene::GetLua() const noexcept {
 const ObjectContainer& Scene::GetObjects() const {
 	return m_Objects;
 }
+const Nt::Buffer& Scene::GetLightBuffer() const noexcept {
+	return m_LightBuffer;
+}
+uInt Scene::GetLightsCount() const noexcept {
+	return m_Lights.size();
+}
 Object* Scene::GetObjectPtr(const uInt& index) const {
 	return m_Objects[index];
 }
@@ -387,27 +212,6 @@ Object* Scene::GetObjectPtrByName(const Nt::String& name) const {
 			return pObject;
 	}
 
-	Nt::Log::Warning("objects named \"" + name + "\" not found.");
-
+	Nt::Log::Instance().Warning("objects named \"" + name + "\" not found.");
 	return nullptr;
-}
-GameSound* Scene::GetSoundPtrByName(const Nt::String& name) const {
-	return UpcastEntityToGameSound(UpcastObjectToEntity(GetObjectPtrByName(name)));
-}
-GameModel* Scene::GetModelPtrByName(const Nt::String& name) const {
-	return UpcastEntityToGameModel(UpcastObjectToEntity(GetObjectPtrByName(name)));
-}
-GameCamera* Scene::GetCameraPtrByName(const Nt::String& name) const {
-	return UpcastEntityToGameCamera(UpcastObjectToEntity(GetObjectPtrByName(name)));
-}
-
-
-void Scene::_Initialize() {
-	if (m_pLua != nullptr) {
-		Nt::Log::Warning("Scene already initialized");
-		return;
-	}
-
-	m_pLua = new Lua;
-	m_pLua->Initialize(this);
 }

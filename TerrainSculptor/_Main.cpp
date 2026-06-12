@@ -3,13 +3,13 @@
 #include <Language.h>
 #include <Settings.h>
 
-#include <Lua.h>
-#include <Script.h>
-#include <Object.h>
-#include <Entity.h>
-#include <Grid.h>
+#include <Script/Lua.h>
+#include <Script/Script.h>
+#include <Objects/Object.h>
+#include <Objects/Entity.h>
+#include <Core/Grid.h>
 #include <Selector.h>
-#include <Scence.h>
+#include <Scene.h>
 
 #include <Terrain.h>
 #include <TerrainEditor.h>

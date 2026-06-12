@@ -3,7 +3,7 @@
 
 Int CALLBACK _ListCompareFunc(LPARAM lParam1, LPARAM lParam2, [[maybe_unused]] LPARAM lParamSort) {
 	if (lParam1 == 0 || lParam2 == 0)
-		Raise("Left or right item Data is nullptr");
+		Raise("Left or right item Data is null");
 
 	const std::string pathLeft = reinterpret_cast<std::path*>(lParam1)->string();
 	const std::string pathRight = reinterpret_cast<std::path*>(lParam2)->string();
@@ -28,22 +28,19 @@ LRESULT CALLBACK SelectionProc(HWND hwnd, uInt uMsg, WPARAM wParam, LPARAM lPara
 class FileExplorer : public Nt::Window {
 public:
 	FileExplorer() = default;
-	~FileExplorer() {
-		_ClearDirectoryTree();
-		_ClearDirectoryView();
-	}
+	~FileExplorer() = default;
 
 	void Initialize(const Settings& settings) {
-		m_Language = settings.CurrentLanguage;
-		m_Style = settings.Styles;
+		m_Language = settings.Language;
+		m_Style = settings.Style;
 
-		RemoveStyles(WS_OVERLAPPEDWINDOW);
-		AddStyles(WS_DLGFRAME);
-		SetBackgroundColor(settings.Styles.FileExplorer.BackgroundColor);
+		RemoveStyles(STYLE_OVERLAPPEDWINDOW);
+		AddStyles(STYLE_BORDER);
+		SetBackgroundColor(m_Style["FileExplorer.BackgroundColor"]);
 		SetProcedure([&](const uInt& uMsg, const DWord& param_1, const DWord& param_2) {
 			return _Procedure(uMsg, param_1, param_2);
 			});
-		Create(settings.FileExplorerWindowRect, m_Language.Window.Texts[Language::_WindowNames::TEXT_FILEEXPLORERWINDOW]);
+		Create(settings.FileExplorerWindowRect, m_Language["Window.FileExplorer"]);
 
 		m_PathFieldRect.Left = m_ClientRect.Right / 5;
 		m_PathFieldRect.Right = m_ClientRect.Right - m_PathFieldRect.Left;
@@ -66,30 +63,30 @@ public:
 		m_DirectoryTree.AddStyles(
 			WS_BORDER | WS_VSCROLL | TVS_LINESATROOT | TVS_HASBUTTONS |
 			TVS_TRACKSELECT | TVS_SINGLEEXPAND | TVS_SHOWSELALWAYS);
-		m_DirectoryTree.SetBackgroundColor(m_Style.FileExplorer.BackgroundColor);
-		m_DirectoryTree.SetTextColor(m_Style.FileExplorer.Texts.Color);
+		m_DirectoryTree.SetBackgroundColor(m_Style["FileExplorer.BackgroundColor"]);
+		m_DirectoryTree.SetTextColor(m_Style["FileExplorer.Texts.Color"]);
 		m_DirectoryTree.Create(m_DirectoryTreeRect);
 		m_DirectoryTree.Show();
 
 		m_PathField.SetParent(*this);
-		m_PathField.SetBackgroundColor(m_Style.FileExplorer.TextEdits.BackgroundColor);
-		m_PathField.SetTextColor(m_Style.FileExplorer.Texts.Color);
-		m_PathField.SetTextWeight(m_Style.FileExplorer.Texts.Weight);
+		m_PathField.SetBackgroundColor(m_Style["FileExplorer.TextEdits.BackgroundColor"]);
+		m_PathField.SetTextColor(m_Style["FileExplorer.Texts.Color"]);
+		m_PathField.SetTextWeight(m_Style["FileExplorer.Texts.Weight"]);
 		m_PathField.AddStyles(ES_READONLY);
 		m_PathField.Create(m_PathFieldRect, "", true);
 		m_PathField.Show();
 
 		m_SearchField.SetParent(*this);
-		m_SearchField.SetBackgroundColor(m_Style.FileExplorer.TextEdits.BackgroundColor);
-		m_SearchField.SetTextColor(m_Style.FileExplorer.Texts.Color);
-		m_SearchField.SetTextWeight(m_Style.FileExplorer.Texts.Weight);
+		m_SearchField.SetBackgroundColor(m_Style["FileExplorer.TextEdits.BackgroundColor"]);
+		m_SearchField.SetTextColor(m_Style["FileExplorer.Texts.Color"]);
+		m_SearchField.SetTextWeight(m_Style["FileExplorer.Texts.Weight"]);
 		m_SearchField.SetPlaceholder("Search...");
 		m_SearchField.Create(m_SearchFieldRect, "Search...", true);
 		m_SearchField.Show();
 
 		m_DirectoryView.SetParent(*this);
-		m_DirectoryView.SetBackgroundColor(m_Style.FileExplorer.BackgroundColor);
-		m_DirectoryView.SetTextColor(m_Style.FileExplorer.Texts.Color);
+		m_DirectoryView.SetBackgroundColor(m_Style["FileExplorer.BackgroundColor"]);
+		m_DirectoryView.SetTextColor(m_Style["FileExplorer.Texts.Color"]);
 		m_DirectoryView.AddStyles(WS_VSCROLL | WS_BORDER | LVS_ICON | LVS_EDITLABELS);
 
 		const Nt::ListView::ExtendedStyles exStyles = Nt::ListView::ExtendedStyles(Nt::ListView::EX_STYLE_TWOCLICKACTIVATE | Nt::ListView::EX_STYLE_ONECLICKACTIVATE);
@@ -128,29 +125,38 @@ public:
 
 	void SetTheme(const Style& style) {
 		m_Style = style;
-		SetBackgroundColor(m_Style.FileExplorer.BackgroundColor);
 
-		m_DirectoryTree.SetBackgroundColor(m_Style.FileExplorer.BackgroundColor);
-		m_DirectoryTree.SetTextColor(m_Style.FileExplorer.Texts.Color);
+		SetBackgroundColor(m_Style["FileExplorer.BackgroundColor"]);
+		SetBorderColor(m_Style["FileExplorer.BorderColor"]);
 
-		m_DirectoryView.SetBackgroundColor(m_Style.FileExplorer.BackgroundColor);
-		m_DirectoryView.SetTextColor(m_Style.FileExplorer.Texts.Color);
+		m_DirectoryTree.SetBackgroundColor(m_Style["FileExplorer.BackgroundColor"]);
+		m_DirectoryTree.SetTextColor(m_Style["FileExplorer.Texts.Color"]);
 
-		m_PathField.SetBackgroundColor(m_Style.FileExplorer.TextEdits.BackgroundColor);
-		m_PathField.SetTextColor(m_Style.FileExplorer.TextEdits.Text.Color);
-		m_PathField.SetTextWeight(m_Style.FileExplorer.TextEdits.Text.Weight);
+		m_DirectoryView.SetBackgroundColor(m_Style["FileExplorer.BackgroundColor"]);
+		m_DirectoryView.SetTextColor(m_Style["FileExplorer.Texts.Color"]);
 
-		m_SearchField.SetBackgroundColor(m_Style.FileExplorer.TextEdits.BackgroundColor);
-		m_SearchField.SetTextColor(m_Style.FileExplorer.Texts.Color);
-		m_SearchField.SetTextWeight(m_Style.FileExplorer.Texts.Weight);
+		m_PathField.SetBackgroundColor(m_Style["FileExplorer.TextEdits.BackgroundColor"]);
+		m_PathField.SetTextColor(m_Style["FileExplorer.TextEdits.Text.Color"]);
+		m_PathField.SetTextWeight(m_Style["FileExplorer.TextEdits.Text.Weight"]);
+
+		m_SearchField.SetBackgroundColor(m_Style["FileExplorer.TextEdits.BackgroundColor"]);
+		m_SearchField.SetTextColor(m_Style["FileExplorer.Texts.Color"]);
+		m_SearchField.SetTextWeight(m_Style["FileExplorer.Texts.Weight"]);
 	}
 	void SetLanguage(const Language& language) {
 		m_Language = language;
-		SetName(m_Language.Window.Texts[Language::_WindowNames::TEXT_FILEEXPLORERWINDOW]);
+		SetName(m_Language["Window.FileExplorer"]);
 	}
-	void SetRootPath(const Nt::String& rootPath) {
+	void SetRootPath(std::string rootPath) {
+		if (rootPath.empty())
+			return;
+
+		std::replace(rootPath.begin(), rootPath.end(), '/', '\\');
+		if (rootPath.back() == '\\')
+			rootPath.erase(rootPath.end() - 1);
+
 		m_RootPath = rootPath;
-		m_PathField.SetText(rootPath);
+		m_PathField.SetText(rootPath + '\\');
 		_Update();
 	}
 
@@ -166,8 +172,8 @@ private:
 	Nt::TextEdit m_PathField;
 	Nt::TextEdit m_SearchField;
 	std::vector<Int> m_SelectedItems;
-	std::vector<std::path*> m_DirectionTreeData;
-	std::vector<std::path*> m_DirectionViewData;
+	std::vector<std::unique_ptr<std::path>> m_DirectionTreeData;
+	std::vector<std::unique_ptr<std::path>> m_DirectionViewData;
 	HWND m_hSelection;
 	Language m_Language;
 	Style m_Style;
@@ -179,17 +185,17 @@ private:
 
 private:
 	void _Update() {
-		_ClearDirectoryTree();
+		m_DirectionTreeData.clear();
 		m_DirectoryTree.Clear();
 
-		std::path* pPath = new std::path(m_RootPath);
-		m_DirectionTreeData.push_back(pPath);
+		m_DirectionTreeData.emplace_back(std::make_unique<std::path>(m_RootPath));
+		std::path* pPath = m_DirectionTreeData.back().get();
 
 		Nt::TreeView::Item item = { };
 		item.Mask = Nt::TreeView::Item::Masks(
 			Nt::TreeView::Item::MASK_TEXT | Nt::TreeView::Item::MASK_DATA |
 			Nt::TreeView::Item::MASK_IMAGE | Nt::TreeView::Item::MASK_STATE);
-		item.Text = Nt::StringTowString(pPath->filename().string());
+		item.Text = Nt::StringToWString(pPath->filename().string());
 		item.Data = reinterpret_cast<Long>(pPath);
 		item.ImageID = _GetIconID(m_RootPath.string() + '\\');
 		item.State = Nt::TreeView::Item::STATE_EXPANDED;
@@ -199,17 +205,17 @@ private:
 		_OpenDirectory(m_RootPath);
 	}
 	void _OpenDirectory(const std::path& path) {
-		_ClearDirectoryView();
+		m_DirectionViewData.clear();
 		m_DirectoryView.ClearItems();
 		m_CurrentOpenedDirectory = path;
 
 		std::directory_iterator directory(m_CurrentOpenedDirectory);
 		for (auto dir : directory) {
-			std::path* pPath = new std::path(dir.path());
-			m_DirectionViewData.push_back(pPath);;
+			m_DirectionViewData.emplace_back(std::make_unique<std::path>(dir.path()));
+			std::path* pPath = m_DirectionViewData.back().get();
 
 			Nt::ListView::Item item;
-			item.Text = Nt::StringTowString(pPath->filename().string());
+			item.Text = Nt::StringToWString(pPath->filename().string());
 			item.Data = reinterpret_cast<Long>(pPath);
 			item.Mask = Nt::ListView::Item::Masks(Nt::ListView::Item::MASK_TEXT | Nt::ListView::Item::MASK_DATA | Nt::ListView::Item::MASK_IMAGE);
 			item.ImageIndex = _GetIconID(pPath->string());
@@ -221,16 +227,16 @@ private:
 		std::directory_iterator directory(path);
 		for (auto dir : directory) {
 			if (dir.is_directory()) {
-				std::path* pPath = new std::path(dir.path());
-				m_DirectionTreeData.push_back(pPath);
+				m_DirectionTreeData.emplace_back(std::make_unique<std::path>(dir.path()));
+				std::path* pPath = m_DirectionTreeData.back().get();
 
 				Nt::TreeView::Item item = { };
 				item.Mask = Nt::TreeView::Item::Masks(
 					Nt::TreeView::Item::MASK_TEXT | Nt::TreeView::Item::MASK_DATA |
 					Nt::TreeView::Item::MASK_IMAGE | Nt::TreeView::Item::MASK_STATE);
-				item.Text = Nt::StringTowString(pPath->filename().string());
+				item.Text = Nt::StringToWString(pPath->filename().string());
 				item.Data = reinterpret_cast<Long>(pPath);
-				item.ImageID = _GetIconID(path.string());
+				item.ImageID = _GetIconID(pPath->string());
 				item.State = Nt::TreeView::Item::STATE_EXPANDED;
 
 				const Nt::TreeView::ItemID itemID = m_DirectoryTree.Add(item, parentID);
@@ -248,15 +254,87 @@ private:
 			sizeof(sfi), SHGFI_SYSICONINDEX | SHGFI_USEFILEATTRIBUTES);
 		return sfi.iIcon;
 	}
-	void _ClearDirectoryTree() {
-		for (std::path* pPath : m_DirectionTreeData)
-			delete(pPath);
-		m_DirectionTreeData.clear();
+
+	Bool _ListViewNotity(const NMHDR* pHdr, const DWord& param_1, const DWord& param_2) {
+		switch (pHdr->code) {
+		case LVN_ITEMACTIVATE:
+		{
+			NMLISTVIEW* pnmListView = reinterpret_cast<NMLISTVIEW*>(param_2);
+
+			LVITEM lvItem = { };
+			lvItem.mask = LVIF_TEXT | LVIF_PARAM;
+			lvItem.iItem = pnmListView->iItem;
+			ListView_GetItem(m_DirectoryView.GetHandle(), &lvItem);
+		}
+			break;
+		case LVN_BEGINDRAG:
+		{
+			NMLISTVIEW* pnmListView = reinterpret_cast<NMLISTVIEW*>(param_2);
+			Int index = ListView_GetNextItem(pnmListView->hdr.hwndFrom, -1, LVNI_SELECTED);
+			if (index == -1)
+				break;
+
+			m_SelectedItems.clear();
+			m_SelectedItems.push_back(index);
+			while ((index = ListView_GetNextItem(pnmListView->hdr.hwndFrom, index, LVNI_SELECTED)) != -1)
+				m_SelectedItems.push_back(index);
+
+			if (m_SelectedItems.size() == 1) {
+				const uInt mask = LVIS_SELECTED | LVIS_DROPHILITED;
+				m_DirectoryView.SetItemState(-1, 0, mask);
+				m_DirectoryView.SetItemState(pnmListView->iItem, mask, mask);
+			}
+		}
+			break;
+		case LVM_EDITLABEL:
+			break;
+		}
+
+		return false;
 	}
-	void _ClearDirectoryView() {
-		for (std::path* pPath : m_DirectionViewData)
-			delete(pPath);
-		m_DirectionViewData.clear();
+	Bool _TreeViewNotity(const NMHDR* pHdr, const DWord& param_1, const DWord& param_2) {
+		switch (pHdr->code) {
+		case TVN_ITEMEXPANDING:
+		case TVN_ITEMEXPANDED:
+		{
+			NMTREEVIEW* pTreeView = reinterpret_cast<NMTREEVIEW*>(param_2);
+			if (pTreeView && pTreeView->action == TVE_COLLAPSE || pTreeView->action == TVE_EXPAND) {
+				POINT cursorPosition;
+				GetCursorPos(&cursorPosition);
+				MapWindowPoints(HWND_DESKTOP, pTreeView->hdr.hwndFrom, &cursorPosition, 1);
+
+				Nt::TreeView::HitTestInfo info = m_DirectoryTree.HitTest(cursorPosition);
+				if (!(info.Flags & Nt::TreeView::HitTestInfo::HITTEST_ONITEMBUTTON))
+					m_DirectoryTree.Expand(info.ItemID, Nt::TreeView::EXPAND_EXPAND);
+			}
+		}
+			break;
+		case TVN_SELCHANGED:
+		{
+			Nt::TreeView::Item item = { };
+			item.Mask = Nt::TreeView::Item::MASK_DATA;
+			item.ID = m_DirectoryTree.GetSelection();
+
+			if (!m_DirectoryTree.GetItem(&item)) {
+				Nt::String warningMessage = "Failed to get TreeViewS selected item. Error code: ";
+				warningMessage += GetLastError();
+				Nt::Log::Instance().Warning(warningMessage);
+			}
+			else if (item.Data != 0) {
+				_OpenDirectory(*reinterpret_cast<std::path*>(item.Data));
+			}
+		}
+			break;
+		case TVN_ENDLABELEDIT:
+			LPNMTVDISPINFO dispInfo = reinterpret_cast<LPNMTVDISPINFO>(param_2);
+			if (dispInfo && dispInfo->item.pszText && dispInfo->item.pszText[0] != '\0') {
+				((Object*)dispInfo->item.lParam)->SetName(dispInfo->item.pszText);
+				return true;
+			}
+			break;
+		}
+
+		return false;
 	}
 
 	Long _Procedure(const uInt& uMsg, const DWord& param_1, const DWord& param_2) {
@@ -264,76 +342,8 @@ private:
 		case WM_NOTIFY:
 		{
 			const NMHDR* pHdr = reinterpret_cast<NMHDR*>(param_2);
-			switch (pHdr->code) {
-			case LVN_ITEMACTIVATE:
-			{
-				NMLISTVIEW* pnmListView = reinterpret_cast<NMLISTVIEW*>(param_2);
-
-				LVITEM lvItem = { };
-				lvItem.mask = LVIF_TEXT | LVIF_PARAM;
-				lvItem.iItem = pnmListView->iItem;
-				ListView_GetItem(m_DirectoryView.GetHandle(), &lvItem);
-			}
-				break;
-			case LVN_BEGINDRAG:
-			{
-				NMLISTVIEW* pnmListView = reinterpret_cast<NMLISTVIEW*>(param_2);
-				Int index = ListView_GetNextItem(pnmListView->hdr.hwndFrom, -1, LVNI_SELECTED);
-				if (index == -1)
-					break;
-
-				m_SelectedItems.clear();
-				m_SelectedItems.push_back(index);
-				while ((index = ListView_GetNextItem(pnmListView->hdr.hwndFrom, index, LVNI_SELECTED)) != -1)
-					m_SelectedItems.push_back(index);
-
-				if (m_SelectedItems.size() == 1) {
-					const uInt mask = LVIS_SELECTED | LVIS_DROPHILITED;
-					m_DirectoryView.SetItemState(-1, 0, mask);
-					m_DirectoryView.SetItemState(pnmListView->iItem, mask, mask);
-				}
-			}
-				break;
-			case LVM_EDITLABEL:
-				break;
-			case TVN_ITEMEXPANDING:
-			case TVN_ITEMEXPANDED:
-			{
-				NMTREEVIEW* pTreeView = reinterpret_cast<NMTREEVIEW*>(param_2);
-				if (pTreeView && pTreeView->action == TVE_COLLAPSE || pTreeView->action == TVE_EXPAND) {
-					POINT cursorPosition;
-					GetCursorPos(&cursorPosition);
-					MapWindowPoints(HWND_DESKTOP, pTreeView->hdr.hwndFrom, &cursorPosition, 1);
-
-					Nt::TreeView::HitTestInfo info = m_DirectoryTree.HitTest(cursorPosition);
-					if (!(info.Flags & Nt::TreeView::HitTestInfo::HITTEST_ONITEMBUTTON))
-						m_DirectoryTree.Expand(info.ItemID, Nt::TreeView::EXPAND_EXPAND);
-				}
-			}
-			break;
-			case TVN_SELCHANGED:
-			{
-				Nt::TreeView::Item item = { };
-				item.Mask = Nt::TreeView::Item::MASK_DATA;
-				item.ID = m_DirectoryTree.GetSelection();
-				if (!m_DirectoryTree.GetItem(&item)) {
-					Nt::String warningMessage = "Failed to get TreeViewS selected item. Error code: ";
-					warningMessage += GetLastError();
-					Nt::Log::Warning(warningMessage);
-				}
-				else if (item.Data != 0) {
-					_OpenDirectory(*reinterpret_cast<std::path*>(item.Data));
-				}
-			}
-			break;
-			case TVN_ENDLABELEDIT:
-				LPNMTVDISPINFO dispInfo = reinterpret_cast<LPNMTVDISPINFO>(param_2);
-				if (dispInfo && dispInfo->item.pszText && dispInfo->item.pszText[0] != '\0') {
-					((Object*)dispInfo->item.lParam)->SetName(dispInfo->item.pszText);
-					return TRUE;
-				}
-				break;
-			}
+			if (_ListViewNotity(pHdr, param_1, param_2) || _TreeViewNotity(pHdr, param_1, param_2))
+				return TRUE;
 		}
 		break;
 		case WM_MOUSEMOVE:
@@ -378,7 +388,7 @@ private:
 							_Update();
 						}
 						catch (const std::filesystem::filesystem_error& error) {
-							ErrorBoxA(error.what(), "Error");
+							Nt::MessageWindow(error.what(), "Error").ShowError();
 							continue;
 						}
 

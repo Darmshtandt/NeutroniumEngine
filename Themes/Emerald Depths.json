@@ -1,0 +1,50 @@
+{
+	"Main.BackgroundColor": "#002B28",
+	"Main.BorderColor": "#227F6C",
+
+	"ObjectsTree.BackgroundColor": "#003D36",
+	"ObjectsTree.BorderColor": "#227F6C",
+	"ObjectsTree.TreeView.Text.Color": "#00FFD1",
+	"ObjectsTree.TreeView.Text.Weight": 600,
+	"ObjectsTree.TreeView.BackgroundColor": "#003D36",
+
+	"Engine.BackgroundColor": "#004B44",
+	"Engine.BorderColor": "#227F6C",
+
+	"Property.BackgroundColor": "#002B28",
+	"Property.BorderColor": "#227F6C",
+	"Property.HeaderTexts.Color": "#00FFD1",
+	"Property.HeaderTexts.Weight": 800,
+	"Property.Texts.Color": "#AEE5C8",
+	"Property.Texts.Weight": 600,
+	"Property.TextEdits.BackgroundColor": "#00443C",
+	"Property.TextEdits.Text.Color": "#7FFFD4",
+	"Property.TextEdits.Text.Weight": 700,
+	"Property.Buttons.BackgroundColor": "#00443C",
+	"Property.Buttons.Text.Color": "#7FFFD4",
+	"Property.Buttons.Text.Weight": 700,
+
+	"FileExplorer.BackgroundColor": "#002B28",
+	"FileExplorer.BorderColor": "#227F6C",
+	"FileExplorer.Texts.Color": "#AEE5C8",
+	"FileExplorer.Texts.Weight": 600,
+	"FileExplorer.TextEdits.BackgroundColor": "#00443C",
+	"FileExplorer.TextEdits.Text.Color": "#7FFFD4",
+	"FileExplorer.TextEdits.Text.Weight": 700,
+
+	"ProjectManager.BackgroundColor": "#002B28",
+	"ProjectManager.BorderColor": "#227F6C",
+
+	"ProjectManager.ProjectList.BackgroundColor": "#001F1C",
+	"ProjectManager.ProjectList.BorderColor": "#227F6C",
+	"ProjectManager.ActionWindow.BackgroundColor": "#00594D",
+	"ProjectManager.ActionWindow.BorderColor": "#227F6C",
+	"ProjectManager.CreationWindow.BackgroundColor": "#00594D",
+	"ProjectManager.CreationWindow.BorderColor": "#227F6C",
+	"ProjectManager.Buttons.BackgroundColor": "#00594D",
+	"ProjectManager.Buttons.BorderColor": "#227F6C",
+	"ProjectManager.Headers.Color": "#00FFD1",
+	"ProjectManager.Headers.Weight": 600,
+	"ProjectManager.Texts.Color": "#AEE5C8",
+	"ProjectManager.Texts.Weight": 100
+}

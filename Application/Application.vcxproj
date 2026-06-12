@@ -31,6 +31,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableASAN>true</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -73,6 +74,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Bin\$(Configuration)\</OutDir>
     <TargetName>NeutroniumEngine</TargetName>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <TinyXmlLinkage>StaticMT</TinyXmlLinkage>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Bin\$(Configuration)\</OutDir>
@@ -97,9 +100,13 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(NT_DIR)Lib\;$(NT_DIR)ExtLibs\;$(SolutionDir)Libraries\Lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(NT_DIR)Lib\;$(NT_DIR)ExtLibs\;$(SolutionDir)Libraries\Lib\;$(SolutionDir)packages\tinyxml.2.8.2.3\build\native\lib\v141\win32-mt-debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>LuaD32.lib;OpenAL32.lib;Comctl32.lib;NeutroniumCore32d.lib;NeutroniumGraphics32d.lib;NeutroniumPhysics32d.lib;tinyxml.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -159,33 +166,52 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ProjectMenager.cpp" />
+    <ClCompile Include="InputContext.cpp" />
+    <ClCompile Include="Language.cpp" />
+    <ClCompile Include="ProgramMenu.cpp" />
+    <ClCompile Include="ProjectManager\ActionWindow.cpp" />
+    <ClCompile Include="ProjectManager\Project.cpp" />
+    <ClCompile Include="ProjectManager\ProjectCreationPage.cpp" />
+    <ClCompile Include="ProjectManager\ProjectMainPage.cpp" />
+    <ClCompile Include="ProjectManager\ProjectManager.cpp" />
+    <ClCompile Include="Style.cpp" />
     <ClCompile Include="_Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
     <ClInclude Include="Experemental\WindowLayouts.h" />
     <ClInclude Include="FileExplorer.h" />
+    <ClInclude Include="Function.h" />
+    <ClInclude Include="InputContext.h" />
     <ClInclude Include="Language.h" />
     <ClInclude Include="Main.h" />
-    <ClInclude Include="Menu.h" />
+    <ClInclude Include="MultiStream.h" />
+    <ClInclude Include="Nt\ModernMenu.h" />
+    <ClInclude Include="ObjectEvents.h" />
+    <ClInclude Include="ProgramMenu.h" />
+    <ClInclude Include="MessageBus.h" />
     <ClInclude Include="ObjectsTree.h" />
-    <ClInclude Include="Project.h" />
-    <ClInclude Include="ProjectCreationPage.h" />
-    <ClInclude Include="ProjectMainPage.h" />
-    <ClInclude Include="ProjectManager.h" />
-    <ClInclude Include="PropertyComponent.h" />
-    <ClInclude Include="PropertyModel.h" />
-    <ClInclude Include="PropertyPrimitive.h" />
-    <ClInclude Include="PropertyRigidBody.h" />
-    <ClInclude Include="PropertyScript.h" />
-    <ClInclude Include="PropertySound.h" />
-    <ClInclude Include="PropertyTexture.h" />
-    <ClInclude Include="PropertyTransform.h" />
-    <ClInclude Include="PropertyWindow.h" />
-    <ClInclude Include="Selector.h" />
+    <ClInclude Include="ProjectManager\ActionWindow.h" />
+    <ClInclude Include="ProjectManager\Project.h" />
+    <ClInclude Include="ProjectManager\ProjectCreationPage.h" />
+    <ClInclude Include="ProjectManager\ProjectMainPage.h" />
+    <ClInclude Include="ProjectManager\ProjectManager.h" />
+    <ClInclude Include="ResourceLoader.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Style.h" />
+    <ClInclude Include="StyleOld.h" />
+    <ClInclude Include="Tools\PropertyComponent.h" />
+    <ClInclude Include="Tools\PropertyFactory.h" />
+    <ClInclude Include="Tools\PropertyModel.h" />
+    <ClInclude Include="Tools\PropertyPrimitive.h" />
+    <ClInclude Include="Tools\PropertyRegistrar.h" />
+    <ClInclude Include="Tools\PropertyRigidBody.h" />
+    <ClInclude Include="Tools\PropertyScript.h" />
+    <ClInclude Include="Tools\PropertySound.h" />
+    <ClInclude Include="Tools\PropertyTexture.h" />
+    <ClInclude Include="Tools\PropertyTransform.h" />
+    <ClInclude Include="Tools\PropertyWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
@@ -195,7 +221,32 @@
       <Project>{3a64bfb1-975b-403e-a3bf-3574dfa4daf3}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Themes\Black.json" />
+    <None Include="..\Themes\Dark.json" />
+    <None Include="..\Themes\DefaultTheme.json" />
+    <None Include="..\Themes\Emerald Depths.json" />
+    <None Include="..\Themes\Retrofuturism.json" />
+    <None Include="..\Themes\Rose.json" />
+    <None Include="..\Themes\Sci-fi.json" />
+    <None Include="..\Themes\Solarized Green Dark.json" />
+    <None Include="..\Themes\Solarized Red Dark.json" />
+    <None Include="..\Themes\White.json" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Visualizer.natvis" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\tinyxml.2.8.2.3\build\native\tinyxml.targets" Condition="Exists('..\packages\tinyxml.2.8.2.3\build\native\tinyxml.targets')" />
+    <Import Project="..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets" Condition="Exists('..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\tinyxml.2.8.2.3\build\native\tinyxml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\tinyxml.2.8.2.3\build\native\tinyxml.targets'))" />
+    <Error Condition="!Exists('..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets'))" />
+  </Target>
 </Project>

@@ -92,6 +92,10 @@
       <AdditionalLibraryDirectories>$(NT_DIR)Lib\;$(NT_DIR)ExtLibs\;$(SolutionDir)Libraries\Lib\</AdditionalLibraryDirectories>
       <AdditionalDependencies>Lua.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

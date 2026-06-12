@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectSchemaDefinitions xmlns="clr-namespace:Microsoft.Build.Framework.XamlTypes;assembly=Microsoft.Build.Framework">
+  <Rule Name="TinyXmlNugetLibrary" PageTemplate="tool" DisplayName="Nuget Libraries">
+    <Rule.Categories>
+      <Category Name="TinyXml" DisplayName="TinyXml" />
+    </Rule.Categories>	
+    <Rule.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="" />
+    </Rule.DataSource>	
+	<EnumProperty Name="TinyXmlLinkage" DisplayName="Linkage" Description="Select version of library to link" Category="TinyXml">
+      <EnumValue Name="StaticMT" DisplayName="Static multi-threaded /MT" Description="Static /MT" />
+      <EnumValue Name="StaticMD" DisplayName="Static multi-threaded DLL /MD" Description="Static /MD" />
+    </EnumProperty>
+  </Rule>
+</ProjectSchemaDefinitions>

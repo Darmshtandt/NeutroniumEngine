@@ -1,0 +1,94 @@
+{
+	"Menu.File": "File",
+	"Menu.File.Build": "Build",
+	"Menu.File.New": "New",
+	"Menu.File.Open": "Open",
+	"Menu.File.Save": "Save",
+	"Menu.File.SaveAs": "Save as",
+	"Menu.File.Close": "Close",
+
+	"Menu.View": "View",
+	"Menu.View.ObjectTree": "Object tree",
+	"Menu.View.FileExplorer": "File explorer",
+	"Menu.View.Property": "Property",
+
+	"Menu.Create": "Create",
+	"Menu.Create.Primitive": "Primitive",
+	"Menu.Create.Primitive.Cube": "Cube",
+	"Menu.Create.Primitive.Quad": "Quad",
+	"Menu.Create.Primitive.Plane": "Plane",
+	"Menu.Create.Primitive.Pyramid": "Pyramid",
+	"Menu.Create.Entity": "Entity",
+	"Menu.Create.Entity.Camera": "Camera",
+	"Menu.Create.Entity.Sound": "Sound",
+	"Menu.Create.Entity.Model": "Model",
+
+	"Menu.Settings": "Settings",
+	"Menu.Settings.Theme": "Theme",
+	"Menu.Settings.Language": "Language",
+	"Menu.Settings.Language.English": "English",
+
+	"Window.Engine": "Engine",
+	"Window.ObjectTree": "Object tree",
+	"Window.Property": "Property",
+	"Window.FileExplorer": "File explorer",
+
+	"Window.Property.Transform": "Transform",
+	"Window.Property.Transform.Position": "Position",
+	"Window.Property.Transform.Position.X": "X",
+	"Window.Property.Transform.Position.Y": "Y",
+	"Window.Property.Transform.Position.Z": "Z",
+	"Window.Property.Transform.Size": "Size",
+	"Window.Property.Transform.Size.Width": "Width",
+	"Window.Property.Transform.Size.Height": "Height",
+	"Window.Property.Transform.Size.Length": "Length",
+	"Window.Property.Transform.Angle": "Angle",
+	"Window.Property.Transform.Angle.Roll": "Roll",
+	"Window.Property.Transform.Angle.Pitch": "Pitch",
+	"Window.Property.Transform.Angle.Yaw": "Yaw",
+
+	"Window.Property.Texture": "Texture",
+	"Window.Property.Texture.Offset": "Offset",
+	"Window.Property.Texture.Scale": "Scale",
+	"Window.Property.Texture.Rotate": "Rotate",
+	"Window.Property.Texture.ClampU": "Clamp U",
+	"Window.Property.Texture.ClampV": "Clamp V",
+
+	"Window.Property.Script": "Script",
+
+	"Window.Property.RigidBody": "Rigid body",
+	"Window.Property.RigidBody.Active": "Active",
+	"Window.Property.RigidBody.CollisionDetect": "Collision detect",
+	"Window.Property.RigidBody.Gravity": "Gravity",
+	"Window.Property.RigidBody.ShowCollider": "Show collider",
+	"Window.Property.RigidBody.Mass": "Mass",
+	"Window.Property.RigidBody.GravityDirection": "Gravity direction",
+	"Window.Property.RigidBody.Friction": "Friction",
+
+	"Window.Property.Primitive": "Primitive",
+	"Window.Property.Primitive.Join": "Join",
+	"Window.Property.Primitive.Split": "Split",
+	"Window.Property.Primitive.Invisible": "Invisible",
+
+	"Window.Property.Sound": "Sound",
+	"Window.Property.Sound.RolloffFactor": "Roll-off factor",
+	"Window.Property.Sound.ReferenceDistance": "Reference distance",
+	"Window.Property.Sound.MaxDistance": "Max distance",
+	"Window.Property.Sound.Gain": "Gain",
+
+	"Window.Property.Model": "Model",
+
+	"Action.Open": "Open",
+	"Action.Create": "Create",
+	"Action.Delete": "Delete",
+	"Action.RemoveFromList": "Remove from list",
+	"Action.AddToList": "Add to list",
+
+	"ProjectManager": "Project manager",
+	"ProjectManager.ProjectName": "Project name",
+	"ProjectManager.ProjectPath": "Project path",
+
+	"Message.AddFile": "To add a file, place it in the project's root folder.",
+
+	"FilePath": "File path"
+}

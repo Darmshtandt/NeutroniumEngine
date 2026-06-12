@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.1" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)ui-props.xml" />
+  </ItemGroup>
+  <PropertyGroup>
+    <LibraryPostfix>mt</LibraryPostfix>
+    <LibraryPostfix Condition="$(TinyXmlLinkage) == StaticMT">$(LibraryPostfix)-static</LibraryPostfix>
+	<LibraryPostfix Condition="$(Configuration) != Release">$(LibraryPostfix)-debug</LibraryPostfix>
+  </PropertyGroup>
+  <ItemGroup>
+	<TinyXmlLibs Include="$(MSBuildThisFileDirectory)lib\$(PlatformToolset)\$(Platform)-$(LibraryPostfix)\*.lib" />
+  </ItemGroup>
+  <PropertyGroup>
+    <!-- Expland the items to a property -->
+    <TinyXmlLibraries>@(TinyXmlLibs)</TinyXmlLibraries>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>TIXML_USE_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(TinyXmlLibraries);%(AdditionalDependencies) </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>

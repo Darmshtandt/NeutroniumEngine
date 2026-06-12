@@ -1,5 +1,11 @@
 #pragma once
 
+#include <Main.h>
+#include <Style.h>
+#include <Language.h>
+
+#include <Nt/Core/MessageWindow.h>
+
 struct Settings {
 private:
 	struct _ProjectManagerWindow {
@@ -10,8 +16,6 @@ private:
 
 public:
 	Settings() {
-		Styles = { };
-
 		Nt::IntRect mainWindowRect;
 		mainWindowRect.RightBottom = Nt::GetMonitorSize();
 		mainWindowRect.LeftTop = (Nt::GetMonitorSize() - mainWindowRect.RightBottom) / 2;
@@ -21,7 +25,7 @@ public:
 		Projection_Near = 0.01f;
 		Projection_Far = 1000.f;
 
-		ProjectManagerWindow.Size = Nt::Float2D(Nt::GetMonitorSize()) / 1.5f;
+		ProjectManagerWindow.Size = Nt::uInt2D(Nt::Float2D(Nt::GetMonitorSize()) / 1.5f);
 		ProjectManagerWindow.ProjectListRect.LeftTop = { 20, 30 };
 		ProjectManagerWindow.ProjectListRect.RightBottom = ProjectManagerWindow.Size;
 		ProjectManagerWindow.ProjectListRect.RightBottom -= ProjectManagerWindow.ProjectListRect.LeftTop * 2;
@@ -58,6 +62,9 @@ public:
 		FileExplorerWindowRect.Right = PropertyWindowRect.Left;
 		FileExplorerWindowRect.Bottom = MainWindowRect.Bottom - ObjectsTreeWindowRect.Bottom;
 	}
+	void ComputeWindowRect(const Nt::Int2D& newMainWindowSize) noexcept {
+		ComputeWindowRect({ MainWindowRect.LeftTop, newMainWindowSize });
+	}
 
 	void Load() {
 		std::ifstream file(FileName);
@@ -76,13 +83,13 @@ public:
 			file.close();
 		}
 		else {
-			Nt::Log::Warning("Failed to save settings");
-			WARNING_MSG(L"Failed to save settings", L"Warning");
+			Nt::Log::Instance().Warning("Failed to save settings");
+			Nt::MessageWindow(L"Failed to save settings", L"Warning").ShowWarning();
 		}
 	}
 
-	Style Styles;
-	Language CurrentLanguage;
+	Style Style;
+	Language Language;
 	Nt::IntRect MainWindowRect;
 	Nt::IntRect ObjectsTreeWindowRect;
 	Nt::IntRect EngineWindowRect;

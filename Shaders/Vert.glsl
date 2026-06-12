@@ -11,9 +11,11 @@ layout(location = 3) in vec4 Color;
 
 out vec3 VertexTexCoords;
 out vec4 VertexColor;
+out vec3 PixelPosition;
 
 void main() {
 	gl_Position = Projection * View * World * Position;
+	PixelPosition = (Projection * World * Position).xyz;
 
 	VertexTexCoords = Texcoord * vec3(length(World[0]), length(World[1]), 1.f);
 	VertexColor = Color;

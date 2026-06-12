@@ -1,77 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="Application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Language.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Menu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectsTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertyComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertyTexture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertyTransform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Style.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Experemental\WindowLayouts.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ProjectManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertyWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FileExplorer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Project.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertyScript.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertyPrimitive.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertyRigidBody.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Selector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertySound.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertyModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ProjectMainPage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ProjectCreationPage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="Header Files">
       <UniqueIdentifier>{f7bc96e5-d587-46e6-8bca-4b7a35af27b5}</UniqueIdentifier>
     </Filter>
@@ -81,13 +10,195 @@
     <Filter Include="Resource Files">
       <UniqueIdentifier>{99688855-add4-42a0-a404-11e1d2f2aa28}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Tools">
+      <UniqueIdentifier>{7b444c04-d5ba-41dc-bfb0-f2d806c804e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tools">
+      <UniqueIdentifier>{ebfcf282-caaf-41aa-9f53-26be54af55aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ProjectManager">
+      <UniqueIdentifier>{014fe8c5-0725-4295-9907-d7d0101bff24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ProjectManager">
+      <UniqueIdentifier>{841d881a-04b4-470b-ab38-846dcc7a56e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Experemental">
+      <UniqueIdentifier>{f8902c2b-27f6-462a-9585-04c3d7ae37ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Nt">
+      <UniqueIdentifier>{56c61ad4-626c-40db-8a49-5c2c5c8b2b86}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileExplorer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Language.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProgramMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectsTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Style.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\PropertyRigidBody.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\PropertyScript.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\PropertySound.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\PropertyTexture.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\PropertyTransform.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\PropertyWindow.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\PropertyComponent.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\PropertyModel.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\PropertyPrimitive.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectManager\ProjectManager.h">
+      <Filter>Header Files\ProjectManager</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectManager\Project.h">
+      <Filter>Header Files\ProjectManager</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectManager\ProjectCreationPage.h">
+      <Filter>Header Files\ProjectManager</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectManager\ProjectMainPage.h">
+      <Filter>Header Files\ProjectManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Experemental\WindowLayouts.h">
+      <Filter>Header Files\Experemental</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectManager\ActionWindow.h">
+      <Filter>Header Files\ProjectManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\PropertyFactory.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\PropertyRegistrar.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageBus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Function.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nt\ModernMenu.h">
+      <Filter>Header Files\Nt</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StyleOld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputContext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectEvents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="_Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ProjectMenager.cpp">
+    <ClCompile Include="ProjectManager\ProjectMainPage.cpp">
+      <Filter>Source Files\ProjectManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectManager\ActionWindow.cpp">
+      <Filter>Source Files\ProjectManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectManager\ProjectCreationPage.cpp">
+      <Filter>Source Files\ProjectManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectManager\ProjectManager.cpp">
+      <Filter>Source Files\ProjectManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectManager\Project.cpp">
+      <Filter>Source Files\ProjectManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Language.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ProgramMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Style.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputContext.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="..\Themes\DefaultTheme.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Themes\Solarized Green Dark.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Themes\Solarized Red Dark.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Themes\White.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Themes\Black.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Themes\Dark.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Themes\Sci-fi.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Themes\Retrofuturism.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Themes\Rose.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Themes\Emerald Depths.json">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Visualizer.natvis" />
   </ItemGroup>
 </Project>
