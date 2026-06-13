@@ -24,10 +24,18 @@ Scene::Scene(const Scene& scene) :
 		Object* pCopiedObject = RequireNotNull(pObject->GetCopy());
 		pCopiedObject->SetForce({ });
 
+		Script* pScript = pObject->GetScript();
+		if (pScript != nullptr) {
+			Lua* pLua = pScript->GetLua();
+			std::string filePath = pScript->GetFilePath();
+			pCopiedObject->AttachScript(pLua, filePath, pScript->GetScriptData());
+		}
+
 		m_Objects.push_back(pCopiedObject);
 	}
 }
 Scene::~Scene() {
+	Stop();
 	Clear();
 }
 
@@ -144,10 +152,6 @@ void Scene::Update(const Float& time) {
 	for (uInt i = 0; i < m_Lights.size(); ++i)
 		m_LightBuffer.SetSubData(sizeof(Nt::LightData) * i + offset, sizeof(Nt::Float3D), &m_Lights[i].Position);
 }
-void Scene::Render(Nt::Renderer* pRenderer) const {
-	for (Object* pObject : m_Objects)
-		pObject->Render(pRenderer);
-}
 
 void Scene::AllowLayerOverlap(const Nt::String& firstLayerName, const Nt::String& secondLayerName, const Bool& isAllow) {
 	if (firstLayerName == secondLayerName) {
@@ -214,4 +218,8 @@ Object* Scene::GetObjectPtrByName(const Nt::String& name) const {
 
 	Nt::Log::Instance().Warning("objects named \"" + name + "\" not found.");
 	return nullptr;
+}
+
+void Scene::SetEventBus(const std::weak_ptr<Nt::EventBus>& pEventBus) noexcept {
+	m_pEventBus = pEventBus;
 }

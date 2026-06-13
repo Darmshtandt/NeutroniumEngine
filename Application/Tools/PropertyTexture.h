@@ -175,7 +175,7 @@ private:
 private:
 	void _AddSelection(Object* pObject) override {
 		if (pObject->GetTypeToken() == Primitive::GetClassTypeToken()) {
-			_SetButtonTexture(pObject->GetTexture());
+			_SetButtonTexture(pObject->GetTexture().Get());
 
 			const Primitive* pPrimitive = static_cast<const Primitive*>(pObject);
 			m_TextEdits[TEXTEDIT_OFFSET_X].SetText(pPrimitive->GetTextureOffset().x);
@@ -213,14 +213,14 @@ private:
 			(isEnabled) ? Nt::Wrap::WRAP_CLAMP : Nt::Wrap::WRAP_REPEAT;
 
 		for (Object* pObject : m_SelectorPtr->GetObjectContainer()) {
-			Nt::Texture* pTexture = pObject->GetTexture();
-			if (pTexture != nullptr) {
-				if (isClampingU)
-					pTexture->SetWrapS(newWrapState);
+			auto texture = pObject->GetTexture();
+			if (!texture.IsValid())
+				continue;
 
-				if (isClampingV)
-					pTexture->SetWrapT(newWrapState);
-			}
+			if (isClampingU)
+				texture.Get()->SetWrapS(newWrapState);
+			if (isClampingV)
+				texture.Get()->SetWrapT(newWrapState);
 		}
 	}
 

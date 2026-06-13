@@ -50,7 +50,6 @@ public:
 	void Clear();
 
 	void Update(const Float& time);
-	void Render(Nt::Renderer* pRenderer) const;
 
 	void AllowLayerOverlap(const Nt::String& layerName_1, const Nt::String& layerName_2, const Bool& isAllow);
 
@@ -91,6 +90,8 @@ public:
 	Lua* GetLua() const noexcept;
 	Object* GetObjectPtr(const uInt& index) const;
 	Object* GetObjectPtrByName(const Nt::String& name) const;
+
+	void SetEventBus(const std::weak_ptr<Nt::EventBus>& pEventBus) noexcept;
 
 private:
 	std::weak_ptr<Nt::EventBus> m_pEventBus;

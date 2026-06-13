@@ -32,9 +32,6 @@ public:
 private:
 	std::vector<HotKey> m_HotKeys;
 	KetSet m_ActiveKeys;
-
-private:
-	[[nodiscard]] Bool IsPressedHotKey(const HotKey& hotKey) const noexcept;
 };
 
 struct AddInputContextEvent final {

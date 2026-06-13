@@ -9,6 +9,10 @@ Entity::Entity(std::string name, const ClassID id) :
 {
 }
 
+Entity* Entity::GetCopy() const {
+	return new Entity(*this);
+}
+
 std::string Entity::GetClassToken() noexcept {
 	return "Entity";
 }

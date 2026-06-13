@@ -1,18 +1,19 @@
 #pragma once
 
 #include <Nt/Graphics/Objects/Model.h>
+#include <Objects/Object.h>
 
-class Grid {
+class Grid : public Object {
 public:
 	Grid();
 
 	void Update();
-	void Render(NotNull<Nt::Renderer*> pRenderer) const;
 
 	void Show() noexcept;
 	void Hide() noexcept;
 
 	[[nodiscard]] Nt::Float3D Snap(const Nt::Float3D& position) const noexcept;
+	[[nodiscard]] const Nt::Mesh* GetMesh() const noexcept;
 	[[nodiscard]] Float GetCellSize() const noexcept;
 
 	void SetTarget(Nt::IObject* pTarget) noexcept;
@@ -21,8 +22,7 @@ public:
 	void SetPosition(Nt::Float3D position);
 
 private:
-	Nt::Model m_Model;
-	Nt::Mesh m_Mesh;
+	std::unique_ptr<Nt::Mesh> m_pMesh;
 	Nt::IObject* m_pTarget = nullptr;
 	Nt::Float2D m_Size = { 100.f, 100.f };
 	Nt::Float3D m_Position;

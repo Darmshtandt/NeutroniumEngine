@@ -18,7 +18,6 @@ public:
 	void ResetCamera() noexcept;
 
 	void Update(Float deltaTime);
-	void Render(NotNull<Nt::Renderer*> pRenderer);
 
 	void New();
 	void Open();

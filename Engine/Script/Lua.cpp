@@ -4,6 +4,8 @@
 #include <Main.h>
 
 #include <Script/Script.h>
+#include <Script/EnumWrapper.h>
+
 #include <Objects/Object.h>
 #include <Objects/Primitives/Primitive.h>
 #include <Objects/Entities/Entity.h>
@@ -34,7 +36,6 @@ void AddVectorToLua(NotNull<Lua*> pLua, const std::string& className) {
 		vectorClass.addConstructor<void(*)(const _Ty&, const _Ty&, const _Ty&)>();
 	else if constexpr (is4D)
 		vectorClass.addConstructor<void(*)(const _Ty&, const _Ty&, const _Ty&, const _Ty&)>();
-
 
 	vectorClass.addProperty("x", &_Vector::x);
 	vectorClass.addProperty("y", &_Vector::y);
@@ -340,50 +341,50 @@ void Lua::_AddInput() {
 	luabridge::Namespace luaNamespace = GetGlobalNamespace().beginNamespace("Key");
 	for (uInt i = 0; i < symbolCount; ++i) {
 		keyName[1] = keysSymbols[i];
-		luaNamespace.addVariable<Int>(keyName, keysSymbols[i]);
+		luaNamespace.addVariable<Int>(keyName, Int(keysSymbols[i]));
 	}
 
-	luaNamespace.addVariable<Int>("_NUMPAD0", Int(Nt::KEY_NUMPAD0));
-	luaNamespace.addVariable<Int>("_NUMPAD1", Int(Nt::KEY_NUMPAD1));
-	luaNamespace.addVariable<Int>("_NUMPAD2", Int(Nt::KEY_NUMPAD2));
-	luaNamespace.addVariable<Int>("_NUMPAD3", Int(Nt::KEY_NUMPAD3));
-	luaNamespace.addVariable<Int>("_NUMPAD4", Int(Nt::KEY_NUMPAD4));
-	luaNamespace.addVariable<Int>("_NUMPAD5", Int(Nt::KEY_NUMPAD5));
-	luaNamespace.addVariable<Int>("_NUMPAD6", Int(Nt::KEY_NUMPAD6));
-	luaNamespace.addVariable<Int>("_NUMPAD7", Int(Nt::KEY_NUMPAD7));
-	luaNamespace.addVariable<Int>("_NUMPAD8", Int(Nt::KEY_NUMPAD8));
-	luaNamespace.addVariable<Int>("_NUMPAD9", Int(Nt::KEY_NUMPAD9));
-	luaNamespace.addVariable<Int>("_SHIFT", Int(Nt::KEY_SHIFT));
-	luaNamespace.addVariable<Int>("_LSHIFT", Int(Nt::KEY_LSHIFT));
-	luaNamespace.addVariable<Int>("_RSHIFT", Int(Nt::KEY_RSHIFT));
-	luaNamespace.addVariable<Int>("_RETURN", Int(Nt::KEY_RETURN));
-	luaNamespace.addVariable<Int>("_CONTROL", Int(Nt::KEY_CONTROL));
-	luaNamespace.addVariable<Int>("_ESCAPE", Int(Nt::KEY_ESCAPE));
-	luaNamespace.addVariable<Int>("_MENU", Int(Nt::KEY_MENU));
-	luaNamespace.addVariable<Int>("_RMENU", Int(Nt::KEY_RMENU));
-	luaNamespace.addVariable<Int>("_LMENU", Int(Nt::KEY_LMENU));
-	luaNamespace.addVariable<Int>("_F1", Int(Nt::KEY_F1));
-	luaNamespace.addVariable<Int>("_F2", Int(Nt::KEY_F2));
-	luaNamespace.addVariable<Int>("_F3", Int(Nt::KEY_F3));
-	luaNamespace.addVariable<Int>("_F4", Int(Nt::KEY_F4));
-	luaNamespace.addVariable<Int>("_F5", Int(Nt::KEY_F5));
-	luaNamespace.addVariable<Int>("_F6", Int(Nt::KEY_F6));
-	luaNamespace.addVariable<Int>("_F7", Int(Nt::KEY_F7));
-	luaNamespace.addVariable<Int>("_F8", Int(Nt::KEY_F8));
-	luaNamespace.addVariable<Int>("_F9", Int(Nt::KEY_F9));
-	luaNamespace.addVariable<Int>("_F10", Int(Nt::KEY_F10));
-	luaNamespace.addVariable<Int>("_F11", Int(Nt::KEY_F11));
-	luaNamespace.addVariable<Int>("_F12", Int(Nt::KEY_F12));
-	luaNamespace.addVariable<Int>("_SPACE", Int(Nt::KEY_SPACE));
+	luaNamespace.addVariable<Nt::Key>("_NUMPAD0", Nt::KEY_NUMPAD0);
+	luaNamespace.addVariable<Nt::Key>("_NUMPAD1", Nt::KEY_NUMPAD1);
+	luaNamespace.addVariable<Nt::Key>("_NUMPAD2", Nt::KEY_NUMPAD2);
+	luaNamespace.addVariable<Nt::Key>("_NUMPAD3", Nt::KEY_NUMPAD3);
+	luaNamespace.addVariable<Nt::Key>("_NUMPAD4", Nt::KEY_NUMPAD4);
+	luaNamespace.addVariable<Nt::Key>("_NUMPAD5", Nt::KEY_NUMPAD5);
+	luaNamespace.addVariable<Nt::Key>("_NUMPAD6", Nt::KEY_NUMPAD6);
+	luaNamespace.addVariable<Nt::Key>("_NUMPAD7", Nt::KEY_NUMPAD7);
+	luaNamespace.addVariable<Nt::Key>("_NUMPAD8", Nt::KEY_NUMPAD8);
+	luaNamespace.addVariable<Nt::Key>("_NUMPAD9", Nt::KEY_NUMPAD9);
+	luaNamespace.addVariable<Nt::Key>("_SHIFT", Nt::KEY_SHIFT);
+	luaNamespace.addVariable<Nt::Key>("_LSHIFT", Nt::KEY_LSHIFT);
+	luaNamespace.addVariable<Nt::Key>("_RSHIFT", Nt::KEY_RSHIFT);
+	luaNamespace.addVariable<Nt::Key>("_RETURN", Nt::KEY_RETURN);
+	luaNamespace.addVariable<Nt::Key>("_CONTROL", Nt::KEY_CONTROL);
+	luaNamespace.addVariable<Nt::Key>("_ESCAPE", Nt::KEY_ESCAPE);
+	luaNamespace.addVariable<Nt::Key>("_MENU", Nt::KEY_MENU);
+	luaNamespace.addVariable<Nt::Key>("_RMENU", Nt::KEY_RMENU);
+	luaNamespace.addVariable<Nt::Key>("_LMENU", Nt::KEY_LMENU);
+	luaNamespace.addVariable<Nt::Key>("_F1", Nt::KEY_F1);
+	luaNamespace.addVariable<Nt::Key>("_F2", Nt::KEY_F2);
+	luaNamespace.addVariable<Nt::Key>("_F3", Nt::KEY_F3);
+	luaNamespace.addVariable<Nt::Key>("_F4", Nt::KEY_F4);
+	luaNamespace.addVariable<Nt::Key>("_F5", Nt::KEY_F5);
+	luaNamespace.addVariable<Nt::Key>("_F6", Nt::KEY_F6);
+	luaNamespace.addVariable<Nt::Key>("_F7", Nt::KEY_F7);
+	luaNamespace.addVariable<Nt::Key>("_F8", Nt::KEY_F8);
+	luaNamespace.addVariable<Nt::Key>("_F9", Nt::KEY_F9);
+	luaNamespace.addVariable<Nt::Key>("_F10", Nt::KEY_F10);
+	luaNamespace.addVariable<Nt::Key>("_F11", Nt::KEY_F11);
+	luaNamespace.addVariable<Nt::Key>("_F12", Nt::KEY_F12);
+	luaNamespace.addVariable<Nt::Key>("_SPACE", Nt::KEY_SPACE);
 	luaNamespace.endNamespace();
 
 	GetGlobalNamespace()
 		.beginNamespace("Button")
-		.addVariable<Int>("_LEFT", Int(Nt::BUTTON_LEFT))
-		.addVariable<Int>("_RIGHT", Int(Nt::BUTTON_RIGHT))
-		.addVariable<Int>("_MIDDLE", Int(Nt::BUTTON_MIDDLE))
-		.addVariable<Int>("_X1", Int(Nt::BUTTON_X1))
-		.addVariable<Int>("_X2", Int(Nt::BUTTON_X2))
+		.addVariable<Nt::Key>("_LEFT", Nt::BUTTON_LEFT)
+		.addVariable<Nt::Key>("_RIGHT", Nt::BUTTON_RIGHT)
+		.addVariable<Nt::Key>("_MIDDLE", Nt::BUTTON_MIDDLE)
+		.addVariable<Nt::Key>("_X1", Nt::BUTTON_X1)
+		.addVariable<Nt::Key>("_X2", Nt::BUTTON_X2)
 		.endNamespace();
 
 	GetGlobalNamespace()

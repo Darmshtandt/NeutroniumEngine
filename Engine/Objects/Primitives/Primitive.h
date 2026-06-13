@@ -9,6 +9,7 @@ protected:
 public:
 	Primitive(const Primitive& primitive);
 	Primitive(Primitive&& primitive) noexcept;
+	~Primitive() noexcept override = default;
 
 	[[nodiscard]] static std::string GetClassToken() noexcept;
 	[[nodiscard]] static std::string GetClassTypeToken() noexcept;

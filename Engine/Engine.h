@@ -67,7 +67,7 @@ public:
 	void SetLanguage(const Language& language);
 
 private:
-	std::unique_ptr<RenderEngine> m_pRenderEngine;
+	std::unique_ptr<RenderEngine> m_RenderEngine;
 	std::shared_ptr<InputContext> m_InputContext;
 	std::weak_ptr<Nt::EventBus> m_pEventBus;
 	Nt::RenderWindow m_Window;

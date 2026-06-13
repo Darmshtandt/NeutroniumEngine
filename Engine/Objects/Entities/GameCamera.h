@@ -3,27 +3,25 @@
 #include <Nt/Graphics/RenderWindow.h>
 #include <Objects/ObjectRegistrar.h>
 
+class Icon3D;
+
 class GameCamera : public Entity {
 public:
 	GameCamera(const Nt::String& name);
 	GameCamera(const GameCamera& camera);
-
-	void Render(NotNull<Nt::Renderer*> pRenderer) const override;
+	~GameCamera() noexcept override = default;
 
 	void Set(NotNull<Nt::RenderWindow*> windowPtr);
 
-	NT_NODISCARD virtual GameCamera* GetCopy() const override;
-	NT_NODISCARD static std::string GetClassToken() noexcept;
-	NT_NODISCARD std::string GetToken() const noexcept override;
+	[[nodiscard]] virtual GameCamera* GetCopy() const override;
+	[[nodiscard]] static std::string GetClassToken() noexcept;
+	[[nodiscard]] std::string GetToken() const noexcept override;
 
 	void SetOrigin(const Nt::Float3D& origin) override;
 	void SetPosition(const Nt::Float3D& position) override;
 	void SetAngle(const Nt::Float3D& angle) override;
 
 private:
-	using Entity::SetModel;
-
-private:
+	std::unique_ptr<Icon3D> m_Icon3D;
 	Nt::Camera m_Camera;
-	Icon3D m_Icon3D;
 };

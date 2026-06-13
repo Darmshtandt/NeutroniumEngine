@@ -18,21 +18,17 @@ public:
 
 	class Arrow : public Object {
 	public:
-		Arrow(const Axis& axis);
+		explicit Arrow(const Axis& axis);
 		~Arrow() noexcept;
-
-		void Render(NotNull<Nt::Renderer*> pRenderer) const noexcept override;
 
 		void Select() noexcept;
 		void Deselect() noexcept;
 
-		void SetPosition(const Nt::Float3D& position);
-		void SetColor(const Nt::Float4D& color);
-		void SetAngle(const Nt::Float3D& angle);
+		[[nodiscard]] const Nt::Mesh* GetLineMesh() const noexcept;
+		[[nodiscard]] Bool IsShowedLine() const noexcept;
 
 	private:
-		Nt::Model m_AxisLine;
-		Nt::Mesh m_AxisLineMesh = Nt::Primitive::Line(10000.f, Nt::Colors::White);
+		std::unique_ptr<Nt::Mesh> m_LineMesh;
 		Bool m_ShowingLine = false;
 	};
 
@@ -42,7 +38,6 @@ public:
 	[[deprecated]] void Control(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Camera& camera, Nt::Mouse& mouse);
 
 	void Update(const Nt::Ray& ray);
-	void Render(NotNull<Nt::Renderer*> pRenderer) const noexcept;
 
 	void Translate(const Nt::Float3D& offset) noexcept;
 
@@ -57,6 +52,7 @@ public:
 
 	[[nodiscard]] Axis RayCastTest(const Nt::Ray& ray);
 
+	[[nodiscard]] const Arrow* GetArrow(const uInt& axis) const noexcept;
 	[[nodiscard]] Nt::Float3D GetPosition() const noexcept;
 	[[nodiscard]] Nt::Float3D GetMoveDelta() const noexcept;
 	[[nodiscard]] Nt::Float3D GetStartPoint() const noexcept;
@@ -68,6 +64,7 @@ public:
 	void SetPosition(const Nt::Float3D& position) noexcept;
 
 private:
+	std::array<std::unique_ptr<Arrow>, 3> m_AxisArrows;
 	std::vector<Nt::Mesh*> m_StateMeshes;
 
 	Nt::Float3D m_StartPoint;
@@ -78,8 +75,6 @@ private:
 
 	Axis m_SelectedAxis = NONE;
 	State m_State = TRANSLATE;
-
-	Arrow m_AxisArrows[3];
 
 	Bool m_IsVisible = false;
 	Bool m_StartedEditing = false;

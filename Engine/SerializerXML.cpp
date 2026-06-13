@@ -133,7 +133,12 @@ TiXmlElement* SerializerXML::ToXML(const Object* pObject) {
 
 	TiXmlElement* el = new TiXmlElement("Object");
 	el->LinkEndChild(ToXML(static_cast<const Nt::RigidBody*>(pObject)));
-	el->LinkEndChild(ToXML(&pObject->GetModel()));
+
+	if (pObject->GetMesh().IsValid())
+		el->LinkEndChild(ToXML(pObject->GetMesh().Get()));
+	if (pObject->GetTexture().IsValid())
+		el->LinkEndChild(ToXML(pObject->GetTexture().Get()));
+
 	el->SetAttribute("LayerName", pObject->GetLayerName().c_str());
 	el->SetAttribute("Name", pObject->GetName().c_str());
 	el->SetAttribute("IsInvisible", pObject->IsInvisible());
@@ -150,9 +155,18 @@ TiXmlElement* SerializerXML::ToXML(const Primitive* pPrimitive) {
 
 	TiXmlElement* el = new TiXmlElement("Primitive");
 	el->LinkEndChild(ToXML(static_cast<const Object*>(pPrimitive)));
-	el->LinkEndChild(ToXML(pPrimitive->GetMesh()));
+	el->LinkEndChild(ToXML(pPrimitive->GetMesh().Get()));
 	el->LinkEndChild(ToXML("TextureOffset", pPrimitive->GetTextureOffset()));
 	el->LinkEndChild(ToXML("TextureScale", pPrimitive->GetTextureScale()));
+	return el;
+}
+
+TiXmlElement* SerializerXML::ToXML(const Entity* pEntity) {
+	if (pEntity == nullptr)
+		return nullptr;
+
+	TiXmlElement* el = new TiXmlElement("Entity");
+	el->LinkEndChild(ToXML(static_cast<const Object*>(pEntity)));
 	return el;
 }
 
@@ -182,6 +196,34 @@ TiXmlElement* SerializerXML::ToXML(const Plane* pPlane) {
 	return PrimitiveToXML(pPlane, "Plane");
 }
 
+template <class T>
+TiXmlElement* EntityToXML(const T* pObj, const std::string& elementName) {
+	if (pObj == nullptr)
+		return nullptr;
+
+	const Entity* pEntity = static_cast<const Entity*>(pObj);
+
+	TiXmlElement* el = new TiXmlElement(elementName);
+	el->LinkEndChild(SerializerXML::ToXML(pEntity));
+	return el;
+}
+
+TiXmlElement* SerializerXML::ToXML(const GameSound* pSound) {
+	assert(0);
+	return EntityToXML(pSound, "GameSound");
+}
+TiXmlElement* SerializerXML::ToXML(const GameModel* pModel) {
+	assert(0);
+	return EntityToXML(pModel, "GameModel");
+}
+TiXmlElement* SerializerXML::ToXML(const GameLight* pLight) {
+	assert(0);
+	return EntityToXML(pLight, "GameLight");
+}
+TiXmlElement* SerializerXML::ToXML(const GameCamera* pCamera) {
+	return EntityToXML(pCamera, "GameCamera");
+}
+
 
 TiXmlElement* SerializerXML::ToXML(const Scene* pScene) {
 	if (pScene == nullptr)
@@ -192,16 +234,16 @@ TiXmlElement* SerializerXML::ToXML(const Scene* pScene) {
 	const auto& objects = pScene->GetObjects();
 	for (const Object* pObject : objects) {
 		TiXmlElement* xmlObject;
-		//if (Class<GameSound>::Is(*pObject))
-		//	xmlObject = ToXML(reinterpret_cast<const GameSound*>(pObject));
-		//else if (Class<GameModel>::Is(*pObject))
-		//	xmlObject = ToXML(reinterpret_cast<const GameModel*>(pObject));
-		//else if (Class<GameLight>::Is(*pObject))
-		//	xmlObject = ToXML(reinterpret_cast<const GameLight*>(pObject));
-		//else if (Class<GameCamera>::Is(*pObject))
-		//	xmlObject = ToXML(reinterpret_cast<const GameCamera*>(pObject));
+		if (pObject->GetToken() == GameSound::GetClassToken())
+			xmlObject = ToXML(reinterpret_cast<const GameSound*>(pObject));
+		else if (pObject->GetToken() == GameModel::GetClassToken())
+			xmlObject = ToXML(reinterpret_cast<const GameModel*>(pObject));
+		else if (pObject->GetToken() == GameLight::GetClassToken())
+			xmlObject = ToXML(reinterpret_cast<const GameLight*>(pObject));
+		else if (pObject->GetToken() == GameCamera::GetClassToken())
+			xmlObject = ToXML(reinterpret_cast<const GameCamera*>(pObject));
 
-		if (pObject->GetToken() == Cube::GetClassToken())
+		else if (pObject->GetToken() == Cube::GetClassToken())
 			xmlObject = ToXML(reinterpret_cast<const Cube*>(pObject));
 		else if (pObject->GetToken() == Quad::GetClassToken())
 			xmlObject = ToXML(reinterpret_cast<const Quad*>(pObject));
@@ -218,6 +260,43 @@ TiXmlElement* SerializerXML::ToXML(const Scene* pScene) {
 	return xmlScene;
 }
 
+template <class T>
+void SceneObjectFromXML(NotNull<TiXmlElement*> pElement, NotNull<Scene*> pScene, NotNull<Lua*> pLua) {
+	T* pObject = new T("");
+	SerializerXML::FromXML(pElement, NotNull<T*>(pObject), pLua);
+	pScene->AddObject(pObject);
+}
+
+void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Scene*> pScene, NotNull<Lua*> pLua) {
+	Assert(pElement->ValueStr() == "Scene", "Element not Scene");
+
+	pScene->Clear();
+	for (TiXmlElement* xmlObject = pElement->FirstChildElement();
+		xmlObject;
+		xmlObject = xmlObject->NextSiblingElement()) 
+	{
+		const std::string name = xmlObject->ValueStr();
+		if (name == "GameSound")
+			SceneObjectFromXML<GameSound>(xmlObject, pScene, pLua);
+		else if (name == "GameModel")
+			SceneObjectFromXML<GameModel>(xmlObject, pScene, pLua);
+		else if (name == "GameLight")
+			SceneObjectFromXML<GameLight>(xmlObject, pScene, pLua);
+		else if (name == "GameCamera")
+			SceneObjectFromXML<GameCamera>(xmlObject, pScene, pLua);
+
+		else if (name == "Cube")
+			SceneObjectFromXML<Cube>(xmlObject, pScene, pLua);
+		else if (name == "Quad")
+			SceneObjectFromXML<Quad>(xmlObject, pScene, pLua);
+		else if (name == "Pyramid")
+			SceneObjectFromXML<Pyramid>(xmlObject, pScene, pLua);
+		else if (name == "Plane")
+			SceneObjectFromXML<Plane>(xmlObject, pScene, pLua);
+		else
+			Raise("Unknown element");
+	}
+}
 
 void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::IObject*> pObject) {
 	Assert(pElement->ValueStr() == "Nt::IObject", "Element not Nt::IObject");
@@ -415,7 +494,8 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Object*> pO
 	pSibling = pSibling->NextSiblingElement();
 	FromXML(pSibling, NotNull<Nt::Model*>(&model));
 
-	pObject->SetModel(model);
+	pObject->SetTexture(model.GetTexture().Get());
+	pObject->SetMesh(model.GetMesh().Get());
 
 	std::string name;
 	pElement->QueryStringAttribute("LayerName", &name);
@@ -461,6 +541,35 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Primitive*>
 	pSibling = pSibling->NextSiblingElement();
 	FromXML<Float, 2>(pSibling, &value2D, "TextureScale");
 	pPrimitive->SetTextureScale(value2D);
+}
+
+void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Entity*> pEntity, NotNull<Lua*> pLua) {
+	Assert(pElement->ValueStr() == "Entity", "Element not Entity");
+
+	NotNull<TiXmlElement*> pSibling = pElement->FirstChildElement();
+	FromXML(pSibling, NotNull<Object*>(pEntity), pLua);
+}
+
+void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<GameSound*> pSound, NotNull<Lua*> pLua) {
+	Assert(pElement->ValueStr() == "GameSound", "Element not GameSound");
+	FromXML(pElement->FirstChildElement(), NotNull<Entity*>(pSound), pLua);
+}
+void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<GameModel*> pModel, NotNull<Lua*> pLua) {
+	Assert(pElement->ValueStr() == "GameModel", "Element not GameModel");
+	FromXML(pElement->FirstChildElement(), NotNull<Entity*>(pModel), pLua);
+}
+void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<GameLight*> pLight, NotNull<Lua*> pLua) {
+	Assert(pElement->ValueStr() == "GameLight", "Element not GameLight");
+	FromXML(pElement->FirstChildElement(), NotNull<Entity*>(pLight), pLua);
+}
+void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<GameCamera*> pCamera, NotNull<Lua*> pLua) {
+	Assert(pElement->ValueStr() == "GameCamera", "Element not GameCamera");
+	FromXML(pElement->FirstChildElement(), NotNull<Entity*>(pCamera), pLua);
+
+	pCamera->SetPosition(pCamera->GetPosition());
+	pCamera->SetOrigin(pCamera->GetOrigin());
+	pCamera->SetAngle(pCamera->GetAngle());
+	pCamera->SetAngleOrigin(pCamera->GetAngleOrigin());
 }
 
 

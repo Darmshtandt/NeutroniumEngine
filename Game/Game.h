@@ -8,6 +8,8 @@
 #include <Nt/Graphics/Sound/SoundDevice.h>
 #include <Nt/Graphics/Sound/Listener.h>
 
+class RenderEngine;
+
 class Game {
 public:
 	struct Config : public Nt::ISerialization {
@@ -26,11 +28,11 @@ public:
 	};
 
 public:
-	Game() noexcept = default;
+	explicit Game(Nt::RenderWindow* pWindow) noexcept;
 	~Game();
 
-	void InitializeGame(NotNull<Nt::RenderWindow*> pWindow, const Nt::String& scenePath);
-	void InitializeTestGame(NotNull<Nt::RenderWindow*> pWindow, NotNull<Scene*> pScene);
+	void InitializeGame(const Nt::String& scenePath);
+	void InitializeTestGame(NotNull<Scene*> pScene);
 
 	Bool Start();
 	void End();
@@ -45,6 +47,8 @@ private:
 	Nt::SoundDevice m_SoundDevice;
 	Nt::Listener m_Listener;
 
+	std::unique_ptr<RenderEngine> m_RenderEngine;
+	std::unique_ptr<Scene> m_GameScene;
 	std::shared_ptr<Nt::EventBus> m_EventBus = std::make_shared<Nt::EventBus>();
 	std::thread m_Thread;
 	Nt::Camera m_DefaultCamera;
@@ -52,7 +56,6 @@ private:
 	Nt::RenderWindow* m_pWindow = nullptr;
 	GameCamera* m_CameraPtr = nullptr;
 	Scene* m_pEngineScene = nullptr;
-	Scene* m_pGameScene = nullptr;
 	
 	Bool m_IsInitialized = false;
 	Bool m_IsTestGame = false;

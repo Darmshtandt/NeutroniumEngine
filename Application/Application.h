@@ -123,16 +123,10 @@ public:
 			{ Nt::KEY_CONTROL, Nt::KEY_SHIFT, Nt::KEY_S }, [this] () { m_pWorldEditor->SaveAs(); });
 
 		m_InputContext->AddHotKey(
-			{ Nt::KEY_CONTROL, Nt::KEY_SHIFT, Nt::KEY_T }, [this] () { m_Engine->CloseTestGame(); });
-
-		m_InputContext->AddHotKey(
 			{ Nt::KEY_CONTROL, Nt::KEY_O }, [this] () { m_pWorldEditor->Open(); });
 
 		m_InputContext->AddHotKey(
 			{ Nt::KEY_CONTROL, Nt::KEY_S }, [this] () { m_pWorldEditor->Save(); });
-
-		m_InputContext->AddHotKey(
-			{ Nt::KEY_CONTROL, Nt::KEY_T }, [this] () { m_Engine->StartTestGame(); });
 
 		m_InputContext->AddHotKey(
 			{ Nt::KEY_CONTROL, Nt::KEY_F4 }, [this] () { Close(); });

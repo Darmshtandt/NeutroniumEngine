@@ -3,26 +3,25 @@
 #include <Nt/Light.h>
 #include <Objects/ObjectRegistrar.h>
 
+class Icon3D;
+
 class GameLight : public Entity {
 public:
 	GameLight(const Nt::String& name);
 	GameLight(const GameLight& light);
+	~GameLight() noexcept override = default;
 
-	void Render(NotNull<Nt::Renderer*> pRenderer) const override;
+	[[nodiscard]] virtual GameLight* GetCopy() const override;
+	[[nodiscard]] static std::string GetClassToken() noexcept;
+	[[nodiscard]] std::string GetToken() const noexcept override;
 
-	_NODISCARD virtual GameLight* GetCopy() const override;
-	_NODISCARD static std::string GetClassToken() noexcept;
-	_NODISCARD std::string GetToken() const noexcept override;
-
-	_NODISCARD Nt::LightData GetData() const noexcept;
+	[[nodiscard]] Nt::LightData GetData() const noexcept;
 
 	void SetOrigin(const Nt::Float3D& origin) override;
 	void SetPosition(const Nt::Float3D& position) override;
 	void SetAngle(const Nt::Float3D& angle) override;
 
 private:
-	using Entity::SetModel;
-
-private:
+	std::unique_ptr<Icon3D> m_Icon3D;
 	Nt::Light m_Light;
 };

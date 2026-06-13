@@ -96,7 +96,7 @@ public:
 	}
 
 	void Update() {
-		if ((!IsEnabled()) || (!m_SelectorPtr->IsChanged()))
+		if (!IsEnabled() || !m_SelectorPtr->IsChanged())
 			return;
 
 		const uInt selectedObjectCount = m_SelectorPtr->GetObjectCount();
@@ -106,9 +106,10 @@ public:
 			return;
 		}
 
-		const NotNull<Nt::Mesh*> pMesh = m_SelectorPtr->GetObjectPtr(0)->GetMesh();
+		const auto mesh = m_SelectorPtr->GetObjectPtr(0)->GetMesh();
+		Assert(mesh.IsValid(), "Invalid Mesh");
 
-		m_TextEdits[TEXTEDIT_MODEL_PATH].SetText(pMesh->GetFilePath());
+		m_TextEdits[TEXTEDIT_MODEL_PATH].SetText(mesh.Get()->GetFilePath());
 		m_Buttons[BUTTON_REMOVE].EnableWindow();
 	}
 

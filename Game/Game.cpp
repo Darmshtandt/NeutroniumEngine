@@ -1,4 +1,5 @@
 #include <Game.h>
+#include <RenderEngine.h>
 
 
 void Game::Config::Write(std::ostream& stream) const {
@@ -9,11 +10,15 @@ void Game::Config::Read(std::istream& stream) {
 	Nt::Serialization::ReadAll(stream, WindowName, ScenePath);
 }
 
-Game::~Game() {
-	SAFE_DELETE(&m_pGameScene);
+Game::Game(Nt::RenderWindow* pWindow) noexcept :
+	m_pWindow(pWindow),
+	m_RenderEngine(new RenderEngine(pWindow))
+{
 }
 
-void Game::InitializeGame(NotNull<Nt::RenderWindow*> pWindow, const Nt::String& scenePath) {
+Game::~Game() = default;
+
+void Game::InitializeGame(const Nt::String& scenePath) {
 	if (m_IsInitialized) {
 		Nt::Log::Instance().Warning("Game already initialized");
 		return;
@@ -22,15 +27,16 @@ void Game::InitializeGame(NotNull<Nt::RenderWindow*> pWindow, const Nt::String& 
 	if (scenePath.empty())
 		Raise("Scene path is empty.");
 
-	m_pWindow = pWindow;
-	m_pGameScene = new Scene(m_EventBus);
+	m_GameScene.reset(new Scene(m_EventBus));
 	//m_pGameScene->Load(scenePath);
+	m_RenderEngine->SetScene(m_GameScene.get());
+
 	assert(0);
 
 	m_IsInitialized = true;
 }
 
-void Game::InitializeTestGame(NotNull<Nt::RenderWindow*> pWindow, NotNull<Scene*> pScene) {
+void Game::InitializeTestGame(NotNull<Scene*> pScene) {
 	m_IsTestGame = true;
 
 	if (m_IsInitialized) {
@@ -38,38 +44,43 @@ void Game::InitializeTestGame(NotNull<Nt::RenderWindow*> pWindow, NotNull<Scene*
 		return;
 	}
 
-	m_pWindow = pWindow;
 	m_pEngineScene = pScene;
 	m_IsInitialized = true;
 }
 
 Bool Game::Start() {
 	if (m_IsLaunched) {
+		Nt::Log::Instance().Warning("The game is already running");
 		Nt::MessageWindow("The game is already running", "Warning").ShowWarning();
 		return true;
 	}
 
-	if (m_IsTestGame) {
-		if (!m_IsInitialized)
-			Raise("Game not initialized");
+	if (!m_IsInitialized)
+		Raise("Game not initialized");
 
-		if (m_pGameScene != nullptr) {
+	if (m_IsTestGame) {
+		if (m_GameScene != nullptr) {
+			Nt::Log::Instance().Warning("The game is already running");
 			Nt::MessageWindow(L"The game is already running", L"Warning").ShowWarning();
 			return false;
 		}
 
-		m_pGameScene = new Scene(*m_pEngineScene);
+		m_GameScene.reset(new Scene(*m_pEngineScene));
+		m_GameScene->SetEventBus(m_EventBus);
+		m_RenderEngine->SetScene(m_GameScene.get());
 	}
 
 	try {
-		m_pGameScene->Start();
+		m_GameScene->Start();
 	}
 	catch (const std::exception& except) {
+		Nt::Log::Instance().Error(except.what());
 		Nt::MessageWindow(except.what(), "Error").ShowError();
 		if (m_IsTestGame)
-			SAFE_DELETE(&m_pGameScene);
+			m_GameScene.reset();
 		return false;
 	}
+
 	_SetCamera();
 
 	m_IsLaunched = true;
@@ -100,16 +111,14 @@ void Game::End() {
 	m_IsLaunched = false;
 	while (m_IsThreadTerminated)
 		Sleep(10);
-
-	m_pGameScene->Stop();
-	SAFE_DELETE(&m_pGameScene);
+	m_GameScene.reset();
 }
 
 void Game::Update(const Float& time) {
 	if (!m_IsInitialized)
 		Raise("Game not initialized");
 
-	m_pGameScene->Update(time);
+	m_GameScene->Update(time);
 	m_pWindow->Update();
 
 	if (m_CameraPtr != nullptr) {
@@ -123,7 +132,7 @@ void Game::Render() const {
 		Raise("Game not initialized");
 
 	m_pWindow->Clear();
-	m_pGameScene->Render(m_pWindow);
+	m_RenderEngine->Render();
 	m_pWindow->Display();
 }
 
@@ -136,12 +145,13 @@ void Game::_SetCamera() {
 		Raise("Game not initialized");
 
 	try {
-		for (Object* pObject : m_pGameScene->GetObjects()) {
-			if (pObject->GetToken() == GameCamera::GetClassToken()) {
-				m_CameraPtr = dynamic_cast<GameCamera*>(pObject);
-				m_CameraPtr->Set(m_pWindow);
-				return;
-			}
+		for (Object* pObject : m_GameScene->GetObjects()) {
+			if (pObject->GetToken() != GameCamera::GetClassToken())
+				continue;
+
+			m_CameraPtr = static_cast<GameCamera*>(pObject);
+			m_CameraPtr->Set(m_pWindow);
+			return;
 		}
 	}
 	catch (const Nt::Error& error) {

@@ -114,7 +114,7 @@ void Script::Start() {
 }
 
 void Script::Update(const Float& time) {
-	if (m_IsStarted)
+	if (!m_IsStarted)
 		return;
 
 	try {
@@ -162,7 +162,7 @@ std::string Script::GetFilePath() const {
 	return m_FilePath;
 }
 
-Lua* Script::GetLuaPtr() noexcept {
+Lua* Script::GetLua() noexcept {
 	return m_pLua;
 }
 
@@ -227,10 +227,10 @@ Bool Script::_SetGlobalObject(const std::string& name, Object* pObject) const {
 }
 Bool Script::_SetGlobalEntity(const std::string& name, Entity* pEntity) const {
 	if (pEntity->GetToken() == GameCamera::GetClassToken())
-		return m_pLua->SetGlobal(name, dynamic_cast<GameCamera*>(pEntity));
+		return m_pLua->SetGlobal(name, static_cast<GameCamera*>(pEntity));
 
 	if (pEntity->GetToken() == GameModel::GetClassToken())
-		return m_pLua->SetGlobal(name, dynamic_cast<GameModel*>(pEntity));
+		return m_pLua->SetGlobal(name, static_cast<GameModel*>(pEntity));
 
 	Raise("Invalid entity type");
 	return false;

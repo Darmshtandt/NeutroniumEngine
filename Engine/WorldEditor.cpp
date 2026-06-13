@@ -60,12 +60,6 @@ void WorldEditor::Update(Float deltaTime) {
 	m_pGrid->Update();
 }
 
-void WorldEditor::Render(NotNull<Nt::Renderer*> pRenderer) {
-	m_pGrid->Render(pRenderer);
-	m_pScene->Render(pRenderer);
-	m_pSelector->Render(pRenderer);
-}
-
 void WorldEditor::New() {
 	ResetCamera();
 	m_pScene->Clear();

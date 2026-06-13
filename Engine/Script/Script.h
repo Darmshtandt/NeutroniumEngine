@@ -1,8 +1,6 @@
 #pragma once
 
 #include <Script/Lua.h>
-
-#include <Nt/Core/Serialization.h>
 #include <Nt/Core/MessageWindow.h>
 
 class Object;
@@ -55,7 +53,7 @@ public:
 	std::string GetDataValue(const std::string& name);
 	luabridge::LuaRef GetGlobal(const std::string& name) const;
 	std::string GetFilePath() const;
-	Lua* GetLuaPtr() noexcept;
+	Lua* GetLua() noexcept;
 	Bool IsLoaded() const noexcept;
 
 	template <typename _Ty>
@@ -87,7 +85,7 @@ private:
 	void _Call(luabridge::LuaRef& function, Args&& ... args) const {
 		const luabridge::LuaResult result = function(std::forward<Args>(args)...);
 
-		Assert(result.hasFailed(), result.errorMessage());
+		Assert(!result.hasFailed(), result.errorMessage());
 	}
 
 	void _SetGlobalThis() const;

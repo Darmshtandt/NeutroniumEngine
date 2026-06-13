@@ -4,28 +4,21 @@
 #include <Core/Grid.h>
 #include <Nt/Graphics/Renderer.h>
 
-Grid::Grid() {
-	m_Mesh.SetShape(Build(m_Size, m_CellSize));
+Grid::Grid() :
+	Object("Engine::Grid", Class<Grid>::ID()),
+	m_pMesh(new Nt::Mesh)
+{
+	m_pMesh->SetShape(Build(m_Size, m_CellSize));
+	SetMesh(m_pMesh.get());
 
-	m_Model.SetMeshByPtr(&m_Mesh);
-	m_Model.SetOrigin({ m_CellSize / 2.f, -m_CellSize / 2.f, m_CellSize / 2.f });
-	m_Model.SetColor(Nt::Colors::DarkGray);
+	SetOrigin({ m_CellSize / 2.f, -m_CellSize / 2.f, m_CellSize / 2.f });
+	SetColor(Nt::Colors::DarkGray);
 }
 
 void Grid::Update() {
 	constexpr Nt::Float3D XZ(-1.f, 0.f, -1.f);
 	if (m_pTarget != nullptr)
 		SetPosition(m_pTarget->GetPosition() * XZ);
-}
-
-void Grid::Render(NotNull<Nt::Renderer*> pRenderer) const {
-	if (m_IsVisible) {
-		const Nt::Renderer::DrawingMode drawingMode = pRenderer->GetDrawingMode();
-
-		pRenderer->SetDrawingMode(Nt::Renderer::DrawingMode::LINES);
-		m_Model.Render(pRenderer);
-		pRenderer->SetDrawingMode(drawingMode);
-	}
 }
 
 void Grid::Show() noexcept {
@@ -40,6 +33,9 @@ Nt::Float3D Grid::Snap(const Nt::Float3D& position) const noexcept {
 	return (position / m_CellSize).Round() * m_CellSize;
 }
 
+const Nt::Mesh* Grid::GetMesh() const noexcept {
+	return m_pMesh.get();
+}
 Float Grid::GetCellSize() const noexcept {
 	return m_CellSize;
 }
@@ -47,29 +43,26 @@ Float Grid::GetCellSize() const noexcept {
 void Grid::SetTarget(Nt::IObject* pTarget) noexcept {
 	m_pTarget = pTarget;
 }
-
 void Grid::SetCellSize(const Float& cellSize) {
 	if (m_CellSize == cellSize || cellSize <= 0.f)
 		return;
 
 	m_CellSize = cellSize;
-	m_Model.SetSize({ m_CellSize, 0.f, m_CellSize });
+	SetSize({ m_CellSize, 0.f, m_CellSize });
 }
-
 void Grid::SetSize(const Nt::Float2D& size) {
 	if (m_Size == size || size <= 0.f)
 		return;
 
 	const Nt::Float2D scale = size / m_Size;
-	m_Model.SetSize(Nt::Float3D(scale.x, 0.f, scale.y));
+	SetSize(Nt::Float3D(scale.x, 0.f, scale.y));
 	m_Size = size;
 }
-
 void Grid::SetPosition(Nt::Float3D position) {
 	position = Snap(position);
 	if (m_Position != position) {
 		m_Position = position;
-		m_Model.SetPosition(position);
+		SetPosition(position);
 	}
 }
 

@@ -54,23 +54,15 @@ void Object::StaticUpdate() {
 		return;
 
 	RigidBody::StaticUpdate();
-
-	m_Model.SetPosition(m_Position);
-	m_Model.SetAngle(m_Angle);
-	m_Model.SetSize(m_Size);
-
 	m_pCollider->SetLocalWorld(LocalToWorld());
 }
 
 void Object::Update(const Float& time) {
-	if (m_pScript != nullptr)
-		m_pScript->Update(time);
-
-	RigidBody::Update(time);
-
-	m_Model.SetPosition(m_Position);
-	m_Model.SetAngle(m_Angle);
-	m_Model.SetSize(m_Size);
+	if (m_IsStarted) {
+		if (m_pScript != nullptr)
+			m_pScript->Update(time);
+		RigidBody::Update(time);
+	}
 
 	m_pCollider->SetLocalWorld(LocalToWorld());
 }
@@ -79,14 +71,6 @@ Object& Object::_Clone(const Object& object) {
 	if (this == &object)
 		return *this;
 
-	RemoveScript();
-
-	if (object.m_pScript != nullptr) {
-		Lua* pLua = object.m_pScript->GetLuaPtr();
-		std::string filePath = object.m_pScript->GetFilePath();
-		AttachScript(pLua, filePath, object.m_pScript->GetScriptData());
-	}
-
 	_SetParameters(object);
 	_UpdateCollider();
 
@@ -94,6 +78,7 @@ Object& Object::_Clone(const Object& object) {
 }
 
 Object& Object::_Move(Object&& object) {
+	assert(0);
 	if (this == &object)
 		return *this;
 
@@ -116,64 +101,26 @@ void Object::_SetParameters(const Object& object) noexcept {
 
 	m_LayerName = object.m_LayerName;
 	m_Name = object.m_Name;
-	m_Model = object.m_Model;
 	m_ParentPtr = object.m_ParentPtr;
 	m_IsSelected = object.m_IsSelected;
 	m_IsInvisible = object.m_IsInvisible;
 	m_IsStarted = object.m_IsStarted;
+	m_Mesh = object.m_Mesh;
+	m_Texture = object.m_Texture;
 
 	m_pCollider->ToggleVisible(object.m_pCollider->IsVisible());
 }
 
 void Object::_UpdateCollider() {
-	if (m_Model.GetMesh().IsValid())
-		m_pCollider->SetShape(m_Model.GetMesh().Get()->GetShape());
+	if (m_Mesh.IsValid())
+		m_pCollider->SetShape(m_Mesh.Get()->GetShape());
 }
 
-void Object::Render(NotNull<Nt::Renderer*> pRenderer) const {
-	if ((!IsVisible()) || (m_IsStarted && m_IsInvisible))
-		return;
-
-	m_pCollider->Render(pRenderer);
-
-	if (m_IsInvisible)
-		pRenderer->GetShaderPtr()->SetUniform<Bool>("IsObjectInvisible", true);
-
-	if (m_IsSelected)
-		RenderOutline(pRenderer);
-
-	m_Model.Render(pRenderer);
-
-	if (m_IsSelected)
-		pRenderer->GetShaderPtr()->SetUniform<Bool>("IsObjectSelected", false);
+void Object::Render(NotNull<Nt::Renderer*> pRenderer) const
+{
 }
-
-void Object::Render(NotNull<Nt::Renderer*> pRenderer, const uInt& offset, const uInt& verticesCount) const {
-}
-
-void Object::RenderOutline(NotNull<Nt::Renderer*> pRenderer) const {
-	const Nt::Float4D color = pRenderer->GetColor();
-	const Nt::CullFace cullFace = pRenderer->GetCullFace();
-	const Float scaleValue = 1.05f;
-
-	pRenderer->MatrixWorldPush();
-	pRenderer->MatrixViewPush();
-	pRenderer->SetView(pRenderer->GetView().Scale({ scaleValue, scaleValue, scaleValue }));
-	pRenderer->SetColor(Nt::Colors::Orange);
-	pRenderer->SetCullFace(Nt::CullFace::FRONT);
-	pRenderer->DisableDepthMask();
-	
-	pRenderer->Transform(m_Position / scaleValue, m_Origin / scaleValue, m_Angle, m_AngleOrigin);
-	pRenderer->UnbindTexture();
-
-	if (m_Model.GetMesh().IsValid())
-		pRenderer->Render(m_Model.GetMesh().Get());
-
-	pRenderer->EnableDepthMask();
-	pRenderer->SetCullFace(cullFace);
-	pRenderer->SetColor(color);
-	pRenderer->MatrixViewPop();
-	pRenderer->MatrixWorldPop();
+void Object::Render(NotNull<Nt::Renderer*> pRenderer, const uInt& offset, const uInt& verticesCount) const
+{
 }
 
 void Object::EnableOutline() noexcept {
@@ -249,7 +196,6 @@ Object& Object::operator = (const Object& object) {
 	RigidBody::operator=(object);
 	return _Clone(object);
 }
-
 Object& Object::operator = (Object&& object) noexcept {
 	if (this == &object)
 		return *this;
@@ -266,77 +212,11 @@ std::string Object::GetTypeToken() const noexcept {
 	return "Object";
 }
 std::string Object::GetToken() const noexcept {
-	return "Object";
-}
-
-TiXmlElement* Object::ToXML() const {
-	TiXmlElement* elementIObject = new TiXmlElement("IObject");
-	elementIObject->SetAttribute("IsVisible", IsVisible());
-	elementIObject->LinkEndChild(VectorToXML("Position", m_Position));
-	elementIObject->LinkEndChild(VectorToXML("Origin", m_Origin));
-	elementIObject->LinkEndChild(VectorToXML("Angle", m_Angle));
-	elementIObject->LinkEndChild(VectorToXML("AngleOrigin", m_AngleOrigin));
-	elementIObject->LinkEndChild(VectorToXML("Size", m_Size));
-	elementIObject->LinkEndChild(VectorToXML("Color", m_Color));
-
-	TiXmlElement* elementRigidBody = new TiXmlElement("RigidBody");
-	elementRigidBody->SetAttribute("g", m_G);
-	elementRigidBody->SetAttribute("Mass", m_Mass);
-	elementRigidBody->SetAttribute("Friction", m_Friction);
-	elementRigidBody->SetAttribute("FrictionStatic", m_FrictionStatic);
-	elementRigidBody->SetAttribute("FrictionAir", m_FrictionAir);
-	elementRigidBody->SetAttribute("IsObjectCollided", m_IsObjectCollided);
-	elementRigidBody->SetAttribute("IsActive", IsActive());
-	elementRigidBody->SetAttribute("Enabled", IsPhysicsEnabled());
-	elementRigidBody->SetAttribute("EnabledCollision", IsEnabledCollision());
-	elementRigidBody->SetAttribute("EnabledGravitation", IsEnabledGravitation());
-
-	elementRigidBody->LinkEndChild(elementIObject);
-	elementRigidBody->LinkEndChild(VectorToXML("GravityDirection", m_GravityDirection));
-	elementRigidBody->LinkEndChild(VectorToXML("Force", m_Force));
-	elementRigidBody->LinkEndChild(VectorToXML("LinearAcceleration", m_LinearAcceleration));
-	elementRigidBody->LinkEndChild(VectorToXML("LinearVelocity", m_LinearVelocity));
-	elementRigidBody->LinkEndChild(VectorToXML("PrevPosition", m_PrevPosition));
-
-	TiXmlElement* elementScript = new TiXmlElement("Script");
-	if (m_pScript != nullptr)
-		elementScript->SetAttribute("FilePath", m_pScript->GetFilePath().c_str());
-
-	for (const Script::Data& data : m_ScriptData) {
-		TiXmlElement* elementData = new TiXmlElement("Data");
-		elementData->SetAttribute("Type", data.Type);
-		elementData->SetAttribute("FieldName", data.FieldName.c_str());
-		elementData->SetAttribute("Name", data.Name.c_str());
-		elementData->SetAttribute("Value", data.Value.c_str());
-		elementScript->LinkEndChild(elementData);
-	}
-
-	TiXmlElement* elementModel = new TiXmlElement("Model");
-	const auto& meshHandle = m_Model.GetMesh();
-	if (meshHandle.IsValid() && (!meshHandle.Get()->GetFilePath().empty()))
-		elementModel->SetAttribute("MeshFilePath", meshHandle.Get()->GetFilePath().c_str());
-
-	const auto& textureHandle = m_Model.GetTexture();
-	if (meshHandle.IsValid() && (!textureHandle.Get()->GetFilePath().empty()))
-		elementModel->SetAttribute("TextureFilePath", textureHandle.Get()->GetFilePath().c_str());
-
-	TiXmlElement* elementThis = new TiXmlElement("Object");
-	elementThis->SetAttribute("IsSelected", m_IsSelected);
-	elementThis->SetAttribute("IsInvisible", m_IsInvisible);
-
-	elementThis->LinkEndChild(elementRigidBody);
-	elementThis->LinkEndChild(elementScript);
-	elementThis->LinkEndChild(elementModel);
-
-	return elementThis;
+	return GetTypeToken();
 }
 
 Nt::Renderer::DrawingMode Object::GetDrawingMode() const noexcept {
 	return m_DrawingMode;
-}
-
-const Nt::Model& Object::GetModel() const noexcept {
-	return m_Model;
 }
 
 const Nt::Collider* Object::GetCollider() const noexcept {
@@ -363,28 +243,24 @@ Object* Object::GetParentPtr() const noexcept {
 	return m_ParentPtr;
 }
 
-Nt::Mesh* Object::GetMesh() const noexcept {
-	return m_Model.GetMesh().Get();
+Nt::ResourceHandle<Nt::Mesh> Object::GetMesh() const noexcept {
+	return m_Mesh;
 }
-
-Nt::Texture* Object::GetTexture() const noexcept {
-	return m_Model.GetTexture().Get();
+Nt::ResourceHandle<Nt::Texture> Object::GetTexture() const noexcept {
+	return m_Texture;
 }
 
 Bool Object::IsSelected() const noexcept {
 	return m_IsSelected;
 }
-
 Bool Object::IsInvisible() const noexcept {
 	return m_IsInvisible;
 }
-
 Bool Object::IsStarted() const noexcept {
 	return m_IsStarted;
 }
-
 Bool Object::IsActivePhysics() const noexcept {
-	return RigidBody::IsActive();;
+	return RigidBody::IsActive();
 }
 
 void Object::SetDrawingMode(Nt::Renderer::DrawingMode mode) noexcept {
@@ -403,73 +279,52 @@ void Object::SetParentPtr(Object* pNewParent) noexcept {
 	m_ParentPtr = pNewParent;
 }
 
-void Object::SetModel(const Nt::Model& newModel) {
-	m_Model = newModel;
-	_UpdateCollider();
-}
-
 void Object::SetShape(const Nt::Shape& newShape) {
-	Assert(m_Model.GetMesh().IsValid(), "Mesh pointer is null");
-	m_Model.GetMesh().Get()->SetShape(newShape);
+	assert(0);
+	m_Mesh.Get()->SetShape(newShape);
 	_UpdateCollider();
 }
 
 void Object::SetTexture(Nt::Texture* pTexture) noexcept {
-	m_Model.SetTextureByPtr(pTexture);
+	m_Texture = pTexture;
 }
 
 void Object::SetMesh(Nt::Mesh* pMesh) {
-	m_Model.SetMeshByPtr(pMesh);
+	m_Mesh = pMesh;
 	_UpdateCollider();
 }
 
 void Object::SetTexture(const uInt& index) {
-	m_Model.SetTexture(index);
+	m_Texture.Set(index);
 }
 void Object::SetTexture(const std::string& token) {
-	m_Model.SetTexture(ResourceManager::Instance().GetIndex(token));
+	m_Texture.Set(ResourceManager::Instance().GetIndex(token));
 }
 
 void Object::SetMesh(const std::string& token) {
-	m_Model.SetMesh(ResourceManager::Instance().GetIndex(token));
+	m_Mesh.Set(ResourceManager::Instance().GetIndex(token));
 	_UpdateCollider();
 }
 void Object::SetMesh(const uInt& index) {
-	m_Model.SetMesh(index);
+	m_Mesh.Set(index);
 	_UpdateCollider();
 }
 
 void Object::SetPosition(const Nt::Float3D& position) {
-	m_Model.SetPosition(position);
 	IObject::SetPosition(position);
-	//_UpdateCollider();
 }
-
 void Object::SetSize(const Nt::Float3D& size) {
-	if (!m_Model.GetMesh().IsValid())
-		m_Model.GetMesh().Get()->SetScale(size);
-
-	m_Model.SetSize(size);
 	IObject::SetSize(size);
-	//_UpdateCollider();
 }
-
 void Object::SetAngle(const Nt::Float3D& angle) {
-	m_Model.SetAngle(angle);
 	IObject::SetAngle(angle);
 }
-
 void Object::SetAngleOrigin(const Nt::Float3D& angleOrigin) {
-	m_Model.SetAngleOrigin(angleOrigin);
 	IObject::SetAngleOrigin(angleOrigin);
 }
-
 void Object::SetOrigin(const Nt::Float3D& origin) {
-	m_Model.SetOrigin(origin);
 	IObject::SetOrigin(origin);
 }
-
 void Object::SetColor(const Nt::Float4D& color) {
-	m_Model.SetColor(color);
 	IObject::SetColor(color);
 }

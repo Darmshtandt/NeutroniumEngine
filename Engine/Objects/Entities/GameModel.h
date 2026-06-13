@@ -5,6 +5,7 @@
 class GameModel : public Entity {
 public:
 	GameModel(const std::string& name);
+	~GameModel() noexcept override = default;
 
 	void LoadMesh(const Nt::String& filePath);
 

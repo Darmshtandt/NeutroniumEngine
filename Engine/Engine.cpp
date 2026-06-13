@@ -20,7 +20,7 @@ Engine::Engine(const std::weak_ptr<Nt::EventBus>& pBus) :
 {
 	Assert(!m_pEventBus.expired(), "EventBus pointer is null");
 
-	m_pRenderEngine.reset(new RenderEngine(&m_Window));
+	m_RenderEngine.reset(new RenderEngine(&m_Window));
 	m_Window.SetEventBus(m_pEventBus);
 
 	m_pEventBus.lock()->Emmit<AddInputContextEvent>({ m_InputContext, "Engine" });
@@ -104,10 +104,15 @@ void Engine::Initialize(const Settings& settings, const Nt::String& defaultIniti
 	m_InputContext->AddHotKey(
 		{ Nt::KEY_ADD }, [this] () { m_pWorldEditor->CreatePrimitive("Cube"); });
 
+	m_InputContext->AddHotKey(
+		{ Nt::KEY_CONTROL, Nt::KEY_T }, [this] () { StartTestGame(); });
+	m_InputContext->AddHotKey(
+		{ Nt::KEY_CONTROL, Nt::KEY_SHIFT, Nt::KEY_T }, [this] () { CloseTestGame(); });
+
 	m_pClipboard = std::make_unique<Clipboard>(m_pScene, m_pSelector);
 
-	m_pGame.reset(new Game);
-	m_pGame->InitializeTestGame(&m_Window, m_pScene);
+	m_pGame.reset(new Game(&m_Window));
+	m_pGame->InitializeTestGame(m_pScene);
 
 	m_Shader.Initialize();
 	m_Shader.Create();
@@ -143,7 +148,7 @@ void Engine::Initialize(const Settings& settings, const Nt::String& defaultIniti
 		});
 
 	m_pWorldEditor->ResetCamera();
-	m_pRenderEngine->SetScene(m_pWorldEditor->GetScene());
+	m_RenderEngine->SetScene(m_pWorldEditor->GetScene());
 
 	m_Window.SetCamera(&m_pWorldEditor->GetCamera());
 	m_Window.SetClearColor(m_Settings.Style["Engine.BackgroundColor"]);
@@ -182,9 +187,45 @@ void Engine::Render() {
 	}
 	else {
 		m_Window.Clear();
-		m_pWorldEditor->GetGrid()->Render(&m_Window);
-		m_pRenderEngine->Render();
-		m_pWorldEditor->GetSelector()->Render(&m_Window);
+
+		m_RenderEngine->Render();
+
+		const Nt::Renderer::DrawingMode drawingMode = m_Window.GetDrawingMode();
+
+		Selector* pSelector = m_pWorldEditor->GetSelector();
+
+		m_Window.SetDrawingMode(Nt::Renderer::DrawingMode::LINES);
+		m_RenderEngine->RenderObject(m_pWorldEditor->GetGrid());
+
+		if (pSelector->EnabledDebug())
+			m_Window.Render(pSelector->GetRayMesh());
+		m_Window.SetDrawingMode(drawingMode);
+
+		m_Window.DisableDepthBuffer();
+
+		const Manipulator* pManipulator = pSelector->GetManipulator();
+		if (pManipulator->IsVisible()) {
+			for (uInt i = 0; i < 3; ++i) {
+				const Manipulator::Arrow* arrow = pManipulator->GetArrow(i);
+				if (arrow->IsShowedLine()) {
+					auto color = m_Window.GetColor();
+
+					m_Window.MatrixWorldPush();
+					m_Window.SetWorld(arrow->LocalToWorld());
+					m_Window.SetColor(arrow->GetColor());
+					m_Window.SetDrawingMode(Nt::Renderer::DrawingMode::LINES);
+					m_Window.Render(arrow->GetLineMesh());
+					m_Window.SetDrawingMode(drawingMode);
+					m_Window.SetColor(color);
+					m_Window.MatrixWorldPop();
+				}
+
+				m_RenderEngine->RenderObject(arrow);
+			}
+		}
+
+		m_Window.EnableDepthBuffer();
+
 		m_Window.Display();
 	}
 }

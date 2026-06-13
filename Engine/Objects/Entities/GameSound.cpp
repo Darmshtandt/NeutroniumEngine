@@ -3,15 +3,17 @@
 
 #include <Objects/Entities/GameSound.h>
 #include <ResourceLoader.h>
+#include <Core/Icon3D.h>
 
 static EntityRegistrar<GameSound> g_Registrar;
 static ResourceLoader<Nt::Texture> g_Loader { "Texture.Sound", "Images\\Sound.tga" };
 
 GameSound::GameSound(const Nt::String& name) :
 	Entity(name, Class<GameSound>::ID()),
-	m_IsPlayingAtStart(false) 
+	m_IsPlayingAtStart(false),
+	m_Icon3D(new Icon3D)
 {
-	SetModel(m_Icon3D);
+	SetMesh(m_Icon3D->GetMesh().Get());
 	SetTexture(g_Loader.Get());
 
 	DisableCollider();
@@ -20,9 +22,11 @@ GameSound::GameSound(const Nt::String& name) :
 GameSound::GameSound(const GameSound& sound) :
 	Entity(sound),
 	m_Sound(sound.m_Sound),
-	m_IsPlayingAtStart(sound.m_IsPlayingAtStart) 
+	m_IsPlayingAtStart(sound.m_IsPlayingAtStart),
+	m_Icon3D(new Icon3D)
 {
-	SetModel(m_Icon3D);
+	SetMesh(m_Icon3D->GetMesh().Get());
+	SetTexture(g_Loader.Get());
 }
 
 void GameSound::Start() {
@@ -35,11 +39,6 @@ void GameSound::Start() {
 void GameSound::Stop() {
 	Object::Start();
 	m_Sound.Stop();
-}
-
-void GameSound::Render(NotNull<Nt::Renderer*> pRenderer) const {
-	if (!m_IsStarted)
-		Entity::Render(pRenderer);
 }
 
 void GameSound::Load(const Nt::String& filePath) {
@@ -70,11 +69,11 @@ void GameSound::ToggleLooping(const Bool& isLoop) {
 	m_Sound.ToggleLooping(isLoop);
 }
 
-_NODISCARD GameSound* GameSound::GetCopy() const {
+GameSound* GameSound::GetCopy() const {
 	return new GameSound(*this);
 }
 
-_NODISCARD std::string GameSound::GetClassToken() noexcept {
+std::string GameSound::GetClassToken() noexcept {
 	return "Sound";
 }
 
@@ -87,35 +86,35 @@ void GameSound::SetPosition(const Nt::Float3D& position) {
 	m_Sound.SetPosition(position);
 }
 
-_NODISCARD Bool GameSound::IsPlayingAtStart() const noexcept {
+Bool GameSound::IsPlayingAtStart() const noexcept {
 	return m_IsPlayingAtStart;
 }
 
-_NODISCARD Bool GameSound::IsPlaying() const noexcept {
+Bool GameSound::IsPlaying() const noexcept {
 	return m_Sound.IsPlaying();
 }
 
-_NODISCARD Bool GameSound::IsLooping() const noexcept {
+Bool GameSound::IsLooping() const noexcept {
 	return m_Sound.IsLooping();
 }
 
-_NODISCARD Nt::String GameSound::GetFilePath() const {
+Nt::String GameSound::GetFilePath() const {
 	return m_Sound.GetFilePath();
 }
 
-_NODISCARD Float GameSound::GetRolloffFactor() const noexcept {
+Float GameSound::GetRolloffFactor() const noexcept {
 	return m_Sound.GetRolloffFactor();
 }
 
-_NODISCARD Float GameSound::GetReferenceDistance() const noexcept {
+Float GameSound::GetReferenceDistance() const noexcept {
 	return m_Sound.GetReferenceDistance();
 }
 
-_NODISCARD Float GameSound::GetMaxDistance() const noexcept {
+Float GameSound::GetMaxDistance() const noexcept {
 	return m_Sound.GetMaxDistance();
 }
 
-_NODISCARD Float GameSound::GetGain() const noexcept {
+Float GameSound::GetGain() const noexcept {
 	return m_Sound.GetGain();
 }
 

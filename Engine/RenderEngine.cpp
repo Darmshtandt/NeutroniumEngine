@@ -30,9 +30,8 @@ void RenderEngine::RenderObject(const Object* pObject) const {
 
 	RenderCollider(pObject->GetCollider());
 
-	const Nt::Model& model = pObject->GetModel();
-	const Nt::ResourceHandle<Nt::Mesh> mesh = model.GetMesh();
-	if (!mesh.IsValid() || !model.IsVisible())
+	const auto& mesh = pObject->GetMesh();
+	if (!mesh.IsValid())
 		return;
 
 	m_pRenderer->GetShaderPtr()->SetUniform("IsObjectInvisible", pObject->IsInvisible());
@@ -43,8 +42,8 @@ void RenderEngine::RenderObject(const Object* pObject) const {
 		RenderOutline(pObject);
 
 	const Nt::Float4D color = m_pRenderer->GetColor();
-	m_pRenderer->BindTexture(model.GetTexture().Get());
-	m_pRenderer->SetColor(model.GetColor());
+	m_pRenderer->BindTexture(pObject->GetTexture().Get());
+	m_pRenderer->SetColor(pObject->GetColor());
 	m_pRenderer->MatrixWorldPush();
 	m_pRenderer->SetWorld(pObject->LocalToWorld());
 	m_pRenderer->Render(mesh.Get());
@@ -56,7 +55,7 @@ void RenderEngine::RenderObject(const Object* pObject) const {
 }
 
 void RenderEngine::RenderOutline(const Object* pObject) const {
-	const Nt::ResourceHandle<Nt::Mesh> mesh = pObject->GetModel().GetMesh();
+	const auto& mesh = pObject->GetMesh();
 	if (!mesh.IsValid())
 		return;
 

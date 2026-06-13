@@ -24,39 +24,7 @@ Bool WorldDocument::Open(NotNull<Scene*> pScene) {
 	TiXmlDocument doc;
 	doc.LoadFile(m_FilePath);
 
-	TiXmlElement* xmlScene = doc.FirstChildElement();
-	Assert(xmlScene->ValueStr() == "Scene", "Element not Scene");
-
-	pScene->Clear();
-	for (TiXmlElement* xmlObject = xmlScene->FirstChildElement();
-		xmlObject;
-		xmlObject = xmlObject->NextSiblingElement())
-	{
-		const std::string name = xmlObject->ValueStr();
-		if (name == "Cube") {
-			Cube* pObject = new Cube("");
-			SerializerXML::FromXML(xmlObject, NotNull<Cube*>(pObject), m_pLua);
-			pScene->AddObject(pObject);
-		}
-		else if (name == "Quad") {
-			Quad* pObject = new Quad("");
-			SerializerXML::FromXML(xmlObject, NotNull<Quad*>(pObject), m_pLua);
-			pScene->AddObject(pObject);
-		}
-		else if (name == "Pyramid") {
-			Pyramid* pObject = new Pyramid("");
-			SerializerXML::FromXML(xmlObject, NotNull<Pyramid*>(pObject), m_pLua);
-			pScene->AddObject(pObject);
-		}
-		else if (name == "Plane") {
-			Plane* pObject = new Plane("");
-			SerializerXML::FromXML(xmlObject, NotNull<Plane*>(pObject), m_pLua);
-			pScene->AddObject(pObject);
-		}
-		else {
-			Raise("Unknown element");
-		}
-	}
+	SerializerXML::FromXML(doc.FirstChildElement(), pScene, m_pLua);
 
 	return true;
 }
@@ -68,8 +36,8 @@ Bool WorldDocument::Save(NotNull<Scene*> pScene) {
 }
 
 Bool WorldDocument::SaveAs(NotNull<Scene*> pScene) {
-	const Nt::String path = Nt::SaveAsFileDialog(L"", L"Scene (*.xml)\0*.xml");
-	//const Nt::String path = Nt::SaveAsFileDialog(m_DefaultPath.c_str(), L"Scene (*.ntascn)\0*.ntascn");
+	//const Nt::String path = Nt::SaveAsFileDialog(L"", L"Scene (*.xml)\0*.xml");
+	const Nt::String path = Nt::SaveAsFileDialog(m_DefaultPath.c_str(), L"Scene (*.ntascn)\0*.ntascn");
 	if (path.empty())
 		return false;
 

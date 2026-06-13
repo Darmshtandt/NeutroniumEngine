@@ -3,15 +3,16 @@
 #include <Nt/Graphics/Sound/Sound.h>
 #include <Objects/ObjectRegistrar.h>
 
+class Icon3D;
+
 class GameSound : public Entity {
 public:
 	GameSound(const Nt::String& name);
 	GameSound(const GameSound& sound);
+	~GameSound() noexcept override = default;
 
 	void Start() override;
 	void Stop() override;
-
-	void Render(NotNull<Nt::Renderer*> pRenderer) const override;
 
 	void Load(const Nt::String& filePath);
 	void Unload();
@@ -24,20 +25,20 @@ public:
 	void ToggleLooping();
 	void ToggleLooping(const Bool& isLoop);
 
-	_NODISCARD virtual GameSound* GetCopy() const override;
-	_NODISCARD static std::string GetClassToken() noexcept;
-	_NODISCARD std::string GetToken() const noexcept override;
+	[[nodiscard]] virtual GameSound* GetCopy() const override;
+	[[nodiscard]] static std::string GetClassToken() noexcept;
+	[[nodiscard]] std::string GetToken() const noexcept override;
 
 	void SetPosition(const Nt::Float3D& position) override;
 
-	_NODISCARD Bool IsPlayingAtStart() const noexcept;
-	_NODISCARD Bool IsPlaying() const noexcept;
-	_NODISCARD Bool IsLooping() const noexcept;
-	_NODISCARD Nt::String GetFilePath() const;
-	_NODISCARD Float GetRolloffFactor() const noexcept;
-	_NODISCARD Float GetReferenceDistance() const noexcept;
-	_NODISCARD Float GetMaxDistance() const noexcept;
-	_NODISCARD Float GetGain() const noexcept;
+	[[nodiscard]] Bool IsPlayingAtStart() const noexcept;
+	[[nodiscard]] Bool IsPlaying() const noexcept;
+	[[nodiscard]] Bool IsLooping() const noexcept;
+	[[nodiscard]] Nt::String GetFilePath() const;
+	[[nodiscard]] Float GetRolloffFactor() const noexcept;
+	[[nodiscard]] Float GetReferenceDistance() const noexcept;
+	[[nodiscard]] Float GetMaxDistance() const noexcept;
+	[[nodiscard]] Float GetGain() const noexcept;
 
 	void SetRolloffFactor(const Float& factor);
 	void SetReferenceDistance(const Float& distance);
@@ -45,10 +46,7 @@ public:
 	void SetGain(const Float& gain);
 
 private:
-	using Entity::SetModel;
-
-private:
+	std::unique_ptr<Icon3D> m_Icon3D;
 	Nt::Sound m_Sound;
-	Icon3D m_Icon3D;
 	Bool m_IsPlayingAtStart;
 };

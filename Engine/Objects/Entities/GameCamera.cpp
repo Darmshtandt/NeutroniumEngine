@@ -4,12 +4,16 @@
 #include <ResourceLoader.h>
 #include <Objects/Entities/GameCamera.h>
 
+#include <Core/Icon3D.h>
 
 static EntityRegistrar<GameCamera> g_Registrar;
 static ResourceLoader<Nt::Texture> g_Loader { "Texture.Camera", "Images\\Camera.tga" };
 
-GameCamera::GameCamera(const Nt::String& name) : Entity(name, Class<GameCamera>::ID()) {
-	SetModel(m_Icon3D);
+GameCamera::GameCamera(const Nt::String& name) :
+	Entity(name, Class<GameCamera>::ID()),
+	m_Icon3D(new Icon3D)
+{
+	SetMesh(m_Icon3D->GetMesh().Get());
 	SetTexture(g_Loader.Get());
 
 	m_Camera.SetPosition({ 0.5f, -0.5f, 0.5f });
@@ -19,25 +23,22 @@ GameCamera::GameCamera(const Nt::String& name) : Entity(name, Class<GameCamera>:
 
 GameCamera::GameCamera(const GameCamera& camera) :
 	Entity(camera),
-	m_Camera(camera.m_Camera)
+	m_Camera(camera.m_Camera),
+	m_Icon3D(new Icon3D)
 {
-	SetModel(m_Icon3D);
-}
-
-void GameCamera::Render(NotNull<Nt::Renderer*> pRenderer) const {
-	if (!m_IsStarted)
-		Entity::Render(pRenderer);
+	SetMesh(m_Icon3D->GetMesh().Get());
+	SetTexture(g_Loader.Get());
 }
 
 void GameCamera::Set(NotNull<Nt::RenderWindow*> windowPtr) {
 	windowPtr->SetCamera(&m_Camera);
 }
 
-_NODISCARD GameCamera* GameCamera::GetCopy() const {
+GameCamera* GameCamera::GetCopy() const {
 	return new GameCamera(*this);
 }
 
-_NODISCARD std::string GameCamera::GetClassToken() noexcept {
+std::string GameCamera::GetClassToken() noexcept {
 	return "Camera";
 }
 

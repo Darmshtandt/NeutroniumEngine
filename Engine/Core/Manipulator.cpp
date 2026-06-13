@@ -7,8 +7,10 @@
 static ResourceLoader<Nt::Mesh> g_TranslateLoader { "Mesh.Translate", "Models\\TranslateArrow.obj" };
 static ResourceLoader<Nt::Mesh> g_ScaleLoader { "Mesh.Scale", "Models\\ScaleArrow.obj" };
 
-Manipulator::Arrow::Arrow(const Axis& axis) : Object("", Class<Arrow>::ID()) {
-	m_AxisLine.SetMeshByPtr(&m_AxisLineMesh);
+Manipulator::Arrow::Arrow(const Axis& axis) :
+	Object("", Class<Arrow>::ID()),
+	m_LineMesh(new Nt::Mesh(Nt::Primitive::Line(10000.f, Nt::Colors::White)))
+{
 	SetDrawingMode(Nt::Renderer::DrawingMode::LINES);
 
 	constexpr Float HalfPIf = PIf / 2.f;
@@ -30,21 +32,7 @@ Manipulator::Arrow::Arrow(const Axis& axis) : Object("", Class<Arrow>::ID()) {
 		break;
 	}
 }
-Manipulator::Arrow::~Arrow() noexcept {
-	m_AxisLine.SetMeshByPtr(nullptr);
-}
-
-void Manipulator::Arrow::Render(NotNull<Nt::Renderer*> pRenderer) const noexcept {
-	if (m_ShowingLine) {
-		const Nt::Renderer::DrawingMode drawingMode = pRenderer->GetDrawingMode();
-
-		pRenderer->SetDrawingMode(Nt::Renderer::DrawingMode::LINES);
-		m_AxisLine.Render(pRenderer);
-		pRenderer->SetDrawingMode(drawingMode);
-	}
-
-	Object::Render(pRenderer);
-}
+Manipulator::Arrow::~Arrow() noexcept = default;
 
 void Manipulator::Arrow::Select() noexcept {
 	EnableOutline();
@@ -56,29 +44,22 @@ void Manipulator::Arrow::Deselect() noexcept {
 	m_ShowingLine = false;
 }
 
-void Manipulator::Arrow::SetPosition(const Nt::Float3D& position) {
-	Object::SetPosition(position);
-	m_AxisLine.SetPosition(position);
+const Nt::Mesh* Manipulator::Arrow::GetLineMesh() const noexcept {
+	return m_LineMesh.get();
+}
+Bool Manipulator::Arrow::IsShowedLine() const noexcept {
+	return m_ShowingLine;
 }
 
-void Manipulator::Arrow::SetColor(const Nt::Float4D& color) {
-	Object::SetColor(color);
-	m_AxisLine.SetColor(color);
-}
+Manipulator::Manipulator() {
+	for (uInt i = 0; i < 3; ++i)
+		m_AxisArrows[i].reset(new Arrow(static_cast<Axis>(i)));
 
-void Manipulator::Arrow::SetAngle(const Nt::Float3D& angle) {
-	Object::SetAngle(angle);
-	m_AxisLine.SetAngle(angle);
-}
-
-Manipulator::Manipulator() :
-	m_AxisArrows { Arrow(X), Arrow(Y), Arrow(Z) }
-{
 	m_StateMeshes.push_back(g_TranslateLoader.Get());
 	m_StateMeshes.push_back(g_ScaleLoader.Get());
 
-	for (Arrow& arrow : m_AxisArrows)
-		arrow.SetMesh(m_StateMeshes[m_State]);
+	for (const auto& arrow : m_AxisArrows)
+		arrow->SetMesh(m_StateMeshes[m_State]);
 }
 
 void Manipulator::Control(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Camera& camera, Nt::Mouse& mouse) {
@@ -91,32 +72,9 @@ void Manipulator::Control(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Ca
 		return;
 	}
 
-#if 0
-	const Nt::Float2D cursorOffset = (m_StartCursorPosition - cursorPosition) / pWindow->GetClientSize();
-	const Float cameraPitch = camera.GetAngle().y;
-
-	Nt::Float3D offset;
-	switch (m_SelectedAxis) {
-	case X:
-		offset.x = -(cosf(cameraPitch) * cursorOffset.x + sinf(cameraPitch) * cursorOffset.y);
-		break;
-	case Y:
-		offset.y = cursorOffset.y;
-		break;
-	case Z:
-		offset.z = sinf(cameraPitch) * cursorOffset.x - cosf(cameraPitch) * cursorOffset.y;
-		break;
-	}
-
-	const Float cameraToAxisDistance = (m_Position - camera.GetPosition()).Length();
-	const Float tanFOV = pWindow->GetProjection()._22;
-
-	m_MoveDelta += offset * cameraToAxisDistance * tanFOV;
-#else
 	Nt::Ray ray = Nt::RayFromPoint2D(cursorPosition, -camera.GetPosition(),
 		pWindow->GetClientSize(), pWindow->GetProjection(), pWindow->GetView());
 	CalcMoveDelta(ray);
-#endif
 
 	m_StartCursorPosition = cursorPosition;
 }
@@ -124,23 +82,15 @@ void Manipulator::Control(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Ca
 void Manipulator::Update(const Nt::Ray& ray) {
 	if (!m_StartedEditing) {
 		if (m_SelectedAxis != NONE)
-			m_AxisArrows[m_SelectedAxis].Deselect();
+			m_AxisArrows[m_SelectedAxis]->Deselect();
 
 		m_SelectedAxis = RayCastTest(ray);
 		if (m_SelectedAxis != NONE)
-			m_AxisArrows[m_SelectedAxis].Select();
+			m_AxisArrows[m_SelectedAxis]->Select();
 	}
 
-	for (Arrow& arrow : m_AxisArrows)
-		arrow.Update(1.f);
-}
-
-void Manipulator::Render(NotNull<Nt::Renderer*> pRenderer) const noexcept {
-	if (!m_IsVisible)
-		return;
-
-	for (const Arrow& arrow : m_AxisArrows)
-		arrow.Render(pRenderer);
+	for (const auto& arrow : m_AxisArrows)
+		arrow->Update(1.f);
 }
 
 void Manipulator::Translate(const Nt::Float3D& offset) noexcept {
@@ -210,10 +160,15 @@ void Manipulator::ResetMoveDelta() noexcept {
 
 Manipulator::Axis Manipulator::RayCastTest(const Nt::Ray& ray) {
 	for (uInt i = 0; i < 3; ++i) {
-		if (m_AxisArrows[i].RayCastTest(ray, &m_RayCastPoint) != -1)
+		if (m_AxisArrows[i]->RayCastTest(ray, &m_RayCastPoint) != -1)
 			return static_cast<Axis>(i);
 	}
 	return NONE;
+}
+
+const Manipulator::Arrow* Manipulator::GetArrow(const uInt& axis) const noexcept {
+	Assert(axis < 3, "Out or range");
+	return m_AxisArrows[axis].get();
 }
 
 Nt::Float3D Manipulator::GetPosition() const noexcept {
@@ -243,8 +198,8 @@ void Manipulator::SetState(const State& state) noexcept {
 
 	m_State = state;
 
-	for (Arrow& arrow : m_AxisArrows)
-		arrow.SetMesh(m_StateMeshes[m_State]);
+	for (const auto& arrow : m_AxisArrows)
+		arrow->SetMesh(m_StateMeshes[m_State]);
 }
 
 void Manipulator::SetPosition(const Nt::Float3D& position) noexcept {
@@ -252,7 +207,6 @@ void Manipulator::SetPosition(const Nt::Float3D& position) noexcept {
 		return;
 
 	m_Position = position;
-	for (Arrow& arrow : m_AxisArrows)
-		arrow.SetPosition(m_Position);
+	for (const auto& arrow : m_AxisArrows)
+		arrow->SetPosition(m_Position);
 }
-

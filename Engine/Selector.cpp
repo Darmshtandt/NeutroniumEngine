@@ -16,7 +16,9 @@
 Selector::Selector(const std::weak_ptr<Nt::EventBus>& pBus, NotNull<Scene*> pScene, NotNull<Grid*> pGrid) :
 	m_pEventBus(pBus),
 	m_pScene(pScene),
-	m_pGrid(pGrid)
+	m_pGrid(pGrid),
+	m_pManipulator(new Manipulator),
+	m_pRayMesh(new Nt::Mesh)
 {
 	Assert(!m_pEventBus.expired(), "EventBus pointer is null");
 
@@ -26,9 +28,8 @@ Selector::Selector(const std::weak_ptr<Nt::EventBus>& pBus, NotNull<Scene*> pSce
 	shape.Indices.push_back(0);
 	shape.Indices.push_back(1);
 
-	m_RayMesh.SetShape(shape);
-	m_RayModel.SetMeshByPtr(&m_RayMesh);
-	m_Manipulator.Hide();
+	m_pRayMesh->SetShape(shape);
+	m_pManipulator->Hide();
 
 	auto sharedBus = m_pEventBus.lock();
 	sharedBus->Subscribe<UpdateObjectTransformEvent>([this] (const UpdateObjectTransformEvent& e) {
@@ -36,7 +37,7 @@ Selector::Selector(const std::weak_ptr<Nt::EventBus>& pBus, NotNull<Scene*> pSce
 			return;
 
 		if (e.Type == TransforType::POSITION)
-			m_Manipulator.SetPosition(e.Value);
+			m_pManipulator->SetPosition(e.Value);
 		});
 }
 
@@ -50,48 +51,35 @@ void Selector::Control(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Camer
 }
 
 void Selector::Update() {
-	if (m_Manipulator.IsVisible()) {
-		//const Float newSize = (m_Manipulator.GetPosition() - cameraPosition / 2.f).Length() / 5.f;
+	if (m_pManipulator->IsVisible()) {
+		//const Float newSize = (m_pManipulator->GetPosition() - cameraPosition / 2.f).Length() / 5.f;
 		//m_AxisObject.SetSize({ newSize, newSize, newSize });
 	}
 
 	if (m_IsChanged) {
 		if (!m_SelectedObjects.empty()) {
-			m_Manipulator.SetPosition(m_SelectedObjects[0]->GetPosition());
-			m_Manipulator.Show();
+			m_pManipulator->SetPosition(m_SelectedObjects[0]->GetPosition());
+			m_pManipulator->Show();
 		}
 		else {
-			m_Manipulator.Hide();
+			m_pManipulator->Hide();
 		}
 	}
 
-	m_Manipulator.Update(m_Ray);
-}
-void Selector::Render(NotNull<Nt::Renderer*> pRenderer) {
-	if (m_EnabledDebug) {
-		const Nt::Renderer::DrawingMode drawingMode = pRenderer->GetDrawingMode();
-
-		pRenderer->SetDrawingMode(Nt::Renderer::DrawingMode::LINES);
-		m_RayModel.Render(pRenderer);
-		pRenderer->SetDrawingMode(drawingMode);
-	}
-
-	pRenderer->DisableDepthBuffer();
-	m_Manipulator.Render(pRenderer);
-	pRenderer->EnableDepthBuffer();
+	m_pManipulator->Update(m_Ray);
 }
 
 void Selector::RayCastTest(const Nt::Ray& ray, const Nt::Float2D& cursorPosition, const Bool isMulti) {
 	if (m_EnabledDebug) {
-		Nt::Shape shape = m_RayMesh.GetShape();
+		Nt::Shape shape = m_pRayMesh->GetShape();
 		shape.Vertices[0].Position.xyz = ray.Start;
 		shape.Vertices[1].Position.xyz = ray.End;
-		m_RayMesh.SetShape(shape);
+		m_pRayMesh->SetShape(shape);
 	}
 
-	m_SelectedAxis = m_Manipulator.RayCastTest(ray);
+	m_SelectedAxis = m_pManipulator->RayCastTest(ray);
 	if (!m_SelectedObjects.empty() && m_SelectedAxis != Axis::NONE) {
-		m_Manipulator.BeginEditing(cursorPosition);
+		m_pManipulator->BeginEditing(cursorPosition);
 		return;
 	}
 
@@ -115,7 +103,7 @@ void Selector::AddSelect(NotNull<Object*> pObject) {
 		pObject->EnableOutline();
 		m_SelectedObjects.push_back(pObject);
 
-		m_Manipulator.Show();
+		m_pManipulator->Show();
 		MessageBus<Object*>::Instance().Publish(TOPIC_SELECTOR_ADD_SELECTION, pObject);
 	}
 }
@@ -138,7 +126,7 @@ void Selector::Deselect(const ObjectContainer::const_iterator& iterator) {
 	m_IsChanged = true;
 
 	if (m_SelectedObjects.size() <= 1) {
-		m_Manipulator.Hide();
+		m_pManipulator->Hide();
 		MessageBus<Object*>::Instance().Publish(TOPIC_SELECTOR_ALL_DESELECT, *iterator);
 	}
 	else {
@@ -158,7 +146,7 @@ void Selector::AllDeselect() {
 		m_SelectedObjects.erase(m_SelectedObjects.begin());
 	}
 
-	m_Manipulator.Hide();
+	m_pManipulator->Hide();
 	MessageBus<Object*>::Instance().Publish(TOPIC_SELECTOR_ALL_DESELECT, nullptr);
 }
 
@@ -169,7 +157,7 @@ void Selector::RemoveSelected() {
 	m_IsChanged = true;
 	m_SelectedObjects.clear();
 
-	m_Manipulator.Hide();
+	m_pManipulator->Hide();
 	MessageBus<Object*>::Instance().Publish(TOPIC_SELECTOR_ALL_DESELECT, nullptr);
 }
 
@@ -194,12 +182,21 @@ Object* Selector::GetObjectPtr(const uInt& index) const {
 	return m_SelectedObjects[index];
 }
 
+const Manipulator* Selector::GetManipulator() const noexcept {
+	return m_pManipulator.get();
+}
+const Nt::Mesh* Selector::GetRayMesh() const noexcept {
+	return m_pRayMesh.get();
+}
 uInt Selector::GetObjectCount() const noexcept {
 	return m_SelectedObjects.size();
 }
 Bool Selector::IsContained(const NotNull<Object*> pObject) const {
 	auto iterator = std::find(m_SelectedObjects.begin(), m_SelectedObjects.end(), pObject);
 	return (iterator != m_SelectedObjects.end());
+}
+Bool Selector::EnabledDebug() const noexcept {
+	return m_EnabledDebug;
 }
 Bool Selector::IsChanged() const noexcept {
 	return m_IsChanged;
@@ -209,8 +206,8 @@ Bool Selector::IsEmpty() const noexcept {
 }
 
 void Selector::SetTransformMode(const Manipulator::State& state) noexcept {
-	if (m_Manipulator.IsVisible())
-		m_Manipulator.SetState(state);
+	if (m_pManipulator->IsVisible())
+		m_pManipulator->SetState(state);
 }
 
 void Selector::_MouseControl(NotNull<const Nt::RenderWindow*> pWindow, Nt::Keyboard& keyboard, Nt::Mouse& mouse) {
@@ -222,15 +219,15 @@ void Selector::_MouseControl(NotNull<const Nt::RenderWindow*> pWindow, Nt::Keybo
 		return;
 
 	if (m_EnabledDebug) {
-		Nt::Shape shape = m_RayMesh.GetShape();
+		Nt::Shape shape = m_pRayMesh->GetShape();
 		shape.Vertices[0].Position.xyz = m_Ray.Start;
 		shape.Vertices[1].Position.xyz = m_Ray.End;
-		m_RayMesh.SetShape(shape);
+		m_pRayMesh->SetShape(shape);
 	}
 
-	m_SelectedAxis = m_Manipulator.RayCastTest(m_Ray);
+	m_SelectedAxis = m_pManipulator->RayCastTest(m_Ray);
 	if (!m_SelectedObjects.empty() && m_SelectedAxis != Axis::NONE) {
-		m_Manipulator.BeginEditing(cursorPosition);
+		m_pManipulator->BeginEditing(cursorPosition);
 	}
 	else {
 		Object* pNearestObject = m_pScene->RayCastObject(m_Ray);
@@ -244,16 +241,16 @@ void Selector::_MouseControl(NotNull<const Nt::RenderWindow*> pWindow, Nt::Keybo
 }
 
 void Selector::_AxisControl(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Camera& camera, Nt::Mouse& mouse) {
-	if (!m_Manipulator.StartedEditing())
+	if (!m_pManipulator->StartedEditing())
 		return;
 
-	m_Manipulator.Control(pWindow, camera, mouse);
+	m_pManipulator->Control(pWindow, camera, mouse);
 
 	assert(!m_pEventBus.expired());
 	auto sharedBus = m_pEventBus.lock();
 
-	Nt::Float3D startPoint = m_Manipulator.GetStartPoint();
-	Nt::Float3D moveDelta = m_Manipulator.GetMoveDelta();
+	Nt::Float3D startPoint = m_pManipulator->GetStartPoint();
+	Nt::Float3D moveDelta = m_pManipulator->GetMoveDelta();
 
 	if (m_IsSnapToGrid) {
 		moveDelta = m_pGrid->Snap(moveDelta);
@@ -267,9 +264,9 @@ void Selector::_AxisControl(NotNull<const Nt::RenderWindow*> pWindow, const Nt::
 	}
 
 	const Nt::Float3D newPoint = startPoint + moveDelta;
-	switch (m_Manipulator.GetState()) {
+	switch (m_pManipulator->GetState()) {
 	case Manipulator::TRANSLATE:
-		m_Manipulator.SetPosition(newPoint);
+		m_pManipulator->SetPosition(newPoint);
 		for (Object* pObject : m_SelectedObjects) {
 			pObject->SetPosition(newPoint);
 			pObject->StaticUpdate();
@@ -300,5 +297,5 @@ void Selector::_AxisControl(NotNull<const Nt::RenderWindow*> pWindow, const Nt::
 		break;
 	}
 
-	m_Manipulator.ResetMoveDelta();
+	m_pManipulator->ResetMoveDelta();
 }
