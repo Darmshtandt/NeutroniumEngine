@@ -134,8 +134,13 @@ TiXmlElement* SerializerXML::ToXML(const Object* pObject) {
 	TiXmlElement* el = new TiXmlElement("Object");
 	el->LinkEndChild(ToXML(static_cast<const Nt::RigidBody*>(pObject)));
 
-	if (pObject->GetMesh().IsValid())
-		el->LinkEndChild(ToXML(pObject->GetMesh().Get()));
+	auto meshHandler = pObject->GetMesh();
+	if (meshHandler.IsValid()) {
+		Nt::Mesh* mesh = meshHandler.Get();
+		if (!mesh->GetFilePath().empty())
+			el->LinkEndChild(ToXML(mesh));
+	}
+
 	if (pObject->GetTexture().IsValid())
 		el->LinkEndChild(ToXML(pObject->GetTexture().Get()));
 
@@ -213,7 +218,6 @@ TiXmlElement* SerializerXML::ToXML(const GameSound* pSound) {
 	return EntityToXML(pSound, "GameSound");
 }
 TiXmlElement* SerializerXML::ToXML(const GameModel* pModel) {
-	assert(0);
 	return EntityToXML(pModel, "GameModel");
 }
 TiXmlElement* SerializerXML::ToXML(const GameLight* pLight) {
@@ -489,13 +493,26 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Object*> pO
 	TiXmlElement* pSibling = RequireNotNull(pElement->FirstChildElement());
 	FromXML(pSibling, static_cast<NotNull<Nt::RigidBody*>>(pObject));
 
-	Nt::Model model;
-
 	pSibling = pSibling->NextSiblingElement();
-	FromXML(pSibling, NotNull<Nt::Model*>(&model));
+	if (pSibling && pSibling->ValueStr() == "Nt::Texture") {
+		Nt::Texture* pTexture = new Nt::Texture;
+		FromXML(pSibling, pTexture);
 
-	pObject->SetTexture(model.GetTexture().Get());
-	pObject->SetMesh(model.GetMesh().Get());
+		const uInt index = Nt::ResourceManager::Instance()
+			.Add(std::unique_ptr<Nt::Texture>(pTexture));
+		pObject->SetTexture(index);
+
+		pSibling = pSibling->NextSiblingElement();
+	}
+	if (pSibling && pSibling->ValueStr() == "Script") {
+		std::string filePath;
+		std::vector<Script::Data> datas;
+		FromXML(pSibling, filePath, datas);
+
+		pObject->AttachScript(pLua, filePath, datas);
+
+		pSibling = pSibling->NextSiblingElement();
+	}
 
 	std::string name;
 	pElement->QueryStringAttribute("LayerName", &name);
@@ -510,16 +527,6 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Object*> pO
 		pObject->EnableInvisible();
 	else
 		pObject->DisableInvisible();
-
-	pSibling = pSibling->NextSiblingElement();
-	if (pSibling == nullptr)
-		return;
-
-	std::string scriptFilePath;
-	std::vector<Script::Data> scriptData;
-	FromXML(pSibling, scriptFilePath, scriptData);
-
-	pObject->AttachScript(pLua, scriptFilePath, scriptData);
 }
 
 void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Primitive*> pPrimitive, NotNull<Lua*> pLua) {
@@ -571,7 +578,6 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<GameCamera*
 	pCamera->SetAngle(pCamera->GetAngle());
 	pCamera->SetAngleOrigin(pCamera->GetAngleOrigin());
 }
-
 
 void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Cube*> pCube, NotNull<Lua*> pLua) {
 	Assert(pElement->ValueStr() == "Cube", "Element not Cube");

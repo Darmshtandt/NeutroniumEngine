@@ -7,9 +7,10 @@
 
 Primitive::Primitive(std::string name, const ClassID id) :
 	Object(std::move(name), id),
-	m_TextureScale({ 1.f, 1.f }) 
+	m_TextureScale({ 1.f, 1.f }),
+	m_Mesh(new Nt::Mesh)
 {
-	SetMesh(&m_Mesh);
+	SetMesh(m_Mesh.get());
 }
 
 Primitive::Primitive(const Primitive& primitive) :
@@ -18,7 +19,7 @@ Primitive::Primitive(const Primitive& primitive) :
 	m_TextureScale(primitive.m_TextureScale),
 	m_Mesh(primitive.m_Mesh)
 {
-	SetMesh(&m_Mesh);
+	SetMesh(m_Mesh.get());
 }
 
 Primitive::Primitive(Primitive&& primitive) noexcept :
@@ -27,7 +28,7 @@ Primitive::Primitive(Primitive&& primitive) noexcept :
 	m_TextureScale(primitive.m_TextureScale),
 	m_Mesh(std::move(primitive.m_Mesh))
 {
-	SetMesh(&m_Mesh);
+	SetMesh(m_Mesh.get());
 }
 
 
@@ -57,21 +58,21 @@ Nt::Float2D Primitive::GetTextureScale() const noexcept {
 }
 
 void Primitive::SetPrimitiveMesh(const Nt::Mesh& mesh) {
-	m_Mesh = mesh;
-	SetMesh(&m_Mesh);
+	m_Mesh.reset(new Nt::Mesh(mesh));
+	SetMesh(m_Mesh.get());
 }
 
 void Primitive::SetTextureOffset(const Nt::Float2D& textureOffset) {
 	if (m_TextureOffset == textureOffset)
 		return;
 
-	Nt::Shape shape = m_Mesh.GetShape();
+	Nt::Shape shape = m_Mesh->GetShape();
 
 	const Nt::Float2D offsetValue = textureOffset - m_TextureOffset;
 	for (Nt::Vertex& vertex : shape.Vertices)
 		vertex.TexCoord.xy += offsetValue;
 
-	m_Mesh.SetShape(shape);
+	m_Mesh->SetShape(shape);
 
 	m_TextureOffset = textureOffset;
 }
@@ -85,14 +86,14 @@ void Primitive::SetTextureScale(Nt::Float2D textureScale) {
 	if (textureScale.y == 0.f)
 		textureScale.y = std::numeric_limits<Float>::epsilon();
 
-	Nt::Shape shape = m_Mesh.GetShape();
+	Nt::Shape shape = m_Mesh->GetShape();
 	for (uInt i = 0; i < shape.Vertices.size(); ++i)
 		shape.Vertices[i].TexCoord.xy *= textureScale / m_TextureScale;
-	m_Mesh.SetShape(shape);
+	m_Mesh->SetShape(shape);
 
 	m_TextureScale = textureScale;
 }
 
 const Nt::Shape& Primitive::GetShape() const noexcept {
-	return m_Mesh.GetShape();
+	return m_Mesh->GetShape();
 }

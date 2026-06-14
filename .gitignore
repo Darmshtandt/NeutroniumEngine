@@ -6,6 +6,7 @@ packages/*
 Application/Debug/
 Application/Release/
 Application/x64/
+Application/Lasted.log
 
 Engine/Debug/
 Engine/Release/

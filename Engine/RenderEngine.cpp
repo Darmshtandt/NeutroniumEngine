@@ -106,7 +106,13 @@ void RenderEngine::RenderCollider(const Nt::Collider* pCollider) const {
 	m_pRenderer->SetDepthMode(Nt::DepthMode::ALWAYS);
 	m_pRenderer->SetLineWidth(10);
 	m_pRenderer->SetDrawingMode(Nt::Renderer::DrawingMode::LINE_STRIP);
-	RenderModel(pCollider->GetModel());
+	m_pRenderer->UnbindTexture();
+
+	m_pRenderer->MatrixWorldPush();
+	m_pRenderer->SetWorld(pCollider->LocalToWorld());
+	m_pRenderer->Render(pCollider->GetMesh());
+	m_pRenderer->MatrixWorldPop();
+
 	m_pRenderer->SetDrawingMode(Nt::Renderer::DrawingMode::TRIANGLES);
 	m_pRenderer->SetLineWidth(1);
 	m_pRenderer->SetDepthMode(Nt::DepthMode::LESS);

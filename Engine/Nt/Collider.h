@@ -22,10 +22,6 @@ namespace Nt {
 		using uIntContainer = std::vector<uInt>;
 
 	public:
-		Collider();
-
-		void Render(NotNull<Renderer*> pRenderer) const;
-
 		void Show() noexcept;
 		void Hide() noexcept;
 		void ToggleVisible(const Bool& enabled) noexcept;
@@ -55,14 +51,14 @@ namespace Nt {
 		void SetPointContainer(const PointContainer& points);
 
 		[[nodiscard]] const PointContainer& GetPointContainer() const;
-		[[nodiscard]] const Nt::Model& GetModel() const noexcept;
+		[[nodiscard]] const Mesh* GetMesh() const noexcept;
+		[[nodiscard]] Matrix4x4 LocalToWorld() const noexcept;
 		[[nodiscard]] Bool IsVisible() const noexcept;
 
 	private:
 		Mesh m_Mesh;
 		PointContainer m_Points;
 		Matrix4x4 m_LocalWorld;
-		Model m_Model;
 		Bool m_IsVisible = false;
 
 	private:

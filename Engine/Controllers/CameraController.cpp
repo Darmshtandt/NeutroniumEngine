@@ -44,7 +44,8 @@ void CameraController::Update() {
 			move.y = 1.f;
 	}
 
-	m_pCamera->Translate(move * m_Speed);
+	if (move.LengthSquare() > 0.f)
+		m_pCamera->Translate(move * m_Speed);
 
 	const Nt::Float2D cursorPosition = Nt::GetCursorPosition();
 	const Nt::Float2D screenCenter(Nt::GetMonitorSize() / 2);

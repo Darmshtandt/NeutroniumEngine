@@ -7,7 +7,7 @@
 #include <Core/Icon3D.h>
 
 Icon3D::Icon3D() {
-	Nt::Shape doubleSideQuad = Nt::Primitive::Quad({ 1.f, 1.f }, Nt::Colors::White);
+	Nt::Shape doubleSideQuad = Nt::Primitive::Quad({ 1.f, 1.f }, Nt::Colors::White, { 1, 0, 0, 1 });
 	for (uInt i = 0; i < 6; ++i)
 		doubleSideQuad.Indices.push_back(doubleSideQuad.Indices[i]);
 

@@ -58,5 +58,5 @@ void GameCamera::SetPosition(const Nt::Float3D& position) {
 
 void GameCamera::SetAngle(const Nt::Float3D& angle) {
 	Entity::SetAngle(angle);
-	m_Camera.SetAngle(angle);
+	m_Camera.SetAngle(-angle);
 }

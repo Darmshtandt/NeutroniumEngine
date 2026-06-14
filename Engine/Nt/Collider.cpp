@@ -2,26 +2,7 @@
 #include <GL/GL.h>
 
 #include <Nt/Collider.h>
-
 #include <cassert>
-
-Nt::Collider::Collider() :
-	m_Model(&m_Mesh)
-{
-}
-
-void Nt::Collider::Render(NotNull<Renderer*> pRenderer) const {
-	if (!m_IsVisible)
-		return;
-
-	glDepthFunc(GL_ALWAYS);
-	glLineWidth(10);
-	pRenderer->SetDrawingMode(Renderer::DrawingMode::LINE_STRIP);
-	m_Model.Render(pRenderer);
-	pRenderer->SetDrawingMode(Renderer::DrawingMode::TRIANGLES);
-	glLineWidth(1);
-	glDepthFunc(GL_LESS);
-}
 
 void Nt::Collider::Show() noexcept {
 	if (!m_IsVisible)
@@ -298,8 +279,6 @@ Int Nt::Collider::RayCastTest(const Ray& ray, Float3D* pResultIntersectionPoint 
 
 void Nt::Collider::SetLocalWorld(const Matrix4x4& localWorld) noexcept {
 	m_LocalWorld = localWorld;
-	m_Model.SetPosition(m_LocalWorld[3].xyz);
-	m_Model.SetAngle(m_LocalWorld.GetEulerAngles());
 }
 
 void Nt::Collider::SetShape(const Shape& shape) {
@@ -337,8 +316,12 @@ const Nt::Collider::PointContainer& Nt::Collider::GetPointContainer() const {
 	return m_Points;
 }
 
-const Nt::Model& Nt::Collider::GetModel() const noexcept {
-	return m_Model;
+const Nt::Mesh* Nt::Collider::GetMesh() const noexcept {
+	return &m_Mesh;
+}
+
+Nt::Matrix4x4 Nt::Collider::LocalToWorld() const noexcept {
+	return m_LocalWorld;
 }
 
 Bool Nt::Collider::IsVisible() const noexcept {

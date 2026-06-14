@@ -14,13 +14,11 @@ class GameLight;
 class GameModel;
 class GameSound;
 
-namespace Nt {
-	struct Vertex;
-}
-
 class Primitive;
 
 namespace Nt {
+	struct Vertex;
+
 	class Mesh;
 	class Texture;
 	class Model;
@@ -29,33 +27,33 @@ namespace Nt {
 }
 
 struct SerializerXML final {
-	static TiXmlElement* ToXML(const Nt::IObject* pIObject);
-	static TiXmlElement* ToXML(const Nt::RigidBody* pBody);
+	[[nodiscard]] static TiXmlElement* ToXML(const Nt::IObject* pIObject);
+	[[nodiscard]] static TiXmlElement* ToXML(const Nt::RigidBody* pBody);
 
-	static TiXmlElement* ToXML(const Nt::Texture* pTexture);
-	static TiXmlElement* ToXML(const Nt::Mesh* pMesh);
-	static TiXmlElement* ToXML(const Nt::Model* pModel);
+	[[nodiscard]] static TiXmlElement* ToXML(const Nt::Texture* pTexture);
+	[[nodiscard]] static TiXmlElement* ToXML(const Nt::Mesh* pMesh);
+	[[nodiscard]] static TiXmlElement* ToXML(const Nt::Model* pModel);
 
-	static TiXmlElement* ToXML(const Script* pScript, const std::vector<Script::Data>& allData);
-	static TiXmlElement* ToXML(const Object* pObject);
-	static TiXmlElement* ToXML(const Primitive* pPrimitive);
-	static TiXmlElement* ToXML(const Entity* pEntity);
+	[[nodiscard]] static TiXmlElement* ToXML(const Script* pScript, const std::vector<Script::Data>& allData);
+	[[nodiscard]] static TiXmlElement* ToXML(const Object* pObject);
+	[[nodiscard]] static TiXmlElement* ToXML(const Primitive* pPrimitive);
+	[[nodiscard]] static TiXmlElement* ToXML(const Entity* pEntity);
 
-	static TiXmlElement* ToXML(const GameSound* pSound);
-	static TiXmlElement* ToXML(const GameModel* pModel);
-	static TiXmlElement* ToXML(const GameLight* pLight);
-	static TiXmlElement* ToXML(const GameCamera* pCamera);
+	[[nodiscard]] static TiXmlElement* ToXML(const GameSound* pSound);
+	[[nodiscard]] static TiXmlElement* ToXML(const GameModel* pModel);
+	[[nodiscard]] static TiXmlElement* ToXML(const GameLight* pLight);
+	[[nodiscard]] static TiXmlElement* ToXML(const GameCamera* pCamera);
 
-	static TiXmlElement* ToXML(const Cube* pCube);
-	static TiXmlElement* ToXML(const Quad* pQuad);
-	static TiXmlElement* ToXML(const Pyramid* pPyramid);
-	static TiXmlElement* ToXML(const Plane* pPlane);
+	[[nodiscard]] static TiXmlElement* ToXML(const Cube* pCube);
+	[[nodiscard]] static TiXmlElement* ToXML(const Quad* pQuad);
+	[[nodiscard]] static TiXmlElement* ToXML(const Pyramid* pPyramid);
+	[[nodiscard]] static TiXmlElement* ToXML(const Plane* pPlane);
 
-	static TiXmlElement* ToXML(const Scene* pScene);
+	[[nodiscard]] static TiXmlElement* ToXML(const Scene* pScene);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Scene*> pScene, NotNull<Lua*> pLua);
 
 	template <typename _Ty, uInt size>
-	_NODISCARD static TiXmlElement* ToXML(const Nt::String& name, const Nt::Vector<_Ty, size>& vector) noexcept {
+	[[nodiscard]] static TiXmlElement* ToXML(const Nt::String& name, const Nt::Vector<_Ty, size>& vector) noexcept {
 		TiXmlElement* element = new TiXmlElement("Vector");
 		element->SetAttribute("Dimension", size);
 		element->SetAttribute("Name", name.c_str());
@@ -77,7 +75,7 @@ struct SerializerXML final {
 	}
 
 	template <typename _Ty, uInt size>
-	_NODISCARD static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Vector<_Ty, size>*> pVector, const std::string& requiredName) noexcept {
+	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Vector<_Ty, size>*> pVector, const std::string& requiredName) noexcept {
 		Assert(pElement->ValueStr() == "Vector", "Element not Vector");
 
 		uInt dimension;

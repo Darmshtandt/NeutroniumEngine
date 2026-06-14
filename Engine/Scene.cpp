@@ -53,12 +53,16 @@ Object* Scene::RayCastObject(const Nt::Ray& ray, Nt::Float3D* pResultIntersectio
 	Object* pNearestObject = nullptr;
 
 	for (Object* pObject : m_Objects) {
-		const Float objectDistance = (ray.Start - pObject->GetPosition()).LengthSquare();
-		const Int faceIndex = pObject->RayCastTest(ray, pResultIntersectionPoint);
+		Nt::Float3D intersectionPoint;
+		const Int faceIndex = pObject->RayCastTest(ray, &intersectionPoint);
+		const Float objectDistance = (ray.Start - intersectionPoint).LengthSquare();
 
 		if (faceIndex != -1 && shortestDistance > objectDistance) {
 			shortestDistance = objectDistance;
 			pNearestObject = pObject;
+
+			if (pResultIntersectionPoint != nullptr)
+				*pResultIntersectionPoint = intersectionPoint;
 		}
 	}
 

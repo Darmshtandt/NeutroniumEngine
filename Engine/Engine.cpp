@@ -158,9 +158,8 @@ void Engine::StartTestGame() const {
 	if (m_pGame->IsLaunched())
 		return;
 
+	m_pSelector->AllDeselect();
 	m_pGame->Start();
-	if (m_pGame->IsLaunched())
-		m_pSelector->AllDeselect();
 }
 
 void Engine::CloseTestGame() {

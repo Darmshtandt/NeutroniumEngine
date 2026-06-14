@@ -29,7 +29,7 @@ protected:
 	const Nt::Shape& GetShape() const noexcept;
 
 private:
-	Nt::Mesh m_Mesh;
+	std::shared_ptr<Nt::Mesh> m_Mesh;
 	Nt::Float2D m_TextureOffset;
 	Nt::Float2D m_TextureScale;
 };
