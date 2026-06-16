@@ -11,7 +11,7 @@ public:
 	GameLight(const GameLight& light);
 	~GameLight() noexcept override = default;
 
-	[[nodiscard]] virtual GameLight* GetCopy() const override;
+	[[nodiscard]] GameLight* GetCopy() const override;
 	[[nodiscard]] static std::string GetClassToken() noexcept;
 	[[nodiscard]] std::string GetToken() const noexcept override;
 

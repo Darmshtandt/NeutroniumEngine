@@ -89,7 +89,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
@@ -174,6 +174,7 @@
     <ClCompile Include="ProjectManager\ProjectCreationPage.cpp" />
     <ClCompile Include="ProjectManager\ProjectMainPage.cpp" />
     <ClCompile Include="ProjectManager\ProjectManager.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Style.cpp" />
     <ClCompile Include="_Main.cpp" />
   </ItemGroup>

@@ -1,4 +1,4 @@
-#include <Objects/Clipboard.h>
+#include <Editor/Clipboard.h>
 #include <Selector.h>
 #include <Scene.h>
 
@@ -14,9 +14,12 @@ void Clipboard::Copy() {
 
 	Clear();
 
-	for (const Object* pObject : m_pSelector->GetObjectContainer()) {
-		ObjectPtr pCopiedObject(pObject->GetCopy());
+	for (const WeakObjectPtr& weakObject : m_pSelector->GetObjectContainer()) {
+		const auto& object = weakObject.lock();
+		if (object == nullptr)
+			continue;
 
+		ObjectPtr pCopiedObject(object->GetCopy());
 		pCopiedObject->SetForce(Nt::Float3D());
 		pCopiedObject->SetLinearAcceleration(Nt::Float3D());
 		pCopiedObject->SetLinearVelocity(Nt::Float3D());
@@ -36,11 +39,10 @@ void Clipboard::Paste() {
 		return;
 
 	m_pSelector->AllDeselect();
-
 	for (ObjectPtr& pObject : m_Clipboard) {
 		pObject->Translate({ 1.f, 1.f, 1.f });
 
-		Object* pCopiedObject = pObject->GetCopy();
+		ObjectPtr pCopiedObject(pObject->GetCopy());
 		m_pSelector->AddSelect(pCopiedObject);
 		m_pScene->AddObject(pCopiedObject);
 	}

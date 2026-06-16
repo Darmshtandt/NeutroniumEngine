@@ -1,50 +1,52 @@
-#include <WorldEditor.h>
+#include <Editor/WorldEditor.h>
 
 #include <Scene.h>
 #include <Selector.h>
-#include <WorldDocument.h>
+#include <Editor/WorldDocument.h>
 #include <Core/Commands.h>
 #include <Core/Grid.h>
 
 #include <Objects/ObjectFactory.h>
 
+#include "EditingHistory.h"
 
 WorldEditor::WorldEditor(const std::weak_ptr<Nt::EventBus>& pBus, const Nt::String& defaultInitialPath) :
-	m_pGrid(new Grid),
-	m_pScene(new Scene(pBus)),
-	m_pDocument(new WorldDocument(m_pScene->GetLua())),
-	m_pSelector(new Selector(pBus, m_pScene.get(), m_pGrid.get()))
+	m_Grid(new Grid),
+	m_Scene(new Scene(pBus)),
+	m_EditingHistory(new EditingHistory),
+	m_Document(new WorldDocument(m_Scene->GetLua())),
+	m_Selector(new Selector(pBus, m_Scene.get(), m_Grid.get(), m_EditingHistory.get()))
 {
 	assert(!pBus.expired());
 
-	m_pGrid->SetTarget(&m_Camera);
-	m_pDocument->SetDefaultPath(defaultInitialPath);
+	m_Grid->SetTarget(&m_Camera);
+	m_Document->SetDefaultPath(defaultInitialPath);
 
 	auto sharedBus = pBus.lock();
 	sharedBus->Subscribe<SelectObjectCommand>([this] (const SelectObjectCommand& e) {
-		m_pSelector->Select(e.pObject);
+		m_Selector->Select(e.pObject);
 		});
 	sharedBus->Subscribe<MultiSelectObjectCommand>([this] (const MultiSelectObjectCommand& e) {
-		m_pSelector->AddSelect(e.pObject);
+		m_Selector->AddSelect(e.pObject);
 		});
 	sharedBus->Subscribe<DeselectObjectCommand>([this] (const DeselectObjectCommand& e) {
-		m_pSelector->Deselect(e.pObject);
+		m_Selector->Deselect(e.pObject);
 		});
 	sharedBus->Subscribe<DeselectAllObjectsCommand>([this] (const DeselectAllObjectsCommand& e) {
 		(void)e;
-		m_pSelector->AllDeselect();
+		m_Selector->AllDeselect();
 		});
 }
 
 void WorldEditor::CreatePrimitive(const std::string& className) {
 	Object* pObject = PrimitiveFactory::Instance().Create(className, className);
-	m_pScene->AddObject(pObject);
+	m_Scene->AddObject(pObject);
 	m_IsChanged = true;
 }
 
 void WorldEditor::CreateEntity(const std::string& className) {
 	Object* pObject = EntityFactory::Instance().Create(className, className);
-	m_pScene->AddObject(pObject);
+	m_Scene->AddObject(pObject);
 	m_IsChanged = true;
 }
 
@@ -55,32 +57,32 @@ void WorldEditor::ResetCamera() noexcept {
 }
 
 void WorldEditor::Update(Float deltaTime) {
-	m_pSelector->Update();
-	m_pScene->Update(deltaTime);
-	m_pGrid->Update();
+	m_Selector->Update();
+	m_Scene->Update(deltaTime);
+	m_Grid->Update();
 }
 
 void WorldEditor::New() {
 	ResetCamera();
-	m_pScene->Clear();
+	m_Scene->Clear();
 	m_IsChanged = false;
 }
 
 void WorldEditor::Open() {
-	m_pSelector->AllDeselect();
-	m_pSelector->UnmarkChanged();
+	m_Selector->AllDeselect();
+	m_Selector->UnmarkChanged();
 
-	if (m_pDocument->Open(m_pScene.get()))
+	if (m_Document->Open(m_Scene.get()))
 		m_IsChanged = false;
 }
 
 void WorldEditor::Save() {
-	if (m_pDocument->Save(m_pScene.get()))
+	if (m_Document->Save(m_Scene.get()))
 		m_IsChanged = false;
 }
 
 void WorldEditor::SaveAs() {
-	if (m_pDocument->SaveAs(m_pScene.get()))
+	if (m_Document->SaveAs(m_Scene.get()))
 		m_IsChanged = false;
 }
 
@@ -89,15 +91,15 @@ Nt::Camera& WorldEditor::GetCamera() noexcept {
 }
 
 Grid* WorldEditor::GetGrid() const noexcept {
-	return m_pGrid.get();
+	return m_Grid.get();
 }
 
 Scene* WorldEditor::GetScene() const noexcept {
-	return m_pScene.get();
+	return m_Scene.get();
 }
 
 Selector* WorldEditor::GetSelector() const noexcept {
-	return m_pSelector.get();
+	return m_Selector.get();
 }
 
 Bool WorldEditor::IsChanged() const noexcept {

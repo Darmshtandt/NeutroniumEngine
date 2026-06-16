@@ -129,8 +129,12 @@ public:
 			return;
 
 		const uInt textureIndex = Nt::ResourceManager::Instance().Add<Nt::Texture>(filePath);
-		for (Object* pObject : m_SelectorPtr->GetObjectContainer())
-			pObject->SetTexture(textureIndex);
+		for (const WeakObjectPtr& weakObject : m_SelectorPtr->GetObjectContainer()) {
+			const auto object = weakObject.lock();
+			if (object == nullptr)
+				continue;
+			object->SetTexture(textureIndex);
+		}
 
 		_SetButtonTexture(Nt::ResourceManager::Instance().Get<Nt::Texture>(textureIndex));
 	}
@@ -212,8 +216,12 @@ private:
 		const Nt::Wrap newWrapState =
 			(isEnabled) ? Nt::Wrap::WRAP_CLAMP : Nt::Wrap::WRAP_REPEAT;
 
-		for (Object* pObject : m_SelectorPtr->GetObjectContainer()) {
-			auto texture = pObject->GetTexture();
+		for (const WeakObjectPtr& weakObject : m_SelectorPtr->GetObjectContainer()) {
+			const auto object = weakObject.lock();
+			if (object == nullptr)
+				continue;
+
+			auto texture = object->GetTexture();
 			if (!texture.IsValid())
 				continue;
 
@@ -227,16 +235,16 @@ private:
 	void _TextEditsNotification_Update(const uInt& id, const HWND& handle) override {
 		(void)handle;
 
-		const ObjectContainer& selectedObjects = m_SelectorPtr->GetObjectContainer();
-		ObjectContainer::const_iterator iterator = selectedObjects.cbegin();
+		const WeakObjectContainer& selectedObjects = m_SelectorPtr->GetObjectContainer();
+		WeakObjectContainer::const_iterator iterator = selectedObjects.cbegin();
 
 		try {
 			for (; iterator != selectedObjects.end(); ++iterator) {
-				Object* pObject = *iterator;
-				if (pObject->GetTypeToken() != Primitive::GetClassTypeToken())
+				const auto object = iterator->lock();
+				if (object == nullptr || object->GetTypeToken() != Primitive::GetClassTypeToken())
 					continue;
 
-				Primitive* pPrimitive = static_cast<Primitive*>(pObject);
+				Primitive* pPrimitive = static_cast<Primitive*>(object.get());
 
 				const Nt::Float2D textureOffset = pPrimitive->GetTextureOffset();
 				const Nt::Float2D textureScale = pPrimitive->GetTextureScale();

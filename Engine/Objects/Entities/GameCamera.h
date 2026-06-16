@@ -13,7 +13,7 @@ public:
 
 	void Set(NotNull<Nt::RenderWindow*> windowPtr);
 
-	[[nodiscard]] virtual GameCamera* GetCopy() const override;
+	[[nodiscard]] GameCamera* GetCopy() const override;
 	[[nodiscard]] static std::string GetClassToken() noexcept;
 	[[nodiscard]] std::string GetToken() const noexcept override;
 

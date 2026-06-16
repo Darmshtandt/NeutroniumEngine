@@ -3,6 +3,7 @@
 #include <Nt/Core/EventBus.h>
 #include <Nt/Graphics/Objects/Camera.h>
 
+class EditingHistory;
 class Grid;
 class Selector;
 class Scene;
@@ -32,9 +33,10 @@ public:
 
 private:
 	Nt::Camera m_Camera;
-	std::unique_ptr<Grid> m_pGrid;
-	std::unique_ptr<Scene> m_pScene;
-	std::unique_ptr<WorldDocument> m_pDocument;
-	std::unique_ptr<Selector> m_pSelector;
+	std::shared_ptr<Scene> m_Scene;
+	std::unique_ptr<Grid> m_Grid;
+	std::unique_ptr<WorldDocument> m_Document;
+	std::unique_ptr<EditingHistory> m_EditingHistory;
+	std::unique_ptr<Selector> m_Selector;
 	Bool m_IsChanged = false;
 };

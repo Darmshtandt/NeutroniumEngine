@@ -145,11 +145,11 @@ void Game::_SetCamera() {
 		Raise("Game not initialized");
 
 	try {
-		for (Object* pObject : m_GameScene->GetObjects()) {
-			if (pObject->GetToken() != GameCamera::GetClassToken())
+		for (const ObjectPtr& object : m_GameScene->GetObjects()) {
+			if (object->GetToken() != GameCamera::GetClassToken())
 				continue;
 
-			m_CameraPtr = static_cast<GameCamera*>(pObject);
+			m_CameraPtr = static_cast<GameCamera*>(object.get());
 			m_CameraPtr->Set(m_pWindow);
 			return;
 		}

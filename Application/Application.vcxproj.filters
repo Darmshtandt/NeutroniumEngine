@@ -164,6 +164,9 @@
     <ClCompile Include="InputContext.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

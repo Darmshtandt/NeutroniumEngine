@@ -72,10 +72,10 @@ public:
 		}
 	}
 
-	_NODISCARD Nt::String GetRootPath() const noexcept {
+	[[nodiscard]] Nt::String GetRootPath() const noexcept {
 		return m_RootPath;
 	}
-	_NODISCARD Bool IsEnabled() const noexcept {
+	[[nodiscard]] Bool IsEnabled() const noexcept {
 		return m_IsEnabled;
 	}
 
@@ -174,8 +174,7 @@ protected:
 		m_IsWindowEnabled = false;
 	}
 
-	_NODISCARD
-	std::string _Browse(cwString filter) const {
+	[[nodiscard]] std::string _Browse(cwString filter) const {
 		const std::wstring wRootPath(GetRootPath());
 		Nt::String filePath = Nt::OpenFileDialog(wRootPath.c_str(), filter);
 		if (filePath.empty())

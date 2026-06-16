@@ -27,7 +27,7 @@ private:
 
 public:
 	PropertyTransform(Selector* pSelector, Scene* pScene) :
-		PropertyComponent(pSelector, Texts::TEXT_COUNT, TEXTEDIT_COUNT, 0),
+		PropertyComponent(pSelector, TEXT_COUNT, TEXTEDIT_COUNT, 0),
 		m_ContentLayout({ 2, 12 })
 	{
 		(void)pScene;
@@ -42,9 +42,11 @@ public:
 		Nt::IntRect windowRect = m_ClientRect;
 		windowRect.Right = settings.PropertyWindowRect.Right - GetSystemMetrics(SM_CXDLGFRAME) * 2;
 		windowRect.Bottom = Nt::TextEdit::DefaultSize.y + Int(headerPadding.Top + headerPadding.Bottom) / 3;
-		windowRect.Bottom *= Texts::TEXT_COUNT;
+		windowRect.Bottom *= TEXT_COUNT;
 
 		_Create(settings, settings.Language["Window.Property.Transform"], windowRect);
+		RemoveStyles(STYLE_OVERLAPPEDWINDOW);
+		AddStyles(STYLE_BORDER);
 
 		m_ContentLayout.SetParent(*this);
 		m_ContentLayout.RemoveStyles(STYLE_OVERLAPPEDWINDOW);
@@ -53,7 +55,7 @@ public:
 		m_ContentLayout.Show();
 
 		uInt textEditID = 0;
-		for (uInt i = 0; i < Texts::TEXT_COUNT; ++i) {
+		for (uInt i = 0; i < TEXT_COUNT; ++i) {
 			m_Texts[i].DisableDefaultRectSize();
 
 			const Bool isHeader = (i % 4 == 0);
@@ -96,7 +98,7 @@ public:
 		}
 
 		if (isSelectedOnlyOne)
-			_UpdateTextEdits(m_SelectorPtr->GetObjectPtr(0), false);
+			_UpdateUI(m_SelectorPtr->GetObjectPtr(0).lock().get(), false);
 	}
 
 	void SetTheme(const Style& style) override {
@@ -168,7 +170,7 @@ private:
 
 private:
 	void _AddSelection(Object* pObject) override {
-		_UpdateTextEdits(pObject, true);
+		_UpdateUI(pObject, true);
 		PropertyComponent::_AddSelection(pObject);
 	}
 
@@ -180,7 +182,7 @@ private:
 		auto sharedBus = m_pEventBus.lock();
 
 		try {
-			Object* pObject = m_SelectorPtr->GetObjectPtr(0);
+			const auto object = m_SelectorPtr->GetObjectPtr(0).lock();
 
 			const Bool isPosition = (id / 3 == 0);
 			const Bool isSize = (id / 3 == 1);
@@ -191,40 +193,40 @@ private:
 			const Float value = m_TextEdits[id].GetText();
 
 			if (isPosition) {
-				Nt::Float3D position = pObject->GetPosition();
+				Nt::Float3D position = object->GetPosition();
 				if (std::abs(position[scalarID] - value) < FLT_EPSILON)
 					return;
 
 				position[scalarID] = value;
-				pObject->SetPosition(position);
+				object->SetPosition(position);
 
 				sharedBus->Emmit<UpdateObjectTransformEvent>({
 					position, TransforType::POSITION, this });
 			}
 			else if (isSize) {
-				Nt::Float3D size = pObject->GetSize();
+				Nt::Float3D size = object->GetSize();
 				if (std::abs(size[scalarID] - value) < FLT_EPSILON)
 					return;
 
 				size[scalarID] = value;
-				pObject->SetSize(size);
+				object->SetSize(size);
 
 				sharedBus->Emmit<UpdateObjectTransformEvent>({
 					size, TransforType::SIZE, this });
 			}
 			else if (isAngle) {
-				Nt::Float3D angle = pObject->GetAngle();
+				Nt::Float3D angle = object->GetAngle();
 				if (std::abs(angle[scalarID] - value * RADf) < FLT_EPSILON)
 					return;
 
 				angle[scalarID] = value * RADf;
-				pObject->SetAngle(angle);
+				object->SetAngle(angle);
 
 				sharedBus->Emmit<UpdateObjectTransformEvent>({
 					angle, TransforType::ROTATION, this });
 			}
 
-			pObject->StaticUpdate();
+			object->StaticUpdate();
 		}
 		catch (const Nt::Error& error) {
 			Nt::MessageWindow(error.what(), "Warning").ShowWarning();
@@ -234,7 +236,7 @@ private:
 		}
 	}
 
-	void _UpdateTextEdits(Object* pObject, Bool fForce) {
+	void _UpdateUI(Object* pObject, Bool fForce) {
 		if (!pObject->IsDirty() && !fForce)
 			return;
 

@@ -61,7 +61,7 @@ public:
 		setupButtons(m_Buttons[BUTTON_INVISIBLE], buttonRect, settings.Language["Window.Property.Primitive.Invisible"]);
 
 
-		windowRect.Bottom = buttonRect.Top;
+		windowRect.Bottom = buttonRect.Top + buttonRect.Bottom + 1;
 		windowRect.Bottom += m_PaddingRect.Bottom;
 
 		SetSize(windowRect.RightBottom);
@@ -81,7 +81,7 @@ public:
 			return;
 		}
 
-		m_Buttons[BUTTON_INVISIBLE].SetCheck(m_SelectorPtr->GetObjectPtr(0)->IsInvisible());
+		m_Buttons[BUTTON_INVISIBLE].SetCheck(m_SelectorPtr->GetObjectPtr(0).lock()->IsInvisible());
 	}
 
 	void SetScene(NotNull<Scene*> pScene) {
@@ -115,11 +115,15 @@ private:
 			break;
 
 		case BUTTON_INVISIBLE:
-			for (Object* pObject : m_SelectorPtr->GetObjectContainer()) {
+			for (const WeakObjectPtr& weakObject : m_SelectorPtr->GetObjectContainer()) {
+				const auto object = weakObject.lock();
+				if (object == nullptr)
+					continue;
+
 				if (m_Buttons[id].IsChecked())
-					pObject->EnableInvisible();
+					object->EnableInvisible();
 				else
-					pObject->DisableInvisible();
+					object->DisableInvisible();
 			}
 
 			break;

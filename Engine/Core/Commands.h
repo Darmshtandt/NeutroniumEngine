@@ -3,13 +3,13 @@
 #include <Objects/Object.h>
 
 struct SelectObjectCommand final {
-	Object* pObject;
+	ObjectPtr pObject;
 };
 struct MultiSelectObjectCommand final {
-	Object* pObject;
+	ObjectPtr pObject;
 };
 struct DeselectObjectCommand final {
-	Object* pObject;
+	ObjectPtr pObject;
 };
 struct DeselectAllObjectsCommand final
 {

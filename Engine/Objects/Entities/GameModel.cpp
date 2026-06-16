@@ -3,31 +3,23 @@
 
 #include <Objects/Entities/GameModel.h>
 
+#include <ResourceLoader.h>
+#include <ResourceTokens.h>
+#include <Nt/Graphics/Geometry/Primitives.h>
 
 static EntityRegistrar<GameModel> g_Registrar;
+static ResourceLoader<Nt::Mesh> g_MeshCube = { RToken::g_PrimitiveCube, Nt::Primitive::Cube({ 1.f, 1.f, 1.f }) };
 
 GameModel::GameModel(const std::string& name) : Entity(name, Class<GameModel>::ID()) {
-	SetMesh(&m_pMesh);
+	SetMesh(g_MeshCube.GetIndex());
 }
 
-void GameModel::LoadMesh(const Nt::String& filePath) {
-	m_pMesh.LoadFromFile(filePath.c_str());
-	SetMesh(&m_pMesh);
-}
-
-void GameModel::SetShape(const Nt::Shape& shape) {
-	m_pMesh.SetShape(shape);
-	SetMesh(&m_pMesh);
-}
-
-_NODISCARD GameModel* GameModel::GetCopy() const {
+GameModel* GameModel::GetCopy() const {
 	return new GameModel(*this);
 }
-
-_NODISCARD std::string GameModel::GetClassToken() noexcept {
+std::string GameModel::GetClassToken() noexcept {
 	return "Model";
 }
-
 std::string GameModel::GetToken() const noexcept {
 	return GetClassToken();
 }

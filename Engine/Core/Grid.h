@@ -23,7 +23,7 @@ public:
 
 private:
 	std::unique_ptr<Nt::Mesh> m_pMesh;
-	Nt::IObject* m_pTarget = nullptr;
+	IObject* m_pTarget = nullptr;
 	Nt::Float2D m_Size = { 100.f, 100.f };
 	Nt::Float3D m_Position;
 	Float m_CellSize = 1.f;

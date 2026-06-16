@@ -120,15 +120,15 @@ public:
 		if (!m_SelectorPtr->IsChanged())
 			return;
 
-		const Object* pObject = m_SelectorPtr->GetObjectPtr(0);
+		const auto& object = m_SelectorPtr->GetObjectPtr(0).lock();
 
-		m_TextEdits[TEXTEDIT_MASS].SetText(pObject->GetMass());
-		m_TextEdits[TEXTEDIT_FRICTION].SetText(pObject->GetFriction());
+		m_TextEdits[TEXTEDIT_MASS].SetText(object->GetMass());
+		m_TextEdits[TEXTEDIT_FRICTION].SetText(object->GetFriction());
 
-		m_Buttons[BUTTON_ACTIVE].SetCheck(pObject->IsPhysicsEnabled());
-		m_Buttons[BUTTON_COLLISION].SetCheck(pObject->IsEnabledCollision());
-		m_Buttons[BUTTON_GRAVITATION].SetCheck(pObject->IsEnabledGravitation());
-		m_Buttons[BUTTON_SHOW_COLLIDER].SetCheck(pObject->GetCollider()->IsVisible());
+		m_Buttons[BUTTON_ACTIVE].SetCheck(object->IsPhysicsEnabled());
+		m_Buttons[BUTTON_COLLISION].SetCheck(object->IsEnabledCollision());
+		m_Buttons[BUTTON_GRAVITATION].SetCheck(object->IsEnabledGravitation());
+		m_Buttons[BUTTON_SHOW_COLLIDER].SetCheck(object->GetCollider()->IsVisible());
 	}
 
 	void SetTheme(const Style& style) override {
@@ -187,14 +187,18 @@ private:
 		(void)handle;
 
 		try {
-			for (Object* pObject : m_SelectorPtr->GetObjectContainer()) {
+			for (const WeakObjectPtr& weakObject : m_SelectorPtr->GetObjectContainer()) {
+				const auto object = weakObject.lock();
+				if (object == nullptr)
+					continue;
+
 				switch (command) {
 				case BN_CLICKED:
-					_ButtonsNotification_OnClick(id, reinterpret_cast<HWND>(pObject));
+					_ButtonsNotification_OnClick(id, reinterpret_cast<HWND>(object.get()));
 					break;
 
 				case EN_UPDATE:
-					_TextEditsNotification_Update(id, reinterpret_cast<HWND>(pObject));
+					_TextEditsNotification_Update(id, reinterpret_cast<HWND>(object.get()));
 					break;
 				}
 			}

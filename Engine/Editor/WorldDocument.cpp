@@ -1,4 +1,4 @@
-#include <WorldDocument.h>
+#include <Editor/WorldDocument.h>
 #include <Scene.h>
 #include <SerializerXML.h>
 #include <Nt/Graphics/System/Window.h>
@@ -36,8 +36,8 @@ Bool WorldDocument::Save(NotNull<Scene*> pScene) {
 }
 
 Bool WorldDocument::SaveAs(NotNull<Scene*> pScene) {
-	//const Nt::String path = Nt::SaveAsFileDialog(L"", L"Scene (*.xml)\0*.xml");
-	const Nt::String path = Nt::SaveAsFileDialog(m_DefaultPath.c_str(), L"Scene (*.ntascn)\0*.ntascn");
+	const Nt::String path = Nt::SaveAsFileDialog(L"", L"Scene (*.xml)\0*.xml");
+	//const Nt::String path = Nt::SaveAsFileDialog(m_DefaultPath.c_str(), L"Scene (*.ntascn)\0*.ntascn");
 	if (path.empty())
 		return false;
 

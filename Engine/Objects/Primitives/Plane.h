@@ -11,8 +11,9 @@ public:
 
 	void SetSize(const Nt::Float3D& size) override;
 
-	_NODISCARD static std::string GetClassToken() noexcept;
-	_NODISCARD std::string GetToken() const noexcept override;
+	[[nodiscard]] Plane* GetCopy() const override;
+	[[nodiscard]] static std::string GetClassToken() noexcept;
+	[[nodiscard]] std::string GetToken() const noexcept override;
 
 private:
 	inline static PrimitiveRegistrar<Plane> m_Registrar;

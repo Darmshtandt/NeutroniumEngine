@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ResourceTokens.h>
 #include <Objects/Entities/GameModel.h>
 #include <Objects/Entities/GameCamera.h>
 #include <Objects/Entities/GameLight.h>
@@ -106,7 +107,7 @@ public:
 			return;
 		}
 
-		const auto mesh = m_SelectorPtr->GetObjectPtr(0)->GetMesh();
+		const auto mesh = m_SelectorPtr->GetObjectPtr(0).lock()->GetMesh();
 		Assert(mesh.IsValid(), "Invalid Mesh");
 
 		m_TextEdits[TEXTEDIT_MODEL_PATH].SetText(mesh.Get()->GetFilePath());
@@ -118,12 +119,13 @@ public:
 		if (filePath.empty())
 			return;
 
-		const Nt::Shape shape = Nt::Mesh(filePath).GetShape();
-
-		for (Object* pObject : m_SelectorPtr->GetObjectContainer()) {
-			GameModel* pModel = dynamic_cast<GameModel*>(pObject);
-			if (pModel != nullptr)
-				pModel->SetShape(shape);
+		const uInt index = ResourceManager::Instance().Load<Nt::Mesh>(filePath, filePath);
+		for (const WeakObjectPtr& weakObject : m_SelectorPtr->GetObjectContainer()) {
+			const auto& object = weakObject.lock();
+			if (object == nullptr)
+				continue;
+			if (object->GetToken() == GameModel::GetClassToken())
+				object->SetMesh(index);
 		}
 
 		m_TextEdits[TEXTEDIT_MODEL_PATH].SetText(filePath);
@@ -157,29 +159,29 @@ private:
 	inline static PropertyRegistrar<PropertyModel> m_Registrar { "Model" };
 
 private:
+	void _AddSelection(Object* pObject) override {
+		Update();
+		PropertyComponent::_AddSelection(pObject);
+	}
+
 	void _RemoveModel() {
 		m_TextEdits[TEXTEDIT_MODEL_PATH].SetText("No selected");
 
-		Nt::Float3D cubeSize = { 1.f, 1.f, 1.f };
-		Nt::Shape cubeShape = Nt::Primitive::Cube(cubeSize, Nt::Colors::White);
-
-		for (Object* pObject : m_SelectorPtr->GetObjectContainer()) {
-			GameModel* pModel = dynamic_cast<GameModel*>(pObject);
+		for (const WeakObjectPtr& weakObject : m_SelectorPtr->GetObjectContainer()) {
+			GameModel* pModel = dynamic_cast<GameModel*>(weakObject.lock().get());
 			if (pModel == nullptr)
 				continue;
 
-			if (cubeSize != pModel->GetSize()) {
-				cubeSize = pModel->GetSize();
-				cubeShape = Nt::Primitive::Cube(cubeSize, Nt::Colors::White);
-			}
-
-			pModel->SetShape(cubeShape);
+			pModel->SetMesh(ResourceManager::Instance().GetIndex(RToken::g_PrimitiveCube));
 		}
 
 		m_Buttons[BUTTON_REMOVE].DisableWindow();
 	}
 
-	void _Paint([[maybe_unused]] HDC& hdc, [[maybe_unused]] PAINTSTRUCT& paint) override {
+	void _Paint(HDC& hdc, PAINTSTRUCT& paint) override {
+		(void)hdc;
+		(void)paint;
+
 		m_Texts[TEXT_FILE_PATH].Draw(*this);
 	}
 };

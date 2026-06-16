@@ -8,6 +8,8 @@ Grid::Grid() :
 	Object("Engine::Grid", Class<Grid>::ID()),
 	m_pMesh(new Nt::Mesh)
 {
+	m_DrawingMode = Nt::Renderer::DrawingMode::LINES;
+
 	m_pMesh->SetShape(Build(m_Size, m_CellSize));
 	SetMesh(m_pMesh.get());
 
@@ -62,7 +64,7 @@ void Grid::SetPosition(Nt::Float3D position) {
 	position = Snap(position);
 	if (m_Position != position) {
 		m_Position = position;
-		SetPosition(position);
+		Object::SetPosition(position);
 	}
 }
 

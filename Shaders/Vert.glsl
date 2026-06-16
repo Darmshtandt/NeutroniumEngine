@@ -3,6 +3,7 @@
 uniform mat4 Projection;
 uniform mat4 World;
 uniform mat4 View;
+uniform mat3 TexWorld;
 
 layout(location = 0) in vec4 Position;
 layout(location = 1) in vec4 Normal;
@@ -16,7 +17,8 @@ out vec3 PixelPosition;
 void main() {
 	gl_Position = Projection * View * World * Position;
 	PixelPosition = (Projection * World * Position).xyz;
-
-	VertexTexCoords = Texcoord * vec3(length(World[0]), length(World[1]), 1.f);
+	
+	vec2 scaledTexCoords = Texcoord.xy * vec2(length(World[0]), length(World[1]));
+	VertexTexCoords = vec3((TexWorld * vec3(scaledTexCoords, 1.f)).xy, 0.f);
 	VertexColor = Color;
 }

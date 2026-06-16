@@ -55,6 +55,12 @@
     <Filter Include="Source Files\Controllers">
       <UniqueIdentifier>{c3a8db33-b3c3-41be-82d1-3d90e0c9f380}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Editor">
+      <UniqueIdentifier>{bb24d0a0-f9a2-4337-86ac-30d8258f5c75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Commands">
+      <UniqueIdentifier>{fbcb546e-5659-4efb-ae7e-7a0665f7e591}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\Vert.glsl">
@@ -138,15 +144,6 @@
     <ClInclude Include="Objects\Entities\GameLight.h">
       <Filter>Header Files\Objects\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\Clipboard.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldDocument.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldEditor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Controllers\CameraController.h">
       <Filter>Header Files\Controllers</Filter>
     </ClInclude>
@@ -161,6 +158,33 @@
     </ClInclude>
     <ClInclude Include="Core\Commands.h">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditingHistory.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\WorldDocument.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\WorldEditor.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\Clipboard.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\Commands\TransformCommands.h">
+      <Filter>Editor\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\Commands\IEditCommand.h">
+      <Filter>Editor\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceTokens.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\Commands\SceneCommands.h">
+      <Filter>Editor\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\IProgramComponent.h">
+      <Filter>Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -224,15 +248,6 @@
     <ClCompile Include="Objects\Primitives\Quad.cpp">
       <Filter>Source Files\Objects\Primitives</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Clipboard.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="WorldDocument.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WorldEditor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Controllers\CameraController.cpp">
       <Filter>Source Files\Controllers</Filter>
     </ClCompile>
@@ -241,6 +256,24 @@
     </ClCompile>
     <ClCompile Include="RenderEngine.cpp">
       <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\WorldDocument.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\WorldEditor.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\Clipboard.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\EditingHistory.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\Commands\TransformCommands.cpp">
+      <Filter>Editor\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\Commands\SceneCommands.cpp">
+      <Filter>Editor\Commands</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

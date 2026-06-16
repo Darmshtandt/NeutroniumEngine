@@ -14,6 +14,10 @@ struct RenamedObjectEvent final {
 };
 
 class ObjectsTree : public Nt::Window {
+	struct TreeData final {
+		WeakObjectPtr pObject;
+	};
+
 public:
 	explicit ObjectsTree(const std::weak_ptr<Nt::EventBus>& pEventBus) {
 		Assert(!pEventBus.expired(), "EventBus pointer is null");
@@ -24,7 +28,7 @@ public:
 			Add(e.pObject);
 			});
 		sharedBus->Subscribe<Scene::EventRemoveObject>([this] (const Scene::EventRemoveObject& e) {
-			Remove(e.pObject);
+			Remove(e.pObject.get());
 			});
 		sharedBus->Subscribe<Scene::EventClear>([this] (const Scene::EventClear& e) {
 			(void)e;
@@ -101,15 +105,21 @@ private:
 	Bool m_IsRenamingEnabled = false;
 
 private:
-	void Add(Object* pObject) {
-		if (m_IDMap.contains(pObject))
-			Raise("Object \"" + pObject->GetName() + "\" already exist");
+	void Add(const WeakObjectPtr& weakObject) {
+		assert(!weakObject.expired());
+
+		const auto object = weakObject.lock();
+		if (!object)
+			return;
+
+		if (m_IDMap.contains(object.get()))
+			Raise("Object \"" + object->GetName() + "\" already exist");
 
 		const Nt::TreeView::ItemID id =
-			m_TreeView.Add(_ObjectToItem(pObject));
+			m_TreeView.Add(_ObjectToItem(weakObject));
 
-		m_IDMap[pObject] = id;
-		m_ObjectMap[id] = pObject;
+		m_IDMap[object.get()] = id;
+		m_ObjectMap[id] = object.get();
 	}
 	void Remove(Object* pObject) {
 		if (!m_IDMap.contains(pObject))
@@ -129,13 +139,8 @@ private:
 			m_TreeView.Select(itemID);
 	}
 	[[deprecated]] void RemoveSelection() {
-		for (Nt::TreeView::ItemID& itemID : m_SelectedTreeItems) {
-			Object* pObject = m_ObjectMap[itemID];
-			m_IDMap.erase(pObject);
-			m_ObjectMap.erase(itemID);
-
+		for (Nt::TreeView::ItemID& itemID : m_SelectedTreeItems)
 			m_TreeView.Remove(itemID);
-		}
 
 		m_TreeView.Select(nullptr);
 		m_SelectedTreeItems.clear();
@@ -150,13 +155,20 @@ private:
 		m_TreeView.Clear();
 	}
 
-	static Nt::TreeView::Item _ObjectToItem(NotNull<Object*> pObject) noexcept {
+	static Nt::TreeView::Item _ObjectToItem(const WeakObjectPtr& weakObject) noexcept {
+		assert(!weakObject.expired());
+
+		const auto object = weakObject.lock();
+		if (!object)
+			return { };
+
+
 		using Item = Nt::TreeView::Item;
 
 		Item item = { };
 		item.ImageID = 1;
-		item.Text = pObject->GetName();
-		item.Data = reinterpret_cast<Long>(pObject.Get());
+		item.Text = object->GetName();
+		item.Data = reinterpret_cast<Long>(new TreeData(weakObject));
 		item.Mask = Item::Masks(Item::MASK_IMAGE | Item::MASK_TEXT | Item::MASK_DATA);
 		return item;
 	}
@@ -198,8 +210,9 @@ private:
 			m_TreeView.GetItem(&item);
 
 			if (item.Data != 0) {
-				auto pObject = reinterpret_cast<Object*>(item.Data);
-				sharedBus->Emmit<MultiSelectObjectCommand>({ pObject });
+				const auto data = reinterpret_cast<TreeData*>(item.Data);
+				if (const auto object = data->pObject.lock())
+					sharedBus->Emmit<MultiSelectObjectCommand>({ object });
 			}
 
 			item.State = Item::STATE_SELECTED;
@@ -232,8 +245,14 @@ private:
 
 				LPNMTVDISPINFO dispInfo = reinterpret_cast<LPNMTVDISPINFOW>(lParam);
 				if (dispInfo && dispInfo->item.pszText && dispInfo->item.pszText[0] != '\0') {
+					const auto data = reinterpret_cast<TreeData*>(dispInfo->item.lParam);
+					assert(data);
+
+					const auto object = data->pObject.lock();
+					assert(object);
+
 					RenamedObjectEvent e = { };
-					e.pObject = reinterpret_cast<Object*>(dispInfo->item.lParam);
+					e.pObject = object.get();
 					e.OldName = e.pObject->GetName();
 					e.NewName = Nt::String(dispInfo->item.pszText);
 					e.pObject->SetName(e.NewName);
@@ -248,6 +267,11 @@ private:
 				LPNMTREEVIEW pInfo = reinterpret_cast<LPNMTREEVIEW>(lParam);
 				assert(pInfo);
 				assert(pInfo->itemOld.hItem);
+
+				const auto data = reinterpret_cast<TreeData*>(pInfo->itemOld.lParam);
+				assert(data);
+				if (data)
+					delete(data);
 
 				const Nt::TreeView::ItemID id = pInfo->itemOld.hItem;
 				if (m_ObjectMap.contains(id)) {

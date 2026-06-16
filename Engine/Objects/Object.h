@@ -30,7 +30,7 @@ public:
 	virtual void Stop();
 
 	void StaticUpdate() override;
-	virtual void Update(const Float& time) override;
+	void Update(const Float& time) override;
 
 	void EnableOutline() noexcept;
 	void DisableOutline() noexcept;
@@ -62,6 +62,12 @@ public:
 	Object* GetParentPtr() const noexcept;
 	Nt::ResourceHandle<Nt::Texture> GetTexture() const noexcept;
 	Nt::ResourceHandle<Nt::Mesh> GetMesh() const noexcept;
+
+	Nt::Matrix3x3 TextureLocalWorld() const noexcept;
+	Nt::Float2D GetTextureOffset() const noexcept;
+	Nt::Float2D GetTextureScale() const noexcept;
+	Float GetTextureRotation() const noexcept;
+
 	Bool IsSelected() const noexcept;
 	Bool IsInvisible() const noexcept;
 	Bool IsStarted() const noexcept;
@@ -80,6 +86,10 @@ public:
 	void SetMesh(const std::string& token);
 	void SetMesh(const uInt& index);
 
+	void SetTextureOffset(const Nt::Float2D& textureOffset) noexcept;
+	void SetTextureScale(const Nt::Float2D& textureScale) noexcept;
+	void SetTextureRotation(Float angle) noexcept;
+
 	virtual void SetPosition(const Nt::Float3D& position);
 	virtual void SetSize(const Nt::Float3D& size);
 	virtual void SetAngle(const Nt::Float3D& angle);
@@ -94,15 +104,20 @@ protected:
 	Nt::Renderer::DrawingMode m_DrawingMode = Nt::Renderer::DrawingMode::TRIANGLES;
 	Nt::ResourceHandle<Nt::Mesh> m_Mesh;
 	Nt::ResourceHandle<Nt::Texture> m_Texture;
+	std::unique_ptr<Nt::Collider> m_Collider;
 	std::vector<Script::Data> m_ScriptData;
 	std::string m_LayerName = "Main";
 	std::string m_Name;
 
-	Nt::Collider* m_pCollider = new Nt::Collider;
+	mutable Nt::Matrix3x3 m_TextureLocalWorld;
+	Nt::Float2D m_TextureOffset;
+	Nt::Float2D m_TextureScale = { 1.f, 1.f };
+	Float m_TextureRotation = 0.f;
 
 	Object* m_ParentPtr = nullptr;
 	Script* m_pScript = nullptr;
 
+	mutable Bool m_IsTexChanged = false;
 	Bool m_IsSelected = false;
 	Bool m_IsInvisible = false;
 	Bool m_IsStarted = false;
@@ -118,4 +133,11 @@ private:
 	void Render(NotNull<Nt::Renderer*> pRenderer) const override;
 };
 
-using ObjectContainer = std::vector<Object*>;
+using ObjectPtr = std::shared_ptr<Object>;
+using ObjectContainer = std::vector<ObjectPtr>;
+using WeakObjectPtr = std::weak_ptr<Object>;
+using WeakObjectContainer = std::vector<WeakObjectPtr>;
+
+[[nodiscard]] ObjectContainer::const_iterator FindObject(const ObjectContainer& objects, NotNull<Object*> pObject) noexcept;
+[[nodiscard]] ObjectContainer::const_iterator FindObject(const ObjectContainer& objects, NotNull<const Object*> pObject) noexcept;
+[[nodiscard]] WeakObjectContainer::const_iterator FindObject(const WeakObjectContainer& objects, WeakObjectPtr weakObject) noexcept;

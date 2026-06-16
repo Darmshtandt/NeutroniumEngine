@@ -4,7 +4,7 @@
 #include <MultiStream.h>
 #include <Nt/Core/EventBus.h>
 #include <ResourceManager.h>
-#include <WorldEditor.h>
+#include <Editor/WorldEditor.h>
 
 class Application : private Nt::Window {
 	using SharedInputContext = std::shared_ptr<InputContext>;

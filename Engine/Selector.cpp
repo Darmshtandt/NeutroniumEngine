@@ -11,12 +11,15 @@
 
 #include <MessageBus.h>
 #include <ObjectEvents.h>
+#include <Editor/EditingHistory.h>
+#include <Editor/Commands/TransformCommands.h>
 #include <Nt/Core/EventBus.h>
 
-Selector::Selector(const std::weak_ptr<Nt::EventBus>& pBus, NotNull<Scene*> pScene, NotNull<Grid*> pGrid) :
+Selector::Selector(const std::weak_ptr<Nt::EventBus>& pBus, NotNull<Scene*> pScene, NotNull<Grid*> pGrid, NotNull<EditingHistory*> pEditingHistory) :
 	m_pEventBus(pBus),
 	m_pScene(pScene),
 	m_pGrid(pGrid),
+	m_pEditingHistory(pEditingHistory),
 	m_pManipulator(new Manipulator),
 	m_pRayMesh(new Nt::Mesh)
 {
@@ -58,7 +61,7 @@ void Selector::Update() {
 
 	if (m_IsChanged) {
 		if (!m_SelectedObjects.empty()) {
-			m_pManipulator->SetPosition(m_SelectedObjects[0]->GetPosition());
+			m_pManipulator->SetPosition(m_SelectedObjects[0].lock()->GetPosition());
 			m_pManipulator->Show();
 		}
 		else {
@@ -70,70 +73,82 @@ void Selector::Update() {
 }
 
 void Selector::RayCastTest(const Nt::Ray& ray, const Nt::Float2D& cursorPosition, const Bool isMulti) {
-	if (m_EnabledDebug) {
-		Nt::Shape shape = m_pRayMesh->GetShape();
-		shape.Vertices[0].Position.xyz = ray.Start;
-		shape.Vertices[1].Position.xyz = ray.End;
-		m_pRayMesh->SetShape(shape);
-	}
+	//if (m_EnabledDebug) {
+	//	Nt::Shape shape = m_pRayMesh->GetShape();
+	//	shape.Vertices[0].Position.xyz = ray.Start;
+	//	shape.Vertices[1].Position.xyz = ray.End;
+	//	m_pRayMesh->SetShape(shape);
+	//}
 
-	m_SelectedAxis = m_pManipulator->RayCastTest(ray);
-	if (!m_SelectedObjects.empty() && m_SelectedAxis != Axis::NONE) {
-		m_pManipulator->BeginEditing(cursorPosition);
-		return;
-	}
+	//m_SelectedAxis = m_pManipulator->RayCastTest(ray);
+	//if (!m_SelectedObjects.empty() && m_SelectedAxis != Axis::NONE) {
+	//	m_pManipulator->BeginEditing(cursorPosition);
+	//	return;
+	//}
 
-	Object* pNearestObject = m_pScene->RayCastObject(ray);
-	if (pNearestObject == nullptr)
-		return;
+	//Object* pNearestObject = m_pScene->RayCastObject(ray);
+	//if (pNearestObject == nullptr)
+	//	return;
 
-	if (isMulti)
-		AddSelect(pNearestObject);
-	else
-		Select(pNearestObject);
+	//if (isMulti)
+	//	AddSelect(pNearestObject);
+	//else
+	//	Select(pNearestObject);
 }
 
-void Selector::AddSelect(NotNull<Object*> pObject) {
+void Selector::AddSelect(const WeakObjectPtr& pObject) {
+	Assert(!pObject.expired(), "Object pointer is expired");
+
 	m_IsChanged = true;
-	auto iterator = std::find(m_SelectedObjects.begin(), m_SelectedObjects.end(), pObject);
+	auto iterator = FindObject(m_SelectedObjects, pObject);
 	if (iterator != m_SelectedObjects.end()) {
 		Deselect(iterator);
+		return;
 	}
-	else {
-		pObject->EnableOutline();
-		m_SelectedObjects.push_back(pObject);
 
-		m_pManipulator->Show();
-		MessageBus<Object*>::Instance().Publish(TOPIC_SELECTOR_ADD_SELECTION, pObject);
+	const auto& sharedObject = pObject.lock();
+	sharedObject->EnableOutline();
+	m_SelectedObjects.emplace_back(pObject);
+
+	m_pManipulator->Show();
+	MessageBus<Object*>::Instance().Publish(TOPIC_SELECTOR_ADD_SELECTION, sharedObject.get());
+}
+void Selector::Select(const WeakObjectPtr& weakObject) {
+	if (auto object = weakObject.lock()) {
+		const Bool isSelected = object->IsSelected();
+
+		AllDeselect();
+		if (!isSelected)
+			AddSelect(object);
 	}
 }
-void Selector::Select(NotNull<Object*> pObject) {
-	const Bool isSelected = pObject->IsSelected();
-
-	AllDeselect();
-	if (!isSelected)
-		AddSelect(pObject);
+void Selector::Deselect(const WeakObjectPtr& weakObject) {
+	auto iterator = FindObject(m_SelectedObjects, weakObject);
+	Deselect(iterator);
 }
-void Selector::Deselect(NotNull<Object*> pObject) {
-	Deselect(std::find(m_SelectedObjects.begin(), m_SelectedObjects.end(), pObject));
-}
-void Selector::Deselect(const ObjectContainer::const_iterator& iterator) {
+void Selector::Deselect(const WeakObjectContainer::const_iterator& iterator) {
 	if (iterator == m_SelectedObjects.end()) {
 		Nt::Log::Instance().Warning(L"This object is not selected.");
 		return;
 	}
+	if (iterator->expired()) {
+		m_SelectedObjects.erase(iterator);
+		return;
+	}
+
+	const auto& object = iterator->lock();
 
 	m_IsChanged = true;
 
 	if (m_SelectedObjects.size() <= 1) {
 		m_pManipulator->Hide();
-		MessageBus<Object*>::Instance().Publish(TOPIC_SELECTOR_ALL_DESELECT, *iterator);
+		MessageBus<Object*>::Instance().Publish(TOPIC_SELECTOR_ALL_DESELECT, object.get());
 	}
 	else {
-		MessageBus<Object*>::Instance().Publish(TOPIC_SELECTOR_DESELECT, *iterator);
+		MessageBus<Object*>::Instance().Publish(TOPIC_SELECTOR_DESELECT, object.get());
 	}
 
-	(*iterator)->DisableOutline();
+	object->DisableOutline();
 	m_SelectedObjects.erase(iterator);
 }
 void Selector::AllDeselect() {
@@ -142,7 +157,8 @@ void Selector::AllDeselect() {
 
 	m_IsChanged = true;
 	while (!m_SelectedObjects.empty()) {
-		m_SelectedObjects.front()->DisableOutline();
+		if (const auto& object = m_SelectedObjects.front().lock())
+			object->DisableOutline();
 		m_SelectedObjects.erase(m_SelectedObjects.begin());
 	}
 
@@ -172,13 +188,13 @@ void Selector::UnmarkChanged() noexcept {
 	m_IsChanged = false;
 }
 
-const ObjectContainer& Selector::GetObjectContainer() const noexcept {
+const WeakObjectContainer& Selector::GetObjectContainer() const noexcept {
 	return m_SelectedObjects;
 }
-Object* Selector::GetObjectPtr(const uInt& index) const {
+const WeakObjectPtr& Selector::GetObjectPtr(const uInt& index) const {
 	if (index >= m_SelectedObjects.size())
 		Raise("Out of range");
-
+	assert(!m_SelectedObjects[index].expired());
 	return m_SelectedObjects[index];
 }
 
@@ -191,9 +207,11 @@ const Nt::Mesh* Selector::GetRayMesh() const noexcept {
 uInt Selector::GetObjectCount() const noexcept {
 	return m_SelectedObjects.size();
 }
-Bool Selector::IsContained(const NotNull<Object*> pObject) const {
-	auto iterator = std::find(m_SelectedObjects.begin(), m_SelectedObjects.end(), pObject);
-	return (iterator != m_SelectedObjects.end());
+Bool Selector::IsContained(const WeakObjectPtr& pObject) const {
+	assert(!pObject.expired());
+
+	auto iterator = FindObject(m_SelectedObjects, pObject);
+	return iterator != m_SelectedObjects.end();
 }
 Bool Selector::EnabledDebug() const noexcept {
 	return m_EnabledDebug;
@@ -230,7 +248,7 @@ void Selector::_MouseControl(NotNull<const Nt::RenderWindow*> pWindow, Nt::Keybo
 		m_pManipulator->BeginEditing(cursorPosition);
 	}
 	else {
-		Object* pNearestObject = m_pScene->RayCastObject(m_Ray);
+		ObjectPtr pNearestObject = m_pScene->RayCastObject(m_Ray);
 		if (pNearestObject != nullptr) {
 			if (keyboard.IsKeyPressed(Nt::KEY_CONTROL, false))
 				AddSelect(pNearestObject);
@@ -263,36 +281,53 @@ void Selector::_AxisControl(NotNull<const Nt::RenderWindow*> pWindow, const Nt::
 		return;
 	}
 
-	const Nt::Float3D newPoint = startPoint + moveDelta;
 	switch (m_pManipulator->GetState()) {
-	case Manipulator::TRANSLATE:
+	case Manipulator::TRANSLATE: {
+		const Nt::Float3D newPoint = startPoint + moveDelta;
+
 		m_pManipulator->SetPosition(newPoint);
-		for (Object* pObject : m_SelectedObjects) {
-			pObject->SetPosition(newPoint);
-			pObject->StaticUpdate();
+		for (auto it = m_SelectedObjects.cbegin(); it != m_SelectedObjects.cend();) {
+			if (it->expired()) {
+				it = m_SelectedObjects.erase(it);
+				continue;
+			}
+
+			m_pEditingHistory->AddEndExecute(new Edit::TransMoveCommand(*it, newPoint));
+
+			++it;
 		}
 
 		if (m_SelectedObjects.size() == 1) {
-			Object* pObject = m_SelectedObjects.front();
+			const auto& object = m_SelectedObjects.front().lock();
+
 			sharedBus->Emmit<UpdateObjectTransformEvent>({
-				pObject->GetPosition(), TransforType::POSITION, this });
+				object->GetPosition(), TransforType::POSITION, this });
 		}
+	}
 		break;
 
 	case Manipulator::SCALE:
-		for (Object* pObject : m_SelectedObjects) {
+		for (auto it = m_SelectedObjects.cbegin(); it != m_SelectedObjects.cend();) {
+			if (it->expired()) {
+				it = m_SelectedObjects.erase(it);
+				continue;
+			}
+
+			const auto& object = it->lock();
+			Nt::Float3D size = object->GetSize() + moveDelta;
 			if (m_IsSnapToGrid)
-				pObject->SetSize(m_pGrid->Snap(pObject->GetSize() + moveDelta));
-			else
-				pObject->Scale(moveDelta);
-			pObject->StaticUpdate();
+				size = m_pGrid->Snap(size);
+
+			m_pEditingHistory->AddEndExecute(new Edit::SizeCommand(*it, size));
+
+			++it;
 		}
 
 		if (m_SelectedObjects.size() == 1) {
-			Object* pObject = m_SelectedObjects.front();
+			const auto& object = m_SelectedObjects.front().lock();
 
 			sharedBus->Emmit<UpdateObjectTransformEvent>({
-				pObject->GetSize(), TransforType::SIZE, this });
+				object->GetSize(), TransforType::SIZE, this });
 		}
 		break;
 	}

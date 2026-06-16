@@ -39,7 +39,11 @@ void Plane::SetSize(const Nt::Float3D& size) {
 	Primitive::SetSize(correctSize);
 }
 
-_NODISCARD std::string Plane::GetClassToken() noexcept {
+Plane* Plane::GetCopy() const {
+	return new Plane(*this);
+}
+
+std::string Plane::GetClassToken() noexcept {
 	return "Plane";
 }
 

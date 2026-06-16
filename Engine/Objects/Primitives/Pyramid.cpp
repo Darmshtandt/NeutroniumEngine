@@ -38,7 +38,11 @@ void Pyramid::SetSize(const Nt::Float3D& size) {
 	Primitive::SetSize(correctSize);
 }
 
-_NODISCARD std::string Pyramid::GetClassToken() noexcept {
+Pyramid* Pyramid::GetCopy() const {
+	return new Pyramid(*this);
+}
+
+std::string Pyramid::GetClassToken() noexcept {
 	return "Pyramid";
 }
 

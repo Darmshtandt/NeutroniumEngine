@@ -6,11 +6,11 @@
 #include <InputContext.h>
 #include <RenderEngine.h>
 #include <ResourceManager.h>
-#include <WorldEditor.h>
-#include <WorldDocument.h>
+#include <Editor/WorldEditor.h>
+#include <Editor/WorldDocument.h>
 #include <Controllers/CameraController.h>
 #include <Core/Grid.h>
-#include <Objects/Clipboard.h>
+#include <Editor/Clipboard.h>
 #include <Objects/Entities/GameLight.h>
 
 Engine::Engine(const std::weak_ptr<Nt::EventBus>& pBus) :
@@ -191,11 +191,9 @@ void Engine::Render() {
 
 		const Nt::Renderer::DrawingMode drawingMode = m_Window.GetDrawingMode();
 
-		Selector* pSelector = m_pWorldEditor->GetSelector();
-
-		m_Window.SetDrawingMode(Nt::Renderer::DrawingMode::LINES);
 		m_RenderEngine->RenderObject(m_pWorldEditor->GetGrid());
 
+		Selector* pSelector = m_pWorldEditor->GetSelector();
 		if (pSelector->EnabledDebug())
 			m_Window.Render(pSelector->GetRayMesh());
 		m_Window.SetDrawingMode(drawingMode);

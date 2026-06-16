@@ -309,7 +309,8 @@ void Lua::_AddClasses() {
 	GetGlobalNamespace()
 		.beginClass<Scene>("Scene")
 		//.addConstructor<void(*)(NotNull<Nt::EventBus*>)>()
-		.addFunction("AddObject", &Scene::AddObject)
+		.addFunction(
+			"AddObject", static_cast<void (Scene::*)(NotNull<Object*>)>(&Scene::AddObject))
 		.addFunction("RemoveObject", &Scene::RemoveObject)
 		.addFunction("Clear", &Scene::Clear)
 		.addFunction("AllowIntersectionOfLayers", &Scene::AllowLayerOverlap)

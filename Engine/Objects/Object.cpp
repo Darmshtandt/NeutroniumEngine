@@ -6,27 +6,29 @@
 
 Object::Object(std::string name, const ClassID id) :
 	Identifier(id),
-	m_Name(std::move(name))
+	m_Name(std::move(name)),
+	m_Collider(new Nt::Collider)
 {
 }
 
 Object::Object(const Object& object) :
 	RigidBody(object),
-	Identifier(object.GetID())
+	Identifier(object.GetID()),
+	m_Collider(new Nt::Collider)
 {
 	_Clone(object);
 }
 
 Object::Object(Object&& object) noexcept :
 	RigidBody(std::move(object)),
-	Identifier(object.GetID())
+	Identifier(object.GetID()),
+	m_Collider(new Nt::Collider)
 {
 	_Move(std::move(object));
 }
 
 Object::~Object() {
 	RemoveScript();
-	delete(m_pCollider);
 }
 
 void Object::Start() {
@@ -54,7 +56,7 @@ void Object::StaticUpdate() {
 		return;
 
 	RigidBody::StaticUpdate();
-	m_pCollider->SetLocalWorld(LocalToWorld());
+	m_Collider->SetLocalWorld(LocalToWorld());
 }
 
 void Object::Update(const Float& time) {
@@ -64,7 +66,7 @@ void Object::Update(const Float& time) {
 		RigidBody::Update(time);
 	}
 
-	m_pCollider->SetLocalWorld(LocalToWorld());
+	m_Collider->SetLocalWorld(LocalToWorld());
 }
 
 Object& Object::_Clone(const Object& object) {
@@ -99,26 +101,35 @@ void Object::_SetParameters(const Object& object) noexcept {
 	if (this == &object)
 		return;
 
+	m_DrawingMode = object.m_DrawingMode;
+	m_ParentPtr = object.m_ParentPtr;
+	m_Mesh = object.m_Mesh;
+	m_Texture = object.m_Texture;
 	m_LayerName = object.m_LayerName;
 	m_Name = object.m_Name;
-	m_ParentPtr = object.m_ParentPtr;
+
+	m_TextureLocalWorld = object.m_TextureLocalWorld;
+	m_TextureOffset = object.m_TextureOffset;
+	m_TextureScale = object.m_TextureScale;
+	m_TextureRotation = object.m_TextureRotation;
+
+	m_IsTexChanged = object.m_IsTexChanged;
 	m_IsSelected = object.m_IsSelected;
 	m_IsInvisible = object.m_IsInvisible;
 	m_IsStarted = object.m_IsStarted;
-	m_Mesh = object.m_Mesh;
-	m_Texture = object.m_Texture;
 
-	m_pCollider->ToggleVisible(object.m_pCollider->IsVisible());
+	m_Collider->ToggleVisible(object.m_Collider->IsVisible());
 }
 
 void Object::_UpdateCollider() {
 	if (m_Mesh.IsValid())
-		m_pCollider->SetShape(m_Mesh.Get()->GetShape());
+		m_Collider->SetShape(m_Mesh.Get()->GetShape());
 }
 
 void Object::Render(NotNull<Nt::Renderer*> pRenderer) const
 {
 }
+
 void Object::Render(NotNull<Nt::Renderer*> pRenderer, const uInt& offset, const uInt& verticesCount) const
 {
 }
@@ -140,11 +151,11 @@ void Object::DisableInvisible() noexcept {
 }
 
 void Object::ShowingCollider() {
-	m_pCollider->Show();
+	m_Collider->Show();
 }
 
 void Object::HidingCollider() {
-	m_pCollider->Hide();
+	m_Collider->Hide();
 }
 
 void Object::AttachScript(NotNull<Lua*> pLua, const Nt::String& filePath, const std::vector<Script::Data>& data) {
@@ -165,10 +176,10 @@ void Object::Collision(NotNull<Object*> pObject) {
 	if (!(IsActive() && IsEnabledCollision() && pObject->IsEnabledCollision()))
 		return;
 
-	const std::pair<Bool, Nt::Simplex> gjk = m_pCollider->GJK(*pObject->m_pCollider);
+	const std::pair<Bool, Nt::Simplex> gjk = m_Collider->GJK(*pObject->m_Collider);
 	m_IsObjectCollided = gjk.first;
 	if (m_IsObjectCollided) {
-		const Nt::CollisionPoint point = m_pCollider->EPA(gjk.second, *pObject->m_pCollider);
+		const Nt::CollisionPoint point = m_Collider->EPA(gjk.second, *pObject->m_Collider);
 		Translate(-point.normal * point.depth);
 
 		SetLinearVelocity({ });
@@ -182,11 +193,11 @@ void Object::Collision(NotNull<Object*> pObject) {
 Bool Object::CheckCollision(const Object* pObject) const {
 	if (!IsActive())
 		return false;
-	return m_pCollider->GJK(*pObject->m_pCollider).first;
+	return m_Collider->GJK(*pObject->m_Collider).first;
 }
 
 Int Object::RayCastTest(const Nt::Ray& ray, Nt::Float3D* pResultIntersectionPoint) const {
-	return m_pCollider->RayCastTest(ray, pResultIntersectionPoint);
+	return m_Collider->RayCastTest(ray, pResultIntersectionPoint);
 }
 
 Object& Object::operator = (const Object& object) {
@@ -220,7 +231,7 @@ Nt::Renderer::DrawingMode Object::GetDrawingMode() const noexcept {
 }
 
 const Nt::Collider* Object::GetCollider() const noexcept {
-	return m_pCollider;
+	return m_Collider.get();
 }
 
 Script* Object::GetScript() const noexcept {
@@ -246,6 +257,32 @@ Object* Object::GetParentPtr() const noexcept {
 Nt::ResourceHandle<Nt::Mesh> Object::GetMesh() const noexcept {
 	return m_Mesh;
 }
+
+Nt::Matrix3x3 Object::TextureLocalWorld() const noexcept {
+	if (m_IsTexChanged) {
+		m_TextureLocalWorld =
+			Nt::Matrix3x3::GetTranslate({ m_TextureOffset, 1.f }) *
+			Nt::Matrix3x3::GetRotateZ(m_TextureRotation) *
+			Nt::Matrix3x3::GetScale({ m_TextureScale, 1.f });
+
+		m_IsTexChanged = false;
+	}
+
+	return m_TextureLocalWorld;
+}
+
+Nt::Float2D Object::GetTextureOffset() const noexcept {
+	return m_TextureOffset;
+}
+
+Nt::Float2D Object::GetTextureScale() const noexcept {
+	return m_TextureScale;
+}
+
+Float Object::GetTextureRotation() const noexcept {
+	return m_TextureRotation;
+}
+
 Nt::ResourceHandle<Nt::Texture> Object::GetTexture() const noexcept {
 	return m_Texture;
 }
@@ -312,6 +349,30 @@ void Object::SetMesh(const uInt& index) {
 	_UpdateCollider();
 }
 
+void Object::SetTextureOffset(const Nt::Float2D& textureOffset) noexcept {
+	if (m_TextureOffset == textureOffset)
+		return;
+
+	m_TextureOffset = textureOffset;
+	m_IsTexChanged = true;
+}
+
+void Object::SetTextureScale(const Nt::Float2D& textureScale) noexcept {
+	if (m_TextureScale == textureScale)
+		return;
+
+	m_TextureScale = textureScale;
+	m_IsTexChanged = true;
+}
+
+void Object::SetTextureRotation(Float angle) noexcept {
+	if (m_TextureRotation == angle)
+		return;
+
+	m_TextureRotation = angle;
+	m_IsTexChanged = true;
+}
+
 void Object::SetPosition(const Nt::Float3D& position) {
 	IObject::SetPosition(position);
 }
@@ -329,4 +390,25 @@ void Object::SetOrigin(const Nt::Float3D& origin) {
 }
 void Object::SetColor(const Nt::Float4D& color) {
 	IObject::SetColor(color);
+}
+
+ObjectContainer::const_iterator FindObject(const ObjectContainer& objects, NotNull<Object*> pObject) noexcept {
+	return std::find_if(objects.begin(), objects.end(), [&] (const ObjectPtr& object) {
+		return object.get() == pObject;
+		});
+}
+
+ObjectContainer::const_iterator FindObject(const ObjectContainer& objects, NotNull<const Object*> pObject) noexcept {
+	return std::find_if(objects.begin(), objects.end(), [&] (const ObjectPtr& object) {
+		return object.get() == pObject;
+		});
+}
+
+WeakObjectContainer::const_iterator FindObject(const WeakObjectContainer& objects, WeakObjectPtr weakObject) noexcept {
+	const auto object = weakObject.lock();
+	if (!object)
+		return objects.cend();
+	return std::find_if(objects.begin(), objects.end(), [&] (const WeakObjectPtr& other) {
+		return other.lock() == object;
+		});
 }

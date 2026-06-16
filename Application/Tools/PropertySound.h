@@ -155,9 +155,9 @@ public:
 
 		const uInt selectedObjectCount = m_SelectorPtr->GetObjectCount();
 		if (selectedObjectCount == 1) {
-			Object* pObject = m_SelectorPtr->GetObjectPtr(0);
-			if (pObject->GetToken() == GameSound::GetClassToken()) {
-				m_SelectedSoundPtr = dynamic_cast<GameSound*>(pObject);
+			const auto object = m_SelectorPtr->GetObjectPtr(0).lock();
+			if (object->GetToken() == GameSound::GetClassToken()) {
+				m_SelectedSoundPtr = static_cast<GameSound*>(object.get());
 
 				m_TextEdits[TEXTEDIT_SOUND_PATH].SetText(m_SelectedSoundPtr->GetFilePath());
 				m_TextEdits[TEXTEDIT_ROLLOFF_FACTOR].SetText(m_SelectedSoundPtr->GetRolloffFactor());

@@ -25,7 +25,7 @@ public:
 	void ToggleLooping();
 	void ToggleLooping(const Bool& isLoop);
 
-	[[nodiscard]] virtual GameSound* GetCopy() const override;
+	[[nodiscard]] GameSound* GetCopy() const override;
 	[[nodiscard]] static std::string GetClassToken() noexcept;
 	[[nodiscard]] std::string GetToken() const noexcept override;
 

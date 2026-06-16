@@ -20,18 +20,18 @@ Scene::Scene(const Scene& scene) :
 	m_pEventBus(scene.m_pEventBus),
 	m_LightBuffer(Nt::Buffer::Target::UNIFORM)
 {
-	for (const Object* pObject : scene.m_Objects) {
-		Object* pCopiedObject = RequireNotNull(pObject->GetCopy());
-		pCopiedObject->SetForce({ });
+	for (const ObjectPtr& object : scene.m_Objects) {
+		Object* copiedObject = RequireNotNull(object->GetCopy());
+		copiedObject->SetForce({ });
 
-		Script* pScript = pObject->GetScript();
+		Script* pScript = object->GetScript();
 		if (pScript != nullptr) {
 			Lua* pLua = pScript->GetLua();
 			std::string filePath = pScript->GetFilePath();
-			pCopiedObject->AttachScript(pLua, filePath, pScript->GetScriptData());
+			copiedObject->AttachScript(pLua, filePath, pScript->GetScriptData());
 		}
 
-		m_Objects.push_back(pCopiedObject);
+		m_Objects.emplace_back(copiedObject);
 	}
 }
 Scene::~Scene() {
@@ -40,26 +40,26 @@ Scene::~Scene() {
 }
 
 void Scene::Start() {
-	for (Object* pObject : m_Objects)
-		pObject->Start();
+	for (const ObjectPtr& object : m_Objects)
+		object->Start();
 }
 void Scene::Stop() {
-	for (Object* pObject : m_Objects)
-		pObject->Stop();
+	for (const ObjectPtr& object : m_Objects)
+		object->Stop();
 }
 
-Object* Scene::RayCastObject(const Nt::Ray& ray, Nt::Float3D* pResultIntersectionPoint) {
+ObjectPtr Scene::RayCastObject(const Nt::Ray& ray, Nt::Float3D* pResultIntersectionPoint) {
 	Float shortestDistance = FLT_MAX;
-	Object* pNearestObject = nullptr;
+	ObjectPtr pNearestObject = nullptr;
 
-	for (Object* pObject : m_Objects) {
+	for (const ObjectPtr& object : m_Objects) {
 		Nt::Float3D intersectionPoint;
-		const Int faceIndex = pObject->RayCastTest(ray, &intersectionPoint);
+		const Int faceIndex = object->RayCastTest(ray, &intersectionPoint);
 		const Float objectDistance = (ray.Start - intersectionPoint).LengthSquare();
 
 		if (faceIndex != -1 && shortestDistance > objectDistance) {
 			shortestDistance = objectDistance;
-			pNearestObject = pObject;
+			pNearestObject = object;
 
 			if (pResultIntersectionPoint != nullptr)
 				*pResultIntersectionPoint = intersectionPoint;
@@ -70,15 +70,18 @@ Object* Scene::RayCastObject(const Nt::Ray& ray, Nt::Float3D* pResultIntersectio
 }
 
 void Scene::AddObject(NotNull<Object*> pObject) {
-	m_Objects.push_back(pObject);
+	AddObject(ObjectPtr(pObject.Get()));
+}
+void Scene::AddObject(const ObjectPtr& pObject) {
+	m_Objects.emplace_back(RequireNotNull(pObject));
 	if (pObject->GetToken() == GameLight::GetClassToken())
-		m_Lights.push_back(pObject.DynamicCast<GameLight*>()->GetData());
+		m_Lights.push_back(static_cast<GameLight*>(pObject.get())->GetData());
 
 	if (!m_pEventBus.expired())
 		m_pEventBus.lock()->Emmit<EventAddObject>({ pObject });
 }
 void Scene::RemoveObject(NotNull<const Object*> pObject) {
-	const auto iterator = std::find(m_Objects.begin(), m_Objects.end(), pObject);
+	auto iterator = FindObject(m_Objects, pObject);
 	if (iterator == m_Objects.end()) {
 		Nt::MessageWindow("Scene::RemoveObject: This object not funded.", "Error").ShowError();
 		return;
@@ -86,20 +89,15 @@ void Scene::RemoveObject(NotNull<const Object*> pObject) {
 
 	if (!m_pEventBus.expired())
 		m_pEventBus.lock()->Emmit<EventRemoveObject>({ *iterator });
-
-	delete(*iterator);
 	m_Objects.erase(iterator);
 }
 void Scene::RemoveSelected(NotNull<Selector*> pSelector) {
-	for (Object* pObject : pSelector->GetObjectContainer())
-		RemoveObject(pObject);
+	for (const WeakObjectPtr& object : pSelector->GetObjectContainer())
+		RemoveObject(object.lock().get());
 	pSelector->RemoveSelected();
 }
 
 void Scene::Clear() {
-	for (Object* pObject : m_Objects)
-		delete(pObject);
-
 	if (!m_pEventBus.expired())
 		m_pEventBus.lock()->Emmit<EventClear>({ });
 	m_Objects.clear();
@@ -131,25 +129,25 @@ void Scene::Update(const Float& time) {
 		m_LightBuffer.SetData(bufferSize, m_Lights.data(), Nt::USAGE_STREAMDRAW);
 	}
 
-	for (Object* pObject : m_Objects) {
-		pObject->Update(time);
-		if (!(pObject->IsActivePhysics() && pObject->IsEnabledCollision()))
+	for (const ObjectPtr& object : m_Objects) {
+		object->Update(time);
+		if (!(object->IsActivePhysics() && object->IsEnabledCollision()))
 			continue;
 
-		for (Object* pOtherObject : m_Objects) {
-			if (pOtherObject == pObject)
+		for (const ObjectPtr& otherObject : m_Objects) {
+			if (otherObject == object)
 				continue;
 
-			if (!(pOtherObject->IsActivePhysics() && pOtherObject->IsEnabledCollision()))
+			if (!(otherObject->IsActivePhysics() && otherObject->IsEnabledCollision()))
 				continue;
 
-			if (pObject->IsDirty())
-				handleCollisionIfAllowed(pObject, pOtherObject);
-			else if (pOtherObject->IsDirty())
-				handleCollisionIfAllowed(pOtherObject, pObject);
+			if (object->IsDirty())
+				handleCollisionIfAllowed(object.get(), otherObject.get());
+			else if (otherObject->IsDirty())
+				handleCollisionIfAllowed(otherObject.get(), object.get());
 		}
 
-		pObject->StaticUpdate();
+		object->StaticUpdate();
 	}
 
 	const uInt offset = sizeof(Nt::Float4D) + sizeof(Nt::Float3D);
@@ -196,7 +194,7 @@ void Scene::AllowLayerOverlap(const Nt::String& firstLayerName, const Nt::String
 }
 
 Object* Scene::operator [] (const uInt& index) const {
-	return m_Objects[index];
+	return m_Objects[index].get();
 }
 
 Lua* Scene::GetLua() const noexcept {
@@ -212,15 +210,15 @@ uInt Scene::GetLightsCount() const noexcept {
 	return m_Lights.size();
 }
 Object* Scene::GetObjectPtr(const uInt& index) const {
-	return m_Objects[index];
+	return m_Objects[index].get();
 }
 Object* Scene::GetObjectPtrByName(const Nt::String& name) const {
-	for (Object* pObject : m_Objects) {
-		if (pObject->GetName() == name)
-			return pObject;
+	for (const ObjectPtr& object : m_Objects) {
+		if (object->GetName() == name)
+			return object.get();
 	}
 
-	Nt::Log::Instance().Warning("objects named \"" + name + "\" not found.");
+	Nt::Log::Instance().Warning("Objects named \"" + name + "\" not found.");
 	return nullptr;
 }
 

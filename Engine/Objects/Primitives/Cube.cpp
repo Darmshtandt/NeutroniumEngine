@@ -38,7 +38,11 @@ void Cube::SetSize(const Nt::Float3D& size) {
 	Primitive::SetSize(correctSize);
 }
 
-_NODISCARD std::string Cube::GetClassToken() noexcept {
+Cube* Cube::GetCopy() const {
+	return new Cube(*this);
+}
+
+std::string Cube::GetClassToken() noexcept {
 	return "Cube";
 }
 

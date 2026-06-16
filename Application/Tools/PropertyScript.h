@@ -215,6 +215,7 @@ public:
 		windowRect.Bottom = buttonRect.Top + buttonRect.Bottom;
 		windowRect.Bottom += m_Padding.Bottom;
 
+		m_DefaultWindowsSize = windowRect.RightBottom;
 		SetWindowRect(windowRect);
 
 		_DisableWindow();
@@ -228,7 +229,7 @@ public:
 
 		const uInt selectedObjectCount = m_SelectorPtr->GetObjectCount();
 		if (selectedObjectCount == 1) {
-			const Script* pScript = m_SelectorPtr->GetObjectPtr(0)->GetScript();
+			const Script* pScript = m_SelectorPtr->GetObjectPtr(0).lock()->GetScript();
 
 			if (pScript != nullptr) {
 				m_TextEdits[TEXTEDIT_SCRIPT_PATH].SetText(pScript->GetFilePath());
@@ -254,7 +255,7 @@ public:
 		controlRect.Top = m_ClientRect.Bottom;
 		controlRect.Right = m_ClientRect.Right - m_Padding.Right;
 
-		Object* pObject = m_SelectorPtr->GetObjectPtr(0);
+		Object* pObject = m_SelectorPtr->GetObjectPtr(0).lock().get();
 		Control* pControl = new Control(type, name, variableName, pObject);
 
 		switch (type) {
@@ -275,26 +276,25 @@ public:
 		pControl->Create(m_Style, id, controlRect, this);
 		pControl->SetValue(variableValue);
 
-		m_Controls.push_back(pControl);
+		m_Controls.emplace_back(pControl);
 	}
 	void ClearControls() {
-		for (Control* pControl : m_Controls)
-			delete(pControl);
+		if (m_Controls.empty())
+			return;
 
 		m_Controls.clear();
-
-		const Nt::IntRect buttonRect = m_Buttons[BUTTON_REMOVE].GetWindowRect();
-		SetSize({ GetClientRect().Right, buttonRect.Top + m_Padding.Bottom });
+		SetSize(m_DefaultWindowsSize);
 	}
 
 	void BrowseScript() {
 		const std::string filePath = _Browse(L"Script (*.lua)\0*.lua\0All (*.*)\0*.*");
-
 		if (filePath.empty())
 			return;
 
-		for (Object* pObject : m_SelectorPtr->GetObjectContainer())
-			pObject->AttachScript(m_pScene->GetLua(), filePath, { });
+		for (const WeakObjectPtr& weakObject : m_SelectorPtr->GetObjectContainer()) {
+			if (const auto object = weakObject.lock())
+				object->AttachScript(m_pScene->GetLua(), filePath, { });
+		}
 
 		_UpdateControls();
 
@@ -309,7 +309,7 @@ public:
 		m_Style = style;
 
 		SetBackgroundColor(m_Style["Property.BackgroundColor"]);
-		SetBorderColor(style["Property.BorderColor"]);
+		SetBorderColor(m_Style["Property.BorderColor"]);
 
 		m_Texts[TEXT_FILE_PATH].SetColor(m_Style["Property.Texts.Color"]);
 		m_Texts[TEXT_FILE_PATH].SetWeight(m_Style["Property.Texts.Weight"]);
@@ -325,26 +325,30 @@ public:
 	}
 
 private:
-	std::vector<Control*> m_Controls;
+	std::vector<std::unique_ptr<Control>> m_Controls;
 	Nt::IntRect m_Padding;
+	Nt::Int2D m_DefaultWindowsSize;
 	Style m_Style;
 	Scene* m_pScene;
 	inline static PropertyRegistrar<PropertyScript> m_Registrar { "Script" };
 
 private:
+	void _AddSelection(Object* pObject) override {
+		Update();
+		PropertyComponent::_AddSelection(pObject);
+	}
+
 	void _UpdateControls() {
 		ClearControls();
-
 		if (m_SelectorPtr->GetObjectCount() != 1)
 			return;
 
-		Script* pScript = m_SelectorPtr->GetObjectPtr(0)->GetScript();
+		Script* pScript = m_SelectorPtr->GetObjectPtr(0).lock()->GetScript();
 		if (pScript == nullptr)
 			return;
 
 		try {
 			luabridge::LuaRef propertyField = pScript->GetGlobal("PropertyField");
-
 			if (propertyField.isNil() && (!propertyField.isFunction()))
 				return;
 
@@ -364,16 +368,21 @@ private:
 		}
 	}
 
-	void _Paint([[maybe_unused]] HDC& hdc, [[maybe_unused]] PAINTSTRUCT& paint) override {
+	void _Paint(HDC& hdc, PAINTSTRUCT& paint) override {
+		(void)hdc;
+		(void)paint;
+
 		m_Texts[TEXT_FILE_PATH].Draw(*this);
 
-		for (Control* pControl : m_Controls) {
-			if (pControl->GetType() == Control::TEXTEDIT)
-				pControl->RenderText(*this);
+		for (const auto& control : m_Controls) {
+			if (control->GetType() == Control::TEXTEDIT)
+				control->RenderText(*this);
 		}
 	}
 
-	void _ButtonsNotification_OnClick(const uInt& id, [[maybe_unused]] const HWND& handle) override {
+	void _ButtonsNotification_OnClick(const uInt& id, const HWND& handle) override {
+		(void)handle;
+
 		switch (id) {
 		case BUTTON_BROWSE:
 			BrowseScript();
@@ -382,8 +391,10 @@ private:
 		case BUTTON_REMOVE:
 			m_TextEdits[TEXTEDIT_SCRIPT_PATH].SetText("No selected");
 
-			for (Object* pObject : m_SelectorPtr->GetObjectContainer())
-				pObject->RemoveScript();
+			for (const WeakObjectPtr& weakObject : m_SelectorPtr->GetObjectContainer()) {
+				if (const auto& object = weakObject.lock())
+					object->RemoveScript();
+			}
 
 			m_Buttons[BUTTON_REMOVE].DisableWindow();
 			break;
@@ -394,7 +405,9 @@ private:
 		}
 	}
 
-	void _TextEditsNotification_Update(const uInt& id, [[maybe_unused]] const HWND& handle) override {
+	void _TextEditsNotification_Update(const uInt& id, const HWND& handle) override {
+		(void)handle;
+
 		if (id != TEXTEDIT_SCRIPT_PATH)
 			m_Controls[id]->Update();
 	}

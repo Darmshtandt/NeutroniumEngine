@@ -1,17 +1,13 @@
 #pragma once
 
 #include <Nt/Core/Utilities.h>
-#include <memory>
 #include <vector>
+#include <Objects/Object.h>
 
 class Scene;
-class Object;
 class Selector;
 
 class Clipboard {
-	using ObjectPtr = std::unique_ptr<Object>;
-	using ObjectContainer = std::vector<ObjectPtr>;
-
 public:
 	explicit Clipboard(NotNull<Scene*> pScene, NotNull<Selector*> pSelector) noexcept;
 

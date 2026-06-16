@@ -14,8 +14,8 @@ void RenderEngine::Render() const {
 		return;
 
 	const ObjectContainer& allObjects = m_pScene->GetObjects();
-	for (const Object* pObject : allObjects)
-		RenderObject(pObject);
+	for (const ObjectPtr& object : allObjects)
+		RenderObject(object.get());
 }
 
 void RenderEngine::SetScene(Scene* pScene) noexcept {
@@ -28,11 +28,27 @@ void RenderEngine::RenderObject(const Object* pObject) const {
 	if (pObject->IsStarted() && pObject->IsInvisible())
 		return;
 
-	RenderCollider(pObject->GetCollider());
+	m_pRenderer->MatrixWorldPush();
+	m_pRenderer->SetWorld(pObject->LocalToWorld());
+
+	const auto collider = pObject->GetCollider();
+	if (collider->IsVisible()) {
+		m_pRenderer->SetDepthMode(Nt::DepthMode::ALWAYS);
+		m_pRenderer->SetLineWidth(10);
+		m_pRenderer->SetDrawingMode(Nt::Renderer::DrawingMode::LINE_STRIP);
+		m_pRenderer->UnbindTexture();
+
+		m_pRenderer->Render(collider->GetMesh());
+
+		m_pRenderer->SetLineWidth(1);
+		m_pRenderer->SetDepthMode(Nt::DepthMode::LESS);
+	}
 
 	const auto& mesh = pObject->GetMesh();
-	if (!mesh.IsValid())
+	if (!mesh.IsValid()) {
+		m_pRenderer->MatrixWorldPop();
 		return;
+	}
 
 	m_pRenderer->GetShaderPtr()->SetUniform("IsObjectInvisible", pObject->IsInvisible());
 	m_pRenderer->GetShaderPtr()->SetUniform("IsObjectSelected", pObject->IsSelected());
@@ -42,11 +58,16 @@ void RenderEngine::RenderObject(const Object* pObject) const {
 		RenderOutline(pObject);
 
 	const Nt::Float4D color = m_pRenderer->GetColor();
-	m_pRenderer->BindTexture(pObject->GetTexture().Get());
+	const auto texture = pObject->GetTexture();
+	if (texture.IsValid()) {
+		m_pRenderer->BindTexture(pObject->GetTexture().Get());
+		m_pRenderer->GetShaderPtr()->SetUniformMatrix3x3("TexWorld", Nt::UNIFORM_FLOAT, pObject->TextureLocalWorld());
+	}
+
 	m_pRenderer->SetColor(pObject->GetColor());
-	m_pRenderer->MatrixWorldPush();
-	m_pRenderer->SetWorld(pObject->LocalToWorld());
+	m_pRenderer->SetDrawingMode(pObject->GetDrawingMode());
 	m_pRenderer->Render(mesh.Get());
+
 	m_pRenderer->MatrixWorldPop();
 	m_pRenderer->SetColor(color);
 
@@ -69,6 +90,7 @@ void RenderEngine::RenderOutline(const Object* pObject) const {
 	m_pRenderer->SetCullFace(Nt::CullFace::FRONT);
 	m_pRenderer->DisableDepthMask();
 	m_pRenderer->SetDepthMode(Nt::DepthMode::LEQUAL);
+	m_pRenderer->SetDrawingMode(Nt::Renderer::DrawingMode::TRIANGLES);
 
 	m_pRenderer->SetWorld(pObject->LocalToWorld());
 	m_pRenderer->Scale({ scaleValue, scaleValue, scaleValue });
@@ -84,6 +106,7 @@ void RenderEngine::RenderOutline(const Object* pObject) const {
 }
 
 void RenderEngine::RenderModel(const Nt::Model& model) const {
+	assert(0);
 	const Nt::ResourceHandle<Nt::Mesh> mesh = model.GetMesh();
 	if (!mesh.IsValid() || !model.IsVisible())
 		return;
@@ -100,6 +123,7 @@ void RenderEngine::RenderModel(const Nt::Model& model) const {
 }
 
 void RenderEngine::RenderCollider(const Nt::Collider* pCollider) const {
+	assert(0);
 	if (!pCollider->IsVisible())
 		return;
 

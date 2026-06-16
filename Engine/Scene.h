@@ -11,11 +11,27 @@ class Selector;
 
 class Scene {
 public:
+	struct AddObjectCommand final {
+		ObjectPtr Object;
+	};
+	struct RemoveObjectCommand final {
+		ObjectPtr Object;
+	};
+	struct MultiAddObjectCommand final {
+		ObjectContainer Objects;
+	};
+	struct MultiRemoveObjectCommand final {
+		ObjectContainer Objects;
+	};
+	struct ClearCommand final
+	{
+	};
+
 	struct EventAddObject final {
-		Object* pObject = nullptr;
+		ObjectPtr pObject;
 	};
 	struct EventRemoveObject final {
-		Object* pObject = nullptr;
+		ObjectPtr pObject;
 	};
 	struct EventClear final
 	{
@@ -41,9 +57,10 @@ public:
 	void Start();
 	void Stop();
 
-	Object* RayCastObject(const Nt::Ray& ray, Nt::Float3D* pResultIntersectionPoint = nullptr);
+	ObjectPtr RayCastObject(const Nt::Ray& ray, Nt::Float3D* pResultIntersectionPoint = nullptr);
 
 	void AddObject(NotNull<Object*> pObject);
+	void AddObject(const ObjectPtr& pObject);
 	void RemoveObject(NotNull<const Object*> pObject);
 	void RemoveSelected(NotNull<Selector*> pSelector);
 
@@ -63,7 +80,7 @@ public:
 	template <class _Ty>
 	_Ty* GetObjectPtrByType(ObjectContainer::iterator iterator) {
 		for (; iterator != m_Objects.end(); ++iterator) {
-			_Ty* pObject = dynamic_cast<_Ty*>(*iterator);
+			_Ty* pObject = dynamic_cast<_Ty*>(iterator->get());
 			if (pObject != nullptr)
 				return pObject;
 		}
@@ -74,13 +91,11 @@ public:
 	template <class _Ty>
 	Object* GetObjectPtrByTypeAndName(const Nt::String& name) {
 		Object* pObject = nullptr;
-		for (ObjectContainer::iterator iterator = m_Objects.begin(); iterator != m_Objects.end(); ++iterator) {
+		for (auto iterator = m_Objects.begin(); iterator != m_Objects.end(); ++iterator) {
 			pObject = GetObjectPtrByType<_Ty>(iterator);
-
 			if (pObject == nullptr || pObject->GetName() == name)
 				break;
 		}
-
 		return pObject;
 	}
 

@@ -11,8 +11,6 @@ Manipulator::Arrow::Arrow(const Axis& axis) :
 	Object("", Class<Arrow>::ID()),
 	m_LineMesh(new Nt::Mesh(Nt::Primitive::Line(10000.f, Nt::Colors::White)))
 {
-	SetDrawingMode(Nt::Renderer::DrawingMode::LINES);
-
 	constexpr Float HalfPIf = PIf / 2.f;
 
 	switch (axis) {
