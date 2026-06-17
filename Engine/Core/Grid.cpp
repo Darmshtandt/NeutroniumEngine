@@ -13,7 +13,8 @@ Grid::Grid() :
 	m_pMesh->SetShape(Build(m_Size, m_CellSize));
 	SetMesh(m_pMesh.get());
 
-	SetOrigin({ m_CellSize / 2.f, -m_CellSize / 2.f, m_CellSize / 2.f });
+	SetOrigin({ m_CellSize / 2.f, 0.f, m_CellSize / 2.f });
+	Object::SetSize({ m_CellSize, 0.f, m_CellSize });
 	SetColor(Nt::Colors::DarkGray);
 }
 
@@ -26,7 +27,6 @@ void Grid::Update() {
 void Grid::Show() noexcept {
 	m_IsVisible = true;
 }
-
 void Grid::Hide() noexcept {
 	m_IsVisible = false;
 }
@@ -42,7 +42,7 @@ Float Grid::GetCellSize() const noexcept {
 	return m_CellSize;
 }
 
-void Grid::SetTarget(Nt::IObject* pTarget) noexcept {
+void Grid::SetTarget(IObject* pTarget) noexcept {
 	m_pTarget = pTarget;
 }
 void Grid::SetCellSize(const Float& cellSize) {
@@ -50,14 +50,15 @@ void Grid::SetCellSize(const Float& cellSize) {
 		return;
 
 	m_CellSize = cellSize;
-	SetSize({ m_CellSize, 0.f, m_CellSize });
+	SetOrigin({ m_CellSize / 2.f, 0.f, m_CellSize / 2.f });
+	Object::SetSize({ m_CellSize, 0.f, m_CellSize });
 }
 void Grid::SetSize(const Nt::Float2D& size) {
 	if (m_Size == size || size <= 0.f)
 		return;
 
 	const Nt::Float2D scale = size / m_Size;
-	SetSize(Nt::Float3D(scale.x, 0.f, scale.y));
+	Object::SetSize(Nt::Float3D(scale.x, 0.f, scale.y));
 	m_Size = size;
 }
 void Grid::SetPosition(Nt::Float3D position) {
@@ -85,7 +86,7 @@ Nt::Shape Grid::Build(const Nt::Float2D& gridSize, Float cellSize) const {
 			vertex.Position.w = 1.f;
 			vertex.Color = Nt::Colors::White;
 
-			shape.Vertices.push_back(vertex);
+			shape.Vertices.emplace_back(vertex);
 		}
 	}
 

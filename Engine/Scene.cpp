@@ -12,7 +12,8 @@
 
 Scene::Scene(const std::weak_ptr<Nt::EventBus>& pBus) :
 	m_pEventBus(pBus),
-	m_LightBuffer(Nt::Buffer::Target::UNIFORM)
+	m_LightBuffer(Nt::Buffer::Target::UNIFORM),
+	m_Lua(new Lua(this))
 {
 	Assert(!m_pEventBus.expired(), "EventBus pointer is null");
 
@@ -43,7 +44,8 @@ Scene::Scene(const std::weak_ptr<Nt::EventBus>& pBus) :
 }
 Scene::Scene(const Scene& scene) :
 	m_pEventBus(scene.m_pEventBus),
-	m_LightBuffer(Nt::Buffer::Target::UNIFORM)
+	m_LightBuffer(Nt::Buffer::Target::UNIFORM),
+	m_Lua(new Lua(this))
 {
 	for (const ObjectPtr& object : scene.m_Objects) {
 		Object* copiedObject = RequireNotNull(object->GetCopy());
@@ -51,9 +53,8 @@ Scene::Scene(const Scene& scene) :
 
 		Script* pScript = object->GetScript();
 		if (pScript != nullptr) {
-			Lua* pLua = pScript->GetLua();
 			std::string filePath = pScript->GetFilePath();
-			copiedObject->AttachScript(pLua, filePath, pScript->GetScriptData());
+			copiedObject->AttachScript(m_Lua.get(), filePath, pScript->GetScriptData());
 		}
 
 		m_Objects.emplace_back(copiedObject);
@@ -223,7 +224,7 @@ Object* Scene::operator [] (const uInt& index) const {
 }
 
 Lua* Scene::GetLua() const noexcept {
-	return m_pLua;
+	return m_Lua.get();
 }
 const ObjectContainer& Scene::GetObjects() const {
 	return m_Objects;

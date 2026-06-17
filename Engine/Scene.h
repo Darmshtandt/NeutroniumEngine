@@ -117,9 +117,9 @@ private:
 	std::weak_ptr<Nt::EventBus> m_pEventBus;
 	std::vector<Layer> m_DisjointLayers;
 	std::vector<Nt::LightData> m_Lights;
+	std::unique_ptr<Lua> m_Lua;
 	Nt::Buffer m_LightBuffer;
 
-	Lua* m_pLua = new Lua(this);
 	Versions m_Version = Versions::LAST;
 	ObjectContainer m_Objects;
 };

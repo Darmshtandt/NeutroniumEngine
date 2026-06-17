@@ -1,10 +1,12 @@
 #include <RenderEngine.h>
 
 #include <Scene.h>
+#include <Nt/Graphics/Objects/Camera.h>
 #include <Objects/Object.h>
 
-RenderEngine::RenderEngine(NotNull<Nt::Renderer*> pRenderer) :
-	m_pRenderer(pRenderer)
+RenderEngine::RenderEngine(NotNull<Nt::Renderer*> pRenderer, NotNull<Nt::Shader*> pShader) :
+	m_pRenderer(pRenderer),
+	m_Shader(pShader)
 {
 }
 RenderEngine::~RenderEngine() noexcept = default;
@@ -13,6 +15,10 @@ void RenderEngine::Render() const {
 	if (m_pScene == nullptr)
 		return;
 
+	m_pRenderer->SetShader(m_Shader.get());
+	if (m_pCamera)
+		m_pRenderer->SetView(m_pCamera->GetView());
+
 	const ObjectContainer& allObjects = m_pScene->GetObjects();
 	for (const ObjectPtr& object : allObjects)
 		RenderObject(object.get());
@@ -20,6 +26,10 @@ void RenderEngine::Render() const {
 
 void RenderEngine::SetScene(Scene* pScene) noexcept {
 	m_pScene = pScene;
+}
+
+void RenderEngine::SetCamera(Nt::Camera* pCamera) noexcept {
+	m_pCamera = pCamera;
 }
 
 void RenderEngine::RenderObject(const Object* pObject) const {
@@ -106,4 +116,8 @@ void RenderEngine::RenderOutline(const Object* pObject) const {
 	m_pRenderer->SetCullFace(cullFace);
 	m_pRenderer->SetColor(color);
 	m_pRenderer->MatrixWorldPop();
+}
+
+Nt::Camera* RenderEngine::GetCamera() const noexcept {
+	return m_pCamera;
 }

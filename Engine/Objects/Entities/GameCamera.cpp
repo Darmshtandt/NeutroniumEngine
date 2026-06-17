@@ -30,18 +30,15 @@ GameCamera::GameCamera(const GameCamera& camera) :
 	SetTexture(g_Loader.Get());
 }
 
-void GameCamera::Set(NotNull<Nt::RenderWindow*> windowPtr) {
-	windowPtr->SetCamera(&m_Camera);
-}
-
 GameCamera* GameCamera::GetCopy() const {
 	return new GameCamera(*this);
 }
-
+Nt::Camera* GameCamera::GetCamera() noexcept {
+	return &m_Camera;
+}
 std::string GameCamera::GetClassToken() noexcept {
 	return "Camera";
 }
-
 std::string GameCamera::GetToken() const noexcept {
 	return GetClassToken();
 }

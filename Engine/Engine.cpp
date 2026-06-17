@@ -19,22 +19,16 @@ Engine::Engine(const std::weak_ptr<Nt::EventBus>& pBus) :
 	m_Window(true)
 {
 	Assert(!m_pEventBus.expired(), "EventBus pointer is null");
-
-	m_RenderEngine.reset(new RenderEngine(&m_Window));
 	m_Window.SetEventBus(m_pEventBus);
-
 	m_pEventBus.lock()->Emmit<AddInputContextEvent>({ m_InputContext, "Engine" });
 }
 
 Engine::~Engine() {
 	m_Window.GetEventBus().lock()->Clear();
-	m_Window.SetShader(nullptr);
 
 	m_pComboBoxView.release();
 	m_pGridButton.release();
 	m_pGridTextEdit.release();
-
-	m_Shader.Delete();
 }
 
 void Engine::Initialize(const Settings& settings, const Nt::String& defaultInitialPath) {
@@ -73,12 +67,14 @@ void Engine::Initialize(const Settings& settings, const Nt::String& defaultIniti
 
 	_InitializeUI(defaultInitialPath);
 
-	m_pWorldEditor = std::make_unique<WorldEditor>(m_pEventBus, defaultInitialPath);
-	m_pScene = m_pWorldEditor->GetScene();
-	m_pSelector = m_pWorldEditor->GetSelector();
+	m_WorldEditor = std::make_unique<WorldEditor>(m_pEventBus, defaultInitialPath);
+	m_WorldEditor->ResetCamera();
 
-	Nt::Camera* pCamera = &m_pWorldEditor->GetCamera();
-	m_pCameraController.reset(new CameraController(pCamera));
+	m_pScene = m_WorldEditor->GetScene();
+	m_pSelector = m_WorldEditor->GetSelector();
+
+	Nt::Camera* pCamera = &m_WorldEditor->GetCamera();
+	m_CameraController.reset(new CameraController(pCamera));
 
 	m_InputContext->AddHotKey(
 		{ Nt::KEY_ESCAPE }, [this] () { m_pSelector->AllDeselect(); });
@@ -91,89 +87,94 @@ void Engine::Initialize(const Settings& settings, const Nt::String& defaultIniti
 		{ Nt::KEY_S }, [this] () { if (!m_IsFly) m_pSelector->SetTransformMode(Manipulator::SCALE); });
 
 	m_InputContext->AddHotKey(
-		{ Nt::KEY_MULTIPLY }, [this] () { m_pWorldEditor->CreateEntity("Light"); });
+		{ Nt::KEY_MULTIPLY }, [this] () { m_WorldEditor->CreateEntity("Light"); });
 	m_InputContext->AddHotKey(
-		{ Nt::KEY_SUBTRACT }, [this] () { m_pWorldEditor->CreateEntity("Camera"); });
+		{ Nt::KEY_SUBTRACT }, [this] () { m_WorldEditor->CreateEntity("Camera"); });
 	m_InputContext->AddHotKey(
-		{ Nt::KEY_ADD }, [this] () { m_pWorldEditor->CreatePrimitive("Cube"); });
+		{ Nt::KEY_ADD }, [this] () { m_WorldEditor->CreatePrimitive("Cube"); });
 
 	m_InputContext->AddHotKey(
-		{ Nt::KEY_CONTROL, Nt::KEY_T }, [this] () { StartTestGame(); });
+		{ Nt::KEY_F5 }, [this] () { StartTestGame(); });
 	m_InputContext->AddHotKey(
-		{ Nt::KEY_CONTROL, Nt::KEY_SHIFT, Nt::KEY_T }, [this] () { CloseTestGame(); });
+		{ Nt::KEY_SHIFT, Nt::KEY_F5 }, [this] () { CloseTestGame(); });
+	m_InputContext->AddHotKey(
+		{ Nt::KEY_CONTROL, Nt::KEY_SHIFT, Nt::KEY_F5 }, [this] () {
+			if (m_Game->IsLaunched()) {
+				CloseTestGame();
+				StartTestGame();
+			}
+		});
 
-	m_pGame.reset(new Game(&m_Window));
-	m_pGame->InitializeTestGame(m_pScene);
+	m_Game.reset(new Game(&m_Window));
+	m_Game->InitializeTestGame(m_pScene);
 
-	m_Shader.Initialize();
-	m_Shader.Create();
-	m_Shader.CompileFromFile(Nt::Shader::VERTEX, "..\\Shaders\\Vert.glsl");
-	m_Shader.CompileFromFile(Nt::Shader::FRAGMENT, "..\\Shaders\\Frag.glsl");
-	m_Shader.Link();
+	auto shader = new Nt::Shader;
+	shader->Initialize();
+	shader->Create();
+	shader->CompileFromFile(Nt::Shader::VERTEX, "..\\Shaders\\Vert.glsl");
+	shader->CompileFromFile(Nt::Shader::FRAGMENT, "..\\Shaders\\Frag.glsl");
+	shader->Link();
 
-	m_Shader.DisableStrict();
-	m_Shader.SetUniform<Bool>("IsObjectSelected", false);
-	m_Shader.SetUniform<Bool>("IsLightsEnabled", true);
-	m_Shader.SetUniform<Int>("NumLights", m_pScene->GetLightsCount());
+	shader->DisableStrict();
+	shader->SetUniform<Bool>("IsObjectSelected", false);
+	shader->SetUniform<Bool>("IsLightsEnabled", true);
+	shader->SetUniform<Int>("NumLights", m_pScene->GetLightsCount());
 
-	m_Shader.UniformBlockBinding("Lights", 0);
-	m_Shader.BindBufferBase(m_pScene->GetLightBuffer(), 0);
-
-	m_Window.SetShader(&m_Shader);
+	shader->UniformBlockBinding("Lights", 0);
+	shader->BindBufferBase(m_pScene->GetLightBuffer(), 0);
 
 	auto sharedBus = m_pEventBus.lock();
 	sharedBus->Subscribe<Scene::EventAddObject>(
-		[this] (const Scene::EventAddObject& e) {
+		[this, shader] (const Scene::EventAddObject& e) {
 			if (e.pObject->GetToken() == GameLight::GetClassToken())
-				m_Shader.SetUniform<Int>("NumLights", m_pScene->GetLightsCount());
+				shader->SetUniform<Int>("NumLights", m_pScene->GetLightsCount());
 		});
 	sharedBus->Subscribe<Scene::EventRemoveObject>(
-		[this] (const Scene::EventRemoveObject& e) {
+		[this, shader] (const Scene::EventRemoveObject& e) {
 			if (e.pObject->GetToken() == GameLight::GetClassToken())
-				m_Shader.SetUniform<Int>("NumLights", m_pScene->GetLightsCount() - 1);
+				shader->SetUniform<Int>("NumLights", m_pScene->GetLightsCount() - 1);
 		});
 	sharedBus->Subscribe<Scene::EventClear>(
-		[this] (const Scene::EventClear& e) {
+		[this, shader] (const Scene::EventClear& e) {
 			(void)e;
-			m_Shader.SetUniform<Int>("NumLights", 0);
+			shader->SetUniform<Int>("NumLights", 0);
 		});
 
-	m_pWorldEditor->ResetCamera();
-	m_RenderEngine->SetScene(m_pWorldEditor->GetScene());
+	m_RenderEngine.reset(new RenderEngine(&m_Window, shader));
+	m_RenderEngine->SetScene(m_WorldEditor->GetScene());
+	m_RenderEngine->SetCamera(&m_WorldEditor->GetCamera());
 
-	m_Window.SetCamera(&m_pWorldEditor->GetCamera());
 	m_Window.SetClearColor(m_Settings.Style["Engine.BackgroundColor"]);
 }
 
 void Engine::StartTestGame() const {
-	if (m_pGame->IsLaunched())
+	if (m_Game->IsLaunched())
 		return;
 
 	m_pSelector->AllDeselect();
-	m_pGame->Start();
+	m_Game->Start();
 }
 
 void Engine::CloseTestGame() {
-	if (m_pGame->IsLaunched()) {
-		m_Window.SetCamera(&m_pWorldEditor->GetCamera());
-		m_pGame->End();
+	if (m_Game->IsLaunched()) {
+		m_RenderEngine->SetCamera(&m_WorldEditor->GetCamera());
+		m_Game->End();
 	}
 }
 void Engine::Update() {
 	const Float time = m_Window.GetFrameTimeMs();
-	if (m_pGame->IsLaunched()) {
-		m_pGame->Update(time);
+	if (m_Game->IsLaunched()) {
+		m_Game->Update(time);
 	}
 	else {
 		_Control();
-		m_pWorldEditor->Update(time);
-		m_Window.Update();
+		m_WorldEditor->Update(time);
 	}
 }
 
 void Engine::Render() {
-	if (m_pGame->IsLaunched()) {
-		m_pGame->Render();
+	if (m_Game->IsLaunched()) {
+		m_Game->Render();
 	}
 	else {
 		m_Window.Clear();
@@ -182,9 +183,9 @@ void Engine::Render() {
 
 		const Nt::Renderer::DrawingMode drawingMode = m_Window.GetDrawingMode();
 
-		m_RenderEngine->RenderObject(m_pWorldEditor->GetGrid());
+		m_RenderEngine->RenderObject(m_WorldEditor->GetGrid());
 
-		Selector* pSelector = m_pWorldEditor->GetSelector();
+		Selector* pSelector = m_WorldEditor->GetSelector();
 		if (pSelector->EnabledDebug())
 			m_Window.Render(pSelector->GetRayMesh());
 		m_Window.SetDrawingMode(drawingMode);
@@ -248,7 +249,7 @@ void Engine::ToggleFly() noexcept {
 }
 
 WorldEditor* Engine::GetWorldEditor() const noexcept {
-	return m_pWorldEditor.get();
+	return m_WorldEditor.get();
 }
 
 Selector* Engine::GetSelector() const noexcept {
@@ -367,10 +368,10 @@ void Engine::_Control() {
 		ToggleFly();
 
 	if (m_IsFly) {
-		m_pCameraController->Update();
+		m_CameraController->Update();
 	}
 	else {
-		m_pSelector->Control(&m_Window, *m_Window.GetCamera(), m_Keyboard, m_Mouse);
+		m_pSelector->Control(&m_Window, *m_RenderEngine->GetCamera(), m_Keyboard, m_Mouse);
 
 		if (isPressedControl && m_Keyboard.IsKeyPressed(Nt::KEY_J, true))
 			_CSG();
@@ -401,7 +402,7 @@ Long Engine::_Procedure(const uInt& uMsg, const DWord& param_1, const DWord& par
 		case EN_UPDATE:
 			switch (id) {
 			case CONTROL_TEXTEDIT_GRIDCELLSIZE:
-				Grid* pGrid = m_pWorldEditor->GetGrid();
+				Grid* pGrid = m_WorldEditor->GetGrid();
 				pGrid->SetCellSize(m_pGridTextEdit->GetText());
 				break;
 			}
@@ -422,7 +423,7 @@ Long Engine::_Procedure(const uInt& uMsg, const DWord& param_1, const DWord& par
 void Engine::_UpdateProjection() {
 	if (m_Projection == ViewMode::PERSPECTIVE) {
 		_SetPerspective();
-		m_Window.SetCamera(&m_pWorldEditor->GetCamera());
+		m_Window.SetCamera(&m_WorldEditor->GetCamera());
 	}
 	else {
 		_SetOrtho();

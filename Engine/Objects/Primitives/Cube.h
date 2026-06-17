@@ -8,8 +8,6 @@ public:
 	Cube(const Cube& cube) = default;
 	Cube(Cube&& cube) noexcept = default;
 
-	void SetSize(const Nt::Float3D& size) override;
-
 	[[nodiscard]] Cube* GetCopy() const override;
 	[[nodiscard]] static std::string GetClassToken() noexcept;
 	[[nodiscard]] std::string GetToken() const noexcept override;

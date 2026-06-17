@@ -71,7 +71,6 @@ private:
 	std::shared_ptr<InputContext> m_InputContext;
 	std::weak_ptr<Nt::EventBus> m_pEventBus;
 	Nt::RenderWindow m_Window;
-	Nt::Shader m_Shader;
 	Nt::Camera m_OrthoCamera;
 	Nt::Keyboard m_Keyboard;
 	Nt::Mouse m_Mouse;
@@ -81,9 +80,9 @@ private:
 	std::unique_ptr<Nt::Button> m_pGridButton;
 	std::unique_ptr<Nt::TextEdit> m_pGridTextEdit;
 
-	std::unique_ptr<CameraController> m_pCameraController;
-	std::unique_ptr<WorldEditor> m_pWorldEditor;
-	std::unique_ptr<Game> m_pGame;
+	std::unique_ptr<CameraController> m_CameraController;
+	std::unique_ptr<WorldEditor> m_WorldEditor;
+	std::unique_ptr<Game> m_Game;
 
 	Settings m_Settings;
 	Selector* m_pSelector = nullptr;
@@ -127,9 +126,9 @@ private:
 			(void)s;
 
 			if (delta < 0.f)
-				EnginePtr->m_pCameraController->SpeedDown();
+				EnginePtr->m_CameraController->SpeedDown();
 			else if (delta > 0.f)
-				EnginePtr->m_pCameraController->SpeedUp();
+				EnginePtr->m_CameraController->SpeedUp();
 		}
 
 		Engine* EnginePtr;

@@ -162,8 +162,7 @@ void Object::AttachScript(NotNull<Lua*> pLua, const Nt::String& filePath, const 
 	if (m_pScript != nullptr)
 		delete(m_pScript);
 
-	m_pScript = new Script(pLua);
-	m_pScript->Load(filePath, this);
+	m_pScript = new Script(pLua, filePath, this);
 	m_pScript->SetScriptData(data);
 }
 

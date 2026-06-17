@@ -11,9 +11,20 @@ void Game::Config::Read(std::istream& stream) {
 }
 
 Game::Game(Nt::RenderWindow* pWindow) noexcept :
-	m_pWindow(pWindow),
-	m_RenderEngine(new RenderEngine(pWindow))
+	m_pWindow(pWindow)
 {
+	auto shader = new Nt::Shader;
+	shader->Initialize();
+	shader->Create();
+	shader->CompileFromFile(Nt::Shader::VERTEX, "..\\Shaders\\Vert.glsl");
+	shader->CompileFromFile(Nt::Shader::FRAGMENT, "..\\Shaders\\Frag.glsl");
+	shader->Link();
+
+	shader->DisableStrict();
+	shader->SetUniform<Bool>("IsObjectSelected", false);
+	shader->SetUniform<Bool>("IsLightsEnabled", true);
+
+	m_RenderEngine.reset(new RenderEngine(pWindow, shader));
 }
 
 Game::~Game() = default;
@@ -118,12 +129,17 @@ void Game::Update(const Float& time) {
 	if (!m_IsInitialized)
 		Raise("Game not initialized");
 
-	m_GameScene->Update(time);
-	m_pWindow->Update();
+	try {
+		m_GameScene->Update(time);
 
-	if (m_CameraPtr != nullptr) {
-		m_Listener.SetPosition(m_CameraPtr->GetPosition());
-		m_Listener.SetRotation(m_CameraPtr->GetAngle());
+		if (m_CameraPtr != nullptr) {
+			m_Listener.SetPosition(m_CameraPtr->GetPosition());
+			m_Listener.SetRotation(m_CameraPtr->GetAngle());
+		}
+	}
+	catch (const Nt::Error& error) {
+		Nt::MessageWindow(error.what(), "Error").ShowError();
+		End();
 	}
 }
 
@@ -150,7 +166,7 @@ void Game::_SetCamera() {
 				continue;
 
 			m_CameraPtr = static_cast<GameCamera*>(object.get());
-			m_CameraPtr->Set(m_pWindow);
+			m_RenderEngine->SetCamera(m_CameraPtr->GetCamera());
 			return;
 		}
 	}
@@ -159,5 +175,5 @@ void Game::_SetCamera() {
 	}
 
 	m_CameraPtr = nullptr;
-	m_pWindow->SetCamera(&m_DefaultCamera);
+	m_RenderEngine->SetCamera(&m_DefaultCamera);
 }

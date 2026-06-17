@@ -30,12 +30,12 @@ public:
 	};
 
 public:
-	Script(NotNull<Lua*> pLua);
+	Script(NotNull<Lua*> pLua, const std::string& filePath, NotNull<Object*> pObject);
 	Script(const Script& script) = delete;
 	Script(Script&& script) noexcept;
 	~Script() = default;
 
-	void Load(const std::string& filePath, NotNull<Object*> pObject);
+	void Load();
 
 	void Start();
 	void Update(const Float& time);

@@ -14,8 +14,10 @@
 #include <Objects/Entities/GameModel.h>
 
 
-Script::Script(NotNull<Lua*> pLua) :
+Script::Script(NotNull<Lua*> pLua, const std::string& filePath, NotNull<Object*> pObject) :
 	m_pLua(pLua),
+	m_FilePath(filePath),
+	m_pObject(pObject),
 	m_LuaUpdate(nullptr),
 	m_LuaStart(nullptr) 
 {
@@ -31,7 +33,7 @@ Script::Script(NotNull<Lua*> pLua) :
 		.endClass();
 	m_pLua->GetGlobalNamespace()
 		.beginClass<Script>("Script")
-		.addConstructor<void(*)(Lua*)>()
+		//.addConstructor<void(*)(Lua*)>()
 		.addFunction("AddData", &Script::AddData)
 		.addFunction("GetDataValue", &Script::GetDataValue)
 		.endClass();
@@ -57,12 +59,9 @@ Script::Script(Script&& script) noexcept :
 }
 
 
-void Script::Load(const std::string& filePath, NotNull<Object*> pObject) {
+void Script::Load() {
 	if (m_IsLoaded)
 		m_IsLoaded = false;
-
-	m_FilePath = filePath;
-	m_pObject = pObject;
 
 	_SetGlobalObject("g_ThisObject", m_pObject);
 
@@ -99,17 +98,16 @@ void Script::Load(const std::string& filePath, NotNull<Object*> pObject) {
 }
 
 void Script::Start() {
-	if (!m_IsLoaded)
-		return;
-
 	try {
+		Load();
+
 		_SetGlobalThis();
 		_Call(m_LuaStart);
 
 		m_IsStarted = true;
 	}
 	catch (const std::exception& except) {
-		Nt::MessageWindow(except.what(), "Error").ShowError();
+		Raise(except.what());
 	}
 }
 
@@ -122,8 +120,8 @@ void Script::Update(const Float& time) {
 		_Call(m_LuaUpdate, time);
 	}
 	catch (const std::exception& except) {
-		Nt::MessageWindow(except.what(), "Error").ShowError();
 		m_IsStarted = false;
+		Raise(except.what());
 	}
 }
 

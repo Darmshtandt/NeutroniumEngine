@@ -23,13 +23,13 @@ private:
 	enum TextEdits {
 		TEXTEDIT_OFFSET_X, TEXTEDIT_OFFSET_Y, 
 		TEXTEDIT_SCALE_X, TEXTEDIT_SCALE_Y, 
-		TEXTEDIT_ROTATE_X, TEXTEDIT_ROTATE_Y,
+		TEXTEDIT_ROTATION,
 		TEXTEDIT_COUNT
 	};
 
 public:
 	PropertyTexture(Selector* pSelector, Scene*) noexcept :
-		PropertyComponent(pSelector, Texts::TEXT_COUNT, TEXTEDIT_COUNT, BUTTON_COUNT),
+		PropertyComponent(pSelector, TEXT_COUNT, TEXTEDIT_COUNT, BUTTON_COUNT),
 		m_ContentLayout(2),
 		m_ParametersLayout({ 3, 5 })
 	{
@@ -178,14 +178,15 @@ private:
 
 private:
 	void _AddSelection(Object* pObject) override {
+		assert(pObject);
 		if (pObject->GetTypeToken() == Primitive::GetClassTypeToken()) {
 			_SetButtonTexture(pObject->GetTexture().Get());
 
-			const Primitive* pPrimitive = static_cast<const Primitive*>(pObject);
-			m_TextEdits[TEXTEDIT_OFFSET_X].SetText(pPrimitive->GetTextureOffset().x);
-			m_TextEdits[TEXTEDIT_OFFSET_Y].SetText(pPrimitive->GetTextureOffset().y);
-			m_TextEdits[TEXTEDIT_SCALE_X].SetText(pPrimitive->GetTextureScale().x);
-			m_TextEdits[TEXTEDIT_SCALE_Y].SetText(pPrimitive->GetTextureScale().y);
+			m_TextEdits[TEXTEDIT_OFFSET_X].SetText(pObject->GetTextureOffset().x);
+			m_TextEdits[TEXTEDIT_OFFSET_Y].SetText(pObject->GetTextureOffset().y);
+			m_TextEdits[TEXTEDIT_SCALE_X].SetText(pObject->GetTextureScale().x);
+			m_TextEdits[TEXTEDIT_SCALE_Y].SetText(pObject->GetTextureScale().y);
+			m_TextEdits[TEXTEDIT_ROTATION].SetText(pObject->GetTextureRotation() / RADf);
 		}
 
 		PropertyComponent::_AddSelection(pObject);
@@ -236,7 +237,7 @@ private:
 		(void)handle;
 
 		const WeakObjectContainer& selectedObjects = m_SelectorPtr->GetObjectContainer();
-		WeakObjectContainer::const_iterator iterator = selectedObjects.cbegin();
+		auto iterator = selectedObjects.cbegin();
 
 		try {
 			for (; iterator != selectedObjects.end(); ++iterator) {
@@ -244,32 +245,29 @@ private:
 				if (object == nullptr || object->GetTypeToken() != Primitive::GetClassTypeToken())
 					continue;
 
-				Primitive* pPrimitive = static_cast<Primitive*>(object.get());
-
-				const Nt::Float2D textureOffset = pPrimitive->GetTextureOffset();
-				const Nt::Float2D textureScale = pPrimitive->GetTextureScale();
+				const Nt::Float2D textureOffset = object->GetTextureOffset();
+				const Nt::Float2D textureScale = object->GetTextureScale();
+				const Float value = m_TextEdits[id].GetText();
 
 				switch (id) {
 				case TEXTEDIT_OFFSET_X:
-					pPrimitive->SetTextureOffset({ m_TextEdits[id].GetText(), textureOffset.y });
+					object->SetTextureOffset({ value, textureOffset.y });
 					break;
 
 				case TEXTEDIT_OFFSET_Y:
-					pPrimitive->SetTextureOffset({ textureOffset.x, m_TextEdits[id].GetText() });
+					object->SetTextureOffset({ textureOffset.x, value });
 					break;
 
 				case TEXTEDIT_SCALE_X:
-					pPrimitive->SetTextureScale({ m_TextEdits[id].GetText(), textureScale.y });
+					object->SetTextureScale({ value, textureScale.y });
 					break;
 
 				case TEXTEDIT_SCALE_Y:
-					pPrimitive->SetTextureScale({ textureScale.x, m_TextEdits[id].GetText() });
+					object->SetTextureScale({ textureScale.x, value });
 					break;
 
-				case TEXTEDIT_ROTATE_X:
-					break;
-
-				case TEXTEDIT_ROTATE_Y:
+				case TEXTEDIT_ROTATION:
+					object->SetTextureRotation(value * RADf);
 					break;
 				}
 			}

@@ -11,9 +11,8 @@ public:
 	GameCamera(const GameCamera& camera);
 	~GameCamera() noexcept override = default;
 
-	void Set(NotNull<Nt::RenderWindow*> windowPtr);
-
 	[[nodiscard]] GameCamera* GetCopy() const override;
+	[[nodiscard]] Nt::Camera* GetCamera() noexcept;
 	[[nodiscard]] static std::string GetClassToken() noexcept;
 	[[nodiscard]] std::string GetToken() const noexcept override;
 
