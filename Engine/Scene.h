@@ -17,12 +17,17 @@ public:
 	struct RemoveObjectCommand final {
 		ObjectPtr Object;
 	};
-	struct MultiAddObjectCommand final {
+
+	struct MultiAddObjectsCommand final {
 		ObjectContainer Objects;
 	};
-	struct MultiRemoveObjectCommand final {
+	struct MultiRemoveObjectsCommand final {
 		ObjectContainer Objects;
 	};
+	struct MultiRemoveWeakObjectsCommand final {
+		WeakObjectContainer Objects;
+	};
+
 	struct ClearCommand final
 	{
 	};

@@ -1,5 +1,6 @@
 #include <Editor/EditingHistory.h>
-#include <Editor/Commands/IEditCommand.h>
+
+EditingHistory::~EditingHistory() noexcept = default;
 
 void EditingHistory::AddEndExecute(NotNull<IEditCommand*> command) {
 	command->Execute();

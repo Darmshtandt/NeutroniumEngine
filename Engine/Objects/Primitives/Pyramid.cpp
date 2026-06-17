@@ -6,6 +6,7 @@ Pyramid::Pyramid(const std::string& name) : Primitive(name, Class<Pyramid>::ID()
 }
 
 void Pyramid::SetSize(const Nt::Float3D& size) {
+	assert(0);
 	if (m_Size == size)
 		return;
 

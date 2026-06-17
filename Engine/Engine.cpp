@@ -81,13 +81,6 @@ void Engine::Initialize(const Settings& settings, const Nt::String& defaultIniti
 	m_pCameraController.reset(new CameraController(pCamera));
 
 	m_InputContext->AddHotKey(
-		{ Nt::KEY_CONTROL, Nt::KEY_C }, [this] () { m_pClipboard->Copy(); });
-	m_InputContext->AddHotKey(
-		{ Nt::KEY_CONTROL, Nt::KEY_X }, [this] () { m_pClipboard->Cut(); });
-	m_InputContext->AddHotKey(
-		{ Nt::KEY_CONTROL, Nt::KEY_V }, [this] () { m_pClipboard->Paste(); });
-
-	m_InputContext->AddHotKey(
 		{ Nt::KEY_ESCAPE }, [this] () { m_pSelector->AllDeselect(); });
 	m_InputContext->AddHotKey(
 		{ Nt::KEY_DEL }, [this] () { m_pScene->RemoveSelected(m_pSelector); });
@@ -108,8 +101,6 @@ void Engine::Initialize(const Settings& settings, const Nt::String& defaultIniti
 		{ Nt::KEY_CONTROL, Nt::KEY_T }, [this] () { StartTestGame(); });
 	m_InputContext->AddHotKey(
 		{ Nt::KEY_CONTROL, Nt::KEY_SHIFT, Nt::KEY_T }, [this] () { CloseTestGame(); });
-
-	m_pClipboard = std::make_unique<Clipboard>(m_pScene, m_pSelector);
 
 	m_pGame.reset(new Game(&m_Window));
 	m_pGame->InitializeTestGame(m_pScene);

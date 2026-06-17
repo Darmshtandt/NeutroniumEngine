@@ -1,10 +1,13 @@
 #include <Editor/Clipboard.h>
+#include <Editor/EditingHistory.h>
+#include <Editor/Commands/SceneCommands.h>
 #include <Selector.h>
 #include <Scene.h>
+#include <Nt/Core/EventBus.h>
 
-Clipboard::Clipboard(NotNull<Scene*> pScene, NotNull<Selector*> pSelector) noexcept :
-	m_pSelector(pSelector),
-	m_pScene(pScene)
+Clipboard::Clipboard(const std::weak_ptr<Nt::EventBus>& pBus, NotNull<Selector*> pSelector) noexcept :
+	m_pEventBus(pBus),
+	m_pSelector(pSelector)
 {
 }
 
@@ -28,23 +31,28 @@ void Clipboard::Copy() {
 	}
 }
 void Clipboard::Cut() {
-	if (m_pSelector->IsEmpty())
+	if (m_pSelector->IsEmpty() || m_pEventBus.expired())
 		return;
 
 	Copy();
-	m_pScene->RemoveSelected(m_pSelector);
+
+	const auto bus = m_pEventBus.lock();
+	bus->Emmit<Scene::MultiRemoveWeakObjectsCommand>({ m_pSelector->GetObjectContainer() });
 }
 void Clipboard::Paste() {
-	if (m_Clipboard.empty())
+	if (m_Clipboard.empty() || m_pEventBus.expired())
 		return;
 
-	m_pSelector->AllDeselect();
-	for (ObjectPtr& pObject : m_Clipboard) {
-		pObject->Translate({ 1.f, 1.f, 1.f });
+	const auto bus = m_pEventBus.lock();
 
-		ObjectPtr pCopiedObject(pObject->GetCopy());
-		m_pSelector->AddSelect(pCopiedObject);
-		m_pScene->AddObject(pCopiedObject);
+	m_pSelector->AllDeselect();
+	for (ObjectPtr& object : m_Clipboard) {
+		object->Translate({ 1.f, 1.f, 1.f });
+
+		ObjectPtr copy(object->GetCopy());
+		m_pSelector->AddSelect(copy);
+		bus->Emmit<AddToHistoryCommand>({
+			new Edit::AddObjectCommand(m_pEventBus, copy) });
 	}
 }
 void Clipboard::Clear() {

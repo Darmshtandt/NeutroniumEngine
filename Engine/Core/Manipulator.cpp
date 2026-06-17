@@ -65,11 +65,6 @@ void Manipulator::Control(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Ca
 	if (!m_StartedEditing || m_StartCursorPosition == cursorPosition)
 		return;
 
-	if (!mouse.IsButtonPressed(Nt::BUTTON_LEFT, false)) {
-		EndEditing();
-		return;
-	}
-
 	Nt::Ray ray = Nt::RayFromPoint2D(cursorPosition, -camera.GetPosition(),
 		pWindow->GetClientSize(), pWindow->GetProjection(), pWindow->GetView());
 	CalcMoveDelta(ray);
@@ -139,10 +134,12 @@ Nt::Float3D Manipulator::CalcMoveDelta(const Nt::Ray& ray) {
 		return m_MoveDelta;
 
 	const Float t = (a * e - b * d) / denom;
-	const Nt::Float3D axisPoint = m_Position + axisDirection * t;
+	const Nt::Float3D newAxisPoint = m_Position + axisDirection * t;
+	const Nt::Float3D delta = newAxisPoint - m_Position;
 
-	m_MoveDelta += axisPoint - m_StartPoint;
-	m_StartPoint = axisPoint;
+	m_LocalMoveDelta += delta;
+	m_MoveDelta += delta;
+	SetPosition(newAxisPoint);
 
 	return m_MoveDelta;
 }
@@ -152,8 +149,8 @@ void Manipulator::EndEditing() noexcept {
 		m_StartedEditing = false;
 }
 
-void Manipulator::ResetMoveDelta() noexcept {
-	m_MoveDelta = { };
+void Manipulator::ResetLocalMoveDelta() noexcept {
+	m_LocalMoveDelta = { };
 }
 
 Manipulator::Axis Manipulator::RayCastTest(const Nt::Ray& ray) {
@@ -164,7 +161,7 @@ Manipulator::Axis Manipulator::RayCastTest(const Nt::Ray& ray) {
 	return NONE;
 }
 
-const Manipulator::Arrow* Manipulator::GetArrow(const uInt& axis) const noexcept {
+const Manipulator::Arrow* Manipulator::GetArrow(uInt axis) const noexcept {
 	Assert(axis < 3, "Out or range");
 	return m_AxisArrows[axis].get();
 }
@@ -172,7 +169,9 @@ const Manipulator::Arrow* Manipulator::GetArrow(const uInt& axis) const noexcept
 Nt::Float3D Manipulator::GetPosition() const noexcept {
 	return m_Position;
 }
-
+Nt::Float3D Manipulator::GetLocalMoveDelta() const noexcept {
+	return m_LocalMoveDelta;
+}
 Nt::Float3D Manipulator::GetMoveDelta() const noexcept {
 	return m_MoveDelta;
 }
@@ -195,7 +194,6 @@ void Manipulator::SetState(const State& state) noexcept {
 		return;
 
 	m_State = state;
-
 	for (const auto& arrow : m_AxisArrows)
 		arrow->SetMesh(m_StateMeshes[m_State]);
 }

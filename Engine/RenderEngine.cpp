@@ -63,6 +63,9 @@ void RenderEngine::RenderObject(const Object* pObject) const {
 		m_pRenderer->BindTexture(pObject->GetTexture().Get());
 		m_pRenderer->GetShaderPtr()->SetUniformMatrix3x3("TexWorld", Nt::UNIFORM_FLOAT, pObject->TextureLocalWorld());
 	}
+	else {
+		m_pRenderer->UnbindTexture();
+	}
 
 	m_pRenderer->SetColor(pObject->GetColor());
 	m_pRenderer->SetDrawingMode(pObject->GetDrawingMode());
@@ -103,41 +106,4 @@ void RenderEngine::RenderOutline(const Object* pObject) const {
 	m_pRenderer->SetCullFace(cullFace);
 	m_pRenderer->SetColor(color);
 	m_pRenderer->MatrixWorldPop();
-}
-
-void RenderEngine::RenderModel(const Nt::Model& model) const {
-	assert(0);
-	const Nt::ResourceHandle<Nt::Mesh> mesh = model.GetMesh();
-	if (!mesh.IsValid() || !model.IsVisible())
-		return;
-
-	const Nt::Float4D color = m_pRenderer->GetColor();
-	m_pRenderer->BindTexture(model.GetTexture().Get());
-	m_pRenderer->SetColor(model.GetColor());
-	m_pRenderer->MatrixWorldPush();
-	m_pRenderer->Transform(model.GetPosition(), model.GetOrigin(), model.GetAngle(), model.GetAngleOrigin());
-	m_pRenderer->Scale(model.GetSize());
-	m_pRenderer->Render(mesh.Get());
-	m_pRenderer->MatrixWorldPop();
-	m_pRenderer->SetColor(color);
-}
-
-void RenderEngine::RenderCollider(const Nt::Collider* pCollider) const {
-	assert(0);
-	if (!pCollider->IsVisible())
-		return;
-
-	m_pRenderer->SetDepthMode(Nt::DepthMode::ALWAYS);
-	m_pRenderer->SetLineWidth(10);
-	m_pRenderer->SetDrawingMode(Nt::Renderer::DrawingMode::LINE_STRIP);
-	m_pRenderer->UnbindTexture();
-
-	m_pRenderer->MatrixWorldPush();
-	m_pRenderer->SetWorld(pCollider->LocalToWorld());
-	m_pRenderer->Render(pCollider->GetMesh());
-	m_pRenderer->MatrixWorldPop();
-
-	m_pRenderer->SetDrawingMode(Nt::Renderer::DrawingMode::TRIANGLES);
-	m_pRenderer->SetLineWidth(1);
-	m_pRenderer->SetDepthMode(Nt::DepthMode::LESS);
 }

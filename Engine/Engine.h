@@ -83,7 +83,6 @@ private:
 
 	std::unique_ptr<CameraController> m_pCameraController;
 	std::unique_ptr<WorldEditor> m_pWorldEditor;
-	std::unique_ptr<Clipboard> m_pClipboard;
 	std::unique_ptr<Game> m_pGame;
 
 	Settings m_Settings;

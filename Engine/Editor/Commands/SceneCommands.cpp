@@ -44,11 +44,11 @@ namespace Edit {
 
 	void MultiAddObjectCommand::Execute() {
 		if (const auto bus = m_pEventBus.lock())
-			bus->Emmit<Scene::MultiAddObjectCommand>({ m_Objects });
+			bus->Emmit<Scene::MultiAddObjectsCommand>({ m_Objects });
 	}
 	void MultiAddObjectCommand::Undo() {
 		if (const auto bus = m_pEventBus.lock())
-			bus->Emmit<Scene::MultiRemoveObjectCommand>({ m_Objects });
+			bus->Emmit<Scene::MultiRemoveObjectsCommand>({ m_Objects });
 	}
 
 
@@ -60,10 +60,10 @@ namespace Edit {
 
 	void MultiRemoveObjectCommand::Execute() {
 		if (const auto bus = m_pEventBus.lock())
-			bus->Emmit<Scene::MultiRemoveObjectCommand>({ m_Objects });
+			bus->Emmit<Scene::MultiRemoveObjectsCommand>({ m_Objects });
 	}
 	void MultiRemoveObjectCommand::Undo() {
 		if (const auto bus = m_pEventBus.lock())
-			bus->Emmit<Scene::MultiAddObjectCommand>({ m_Objects });
+			bus->Emmit<Scene::MultiAddObjectsCommand>({ m_Objects });
 	}
 }

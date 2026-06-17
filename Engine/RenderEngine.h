@@ -26,8 +26,6 @@ public:
 	void Render() const;
 	void RenderObject(const Object* pObject) const;
 	void RenderOutline(const Object* pObject) const;
-	void RenderModel(const Nt::Model& model) const;
-	void RenderCollider(const Nt::Collider* pCollider) const;
 
 	void SetScene(Scene* pScene) noexcept;
 

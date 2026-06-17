@@ -1,15 +1,17 @@
 #pragma once
 
 #include <Nt/Core/Utilities.h>
-#include <vector>
 #include <Objects/Object.h>
 
-class Scene;
+namespace Nt {
+	class EventBus;
+}
+
 class Selector;
 
 class Clipboard {
 public:
-	explicit Clipboard(NotNull<Scene*> pScene, NotNull<Selector*> pSelector) noexcept;
+	explicit Clipboard(const std::weak_ptr<Nt::EventBus>& pBus, NotNull<Selector*> pSelector) noexcept;
 
 	void Copy();
 	void Cut();
@@ -17,7 +19,7 @@ public:
 	void Clear();
 
 private:
+	std::weak_ptr<Nt::EventBus> m_pEventBus;
 	ObjectContainer m_Clipboard;
 	Selector* m_pSelector;
-	Scene* m_pScene;
 };

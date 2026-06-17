@@ -1,21 +1,24 @@
 #include <Editor/WorldEditor.h>
 
+#include <InputContext.h>
+#include <Editor/EditingHistory.h>
+
 #include <Scene.h>
 #include <Selector.h>
 #include <Editor/WorldDocument.h>
+#include <Editor/Clipboard.h>
 #include <Core/Commands.h>
 #include <Core/Grid.h>
-
 #include <Objects/ObjectFactory.h>
 
-#include "EditingHistory.h"
-
 WorldEditor::WorldEditor(const std::weak_ptr<Nt::EventBus>& pBus, const Nt::String& defaultInitialPath) :
+	m_InputContext(new InputContext),
+	m_EditingHistory(new EditingHistory),
 	m_Grid(new Grid),
 	m_Scene(new Scene(pBus)),
-	m_EditingHistory(new EditingHistory),
 	m_Document(new WorldDocument(m_Scene->GetLua())),
-	m_Selector(new Selector(pBus, m_Scene.get(), m_Grid.get(), m_EditingHistory.get()))
+	m_Selector(new Selector(pBus, m_Scene.get(), m_Grid.get())),
+	m_Clipboard(new Clipboard(pBus, m_Selector.get()))
 {
 	assert(!pBus.expired());
 
@@ -36,7 +39,27 @@ WorldEditor::WorldEditor(const std::weak_ptr<Nt::EventBus>& pBus, const Nt::Stri
 		(void)e;
 		m_Selector->AllDeselect();
 		});
+	
+	sharedBus->Subscribe<AddToHistoryCommand>([this] (const AddToHistoryCommand& e) {
+		m_EditingHistory->AddEndExecute(e.Command);
+		});
+
+
+	sharedBus->Emmit<AddInputContextEvent>({ m_InputContext, "WorldEditor" });
+
+	m_InputContext->AddHotKey(
+		{ Nt::KEY_CONTROL, Nt::KEY_C }, [this] () { m_Clipboard->Copy(); });
+	m_InputContext->AddHotKey(
+		{ Nt::KEY_CONTROL, Nt::KEY_X }, [this] () { m_Clipboard->Cut(); });
+	m_InputContext->AddHotKey(
+		{ Nt::KEY_CONTROL, Nt::KEY_V }, [this] () { m_Clipboard->Paste(); });
+
+	m_InputContext->AddHotKey(
+		{ Nt::KEY_CONTROL, Nt::KEY_Z }, [this] () { m_EditingHistory->Undo(); });
+	m_InputContext->AddHotKey(
+		{ Nt::KEY_CONTROL, Nt::KEY_Y }, [this] () { m_EditingHistory->Redo(); });
 }
+WorldEditor::~WorldEditor() noexcept = default;
 
 void WorldEditor::CreatePrimitive(const std::string& className) {
 	Object* pObject = PrimitiveFactory::Instance().Create(className, className);

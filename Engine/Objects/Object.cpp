@@ -317,6 +317,7 @@ void Object::SetParentPtr(Object* pNewParent) noexcept {
 }
 
 void Object::SetShape(const Nt::Shape& newShape) {
+	assert(0);
 	if (!m_Mesh.IsValid())
 		return;
 

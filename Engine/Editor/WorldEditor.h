@@ -3,6 +3,8 @@
 #include <Nt/Core/EventBus.h>
 #include <Nt/Graphics/Objects/Camera.h>
 
+class Clipboard;
+class InputContext;
 class EditingHistory;
 class Grid;
 class Selector;
@@ -12,6 +14,7 @@ class WorldDocument;
 class WorldEditor {
 public:
 	WorldEditor(const std::weak_ptr<Nt::EventBus>& pBus, const Nt::String& defaultInitialPath);
+	~WorldEditor() noexcept;
 
 	void CreatePrimitive(const std::string& className);
 	void CreateEntity(const std::string& className);
@@ -32,11 +35,13 @@ public:
 	[[nodiscard]] Bool IsChanged() const noexcept;
 
 private:
-	Nt::Camera m_Camera;
-	std::shared_ptr<Scene> m_Scene;
-	std::unique_ptr<Grid> m_Grid;
-	std::unique_ptr<WorldDocument> m_Document;
+	std::shared_ptr<InputContext> m_InputContext;
 	std::unique_ptr<EditingHistory> m_EditingHistory;
+	std::unique_ptr<Grid> m_Grid;
+	std::shared_ptr<Scene> m_Scene;
+	std::unique_ptr<WorldDocument> m_Document;
 	std::unique_ptr<Selector> m_Selector;
+	std::unique_ptr<Clipboard> m_Clipboard;
+	Nt::Camera m_Camera;
 	Bool m_IsChanged = false;
 };

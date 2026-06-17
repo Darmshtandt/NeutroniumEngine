@@ -48,12 +48,13 @@ public:
 	Nt::Float3D CalcMoveDelta(const Nt::Ray& ray);
 	void EndEditing() noexcept;
 
-	void ResetMoveDelta() noexcept;
+	void ResetLocalMoveDelta() noexcept;
 
 	[[nodiscard]] Axis RayCastTest(const Nt::Ray& ray);
 
-	[[nodiscard]] const Arrow* GetArrow(const uInt& axis) const noexcept;
+	[[nodiscard]] const Arrow* GetArrow(uInt axis) const noexcept;
 	[[nodiscard]] Nt::Float3D GetPosition() const noexcept;
+	[[nodiscard]] Nt::Float3D GetLocalMoveDelta() const noexcept;
 	[[nodiscard]] Nt::Float3D GetMoveDelta() const noexcept;
 	[[nodiscard]] Nt::Float3D GetStartPoint() const noexcept;
 	[[nodiscard]] State GetState() const noexcept;
@@ -71,6 +72,7 @@ private:
 	Nt::Float3D m_RayCastPoint;
 	Nt::Float3D m_Position;
 	Nt::Float2D m_StartCursorPosition;
+	Nt::Float3D m_LocalMoveDelta;
 	Nt::Float3D m_MoveDelta;
 
 	Axis m_SelectedAxis = NONE;

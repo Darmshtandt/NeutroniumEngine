@@ -7,7 +7,6 @@ constexpr const Char* TOPIC_SELECTOR_ADD_SELECTION = "Selector: Add selection";
 constexpr const Char* TOPIC_SELECTOR_DESELECT = "Selector: Deselect";
 constexpr const Char* TOPIC_SELECTOR_ALL_DESELECT = "Selector: All deselect";
 
-class EditingHistory;
 class Grid;
 class Scene;
 
@@ -16,7 +15,7 @@ public:
 	using Axis = Manipulator::Axis;
 
 public:
-	Selector(const std::weak_ptr<Nt::EventBus>& pBus, NotNull<Scene*> pScene, NotNull<Grid*> pGrid, NotNull<EditingHistory*> pEditingHistory);
+	Selector(const std::weak_ptr<Nt::EventBus>& pBus, NotNull<Scene*> pScene, NotNull<Grid*> pGrid);
 
 	void Control(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Camera& camera, Nt::Keyboard& keyboard, Nt::Mouse& mouse);
 
@@ -52,7 +51,6 @@ private:
 	std::unique_ptr<Manipulator> m_pManipulator;
 	std::weak_ptr<Nt::EventBus> m_pEventBus;
 	WeakObjectContainer m_SelectedObjects;
-	EditingHistory* m_pEditingHistory;
 	Grid* m_pGrid;
 	Axis m_SelectedAxis = Axis::NONE;
 	Scene* m_pScene = nullptr;

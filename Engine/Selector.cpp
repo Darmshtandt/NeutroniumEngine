@@ -15,11 +15,10 @@
 #include <Editor/Commands/TransformCommands.h>
 #include <Nt/Core/EventBus.h>
 
-Selector::Selector(const std::weak_ptr<Nt::EventBus>& pBus, NotNull<Scene*> pScene, NotNull<Grid*> pGrid, NotNull<EditingHistory*> pEditingHistory) :
+Selector::Selector(const std::weak_ptr<Nt::EventBus>& pBus, NotNull<Scene*> pScene, NotNull<Grid*> pGrid) :
 	m_pEventBus(pBus),
 	m_pScene(pScene),
 	m_pGrid(pGrid),
-	m_pEditingHistory(pEditingHistory),
 	m_pManipulator(new Manipulator),
 	m_pRayMesh(new Nt::Mesh)
 {
@@ -262,20 +261,58 @@ void Selector::_AxisControl(NotNull<const Nt::RenderWindow*> pWindow, const Nt::
 	if (!m_pManipulator->StartedEditing())
 		return;
 
+	auto sharedBus = m_pEventBus.lock();
+	assert(sharedBus);
+
+	if (!mouse.IsButtonPressed(Nt::BUTTON_LEFT, false)) {
+		Nt::Float3D startPoint = m_pManipulator->GetStartPoint();
+		Nt::Float3D endPoint = m_pManipulator->GetPosition();
+		if (m_IsSnapToGrid) {
+			startPoint = m_pGrid->Snap(startPoint);
+			endPoint = m_pGrid->Snap(endPoint);
+		}
+
+		if (startPoint == endPoint) {
+			m_pManipulator->EndEditing();
+			return;
+		}
+		
+		switch (m_pManipulator->GetState()) {
+		case Manipulator::TRANSLATE:
+			for (auto it = m_SelectedObjects.cbegin(); it != m_SelectedObjects.cend(); ++it) {
+				sharedBus->Emmit<AddToHistoryCommand>({
+					new Edit::MoveCommand(it->lock(), endPoint, startPoint) });
+			}
+			break;
+
+		case Manipulator::SCALE:
+			const Nt::Float3D delta = endPoint - startPoint;
+
+			for (auto it = m_SelectedObjects.cbegin(); it != m_SelectedObjects.cend(); ++it) {
+				const auto object = it->lock();
+				const Nt::Float3D scale = object->GetSize();
+
+				sharedBus->Emmit<AddToHistoryCommand>({
+					new Edit::SizeCommand(object, scale, scale - delta) });
+			}
+			break;
+		}
+
+		m_pManipulator->EndEditing();
+		return;
+	}
+
 	m_pManipulator->Control(pWindow, camera, mouse);
 
-	assert(!m_pEventBus.expired());
-	auto sharedBus = m_pEventBus.lock();
-
-	Nt::Float3D startPoint = m_pManipulator->GetStartPoint();
-	Nt::Float3D moveDelta = m_pManipulator->GetMoveDelta();
+	Nt::Float3D axisPoint = m_pManipulator->GetPosition();
+	Nt::Float3D moveDelta = m_pManipulator->GetLocalMoveDelta();
 
 	if (m_IsSnapToGrid) {
 		moveDelta = m_pGrid->Snap(moveDelta);
 		if (moveDelta.LengthSquare() == 0.f)
 			return;
 
-		startPoint = m_pGrid->Snap(startPoint);
+		axisPoint = m_pGrid->Snap(axisPoint);
 	}
 	else if (moveDelta.LengthSquare() == 0.f) {
 		return;
@@ -283,16 +320,15 @@ void Selector::_AxisControl(NotNull<const Nt::RenderWindow*> pWindow, const Nt::
 
 	switch (m_pManipulator->GetState()) {
 	case Manipulator::TRANSLATE: {
-		const Nt::Float3D newPoint = startPoint + moveDelta;
-
-		m_pManipulator->SetPosition(newPoint);
 		for (auto it = m_SelectedObjects.cbegin(); it != m_SelectedObjects.cend();) {
 			if (it->expired()) {
 				it = m_SelectedObjects.erase(it);
 				continue;
 			}
 
-			m_pEditingHistory->AddEndExecute(new Edit::TransMoveCommand(*it, newPoint));
+			const auto object = it->lock();
+			object->SetPosition(axisPoint);
+			object->StaticUpdate();
 
 			++it;
 		}
@@ -312,13 +348,14 @@ void Selector::_AxisControl(NotNull<const Nt::RenderWindow*> pWindow, const Nt::
 				it = m_SelectedObjects.erase(it);
 				continue;
 			}
-
 			const auto& object = it->lock();
-			Nt::Float3D size = object->GetSize() + moveDelta;
-			if (m_IsSnapToGrid)
-				size = m_pGrid->Snap(size);
 
-			m_pEditingHistory->AddEndExecute(new Edit::SizeCommand(*it, size));
+			const Nt::Float3D size = object->GetSize() + moveDelta;
+			if (m_IsSnapToGrid)
+				object->SetSize(m_pGrid->Snap(size));
+			else
+				object->SetSize(size);
+			object->StaticUpdate();
 
 			++it;
 		}
@@ -332,5 +369,5 @@ void Selector::_AxisControl(NotNull<const Nt::RenderWindow*> pWindow, const Nt::
 		break;
 	}
 
-	m_pManipulator->ResetMoveDelta();
+	m_pManipulator->ResetLocalMoveDelta();
 }

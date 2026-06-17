@@ -36,7 +36,8 @@ namespace Edit {
 
 	class MoveCommand final : public IEditCommand {
 	public:
-		MoveCommand(const WeakObjectPtr& object, const Nt::Float3D& position);
+		MoveCommand(const WeakObjectPtr& object, const Nt::Float3D& newPosition);
+		MoveCommand(const WeakObjectPtr& object, const Nt::Float3D& newPosition, const Nt::Float3D& oldPosition);
 		~MoveCommand() noexcept override = default;
 
 		void Execute() override;
@@ -50,7 +51,8 @@ namespace Edit {
 
 	class RotationCommand final : public IEditCommand {
 	public:
-		RotationCommand(const WeakObjectPtr& object, const Nt::Float3D& rotation);
+		RotationCommand(const WeakObjectPtr& object, const Nt::Float3D& newRotation);
+		RotationCommand(const WeakObjectPtr& object, const Nt::Float3D& newRotation, const Nt::Float3D& oldRotation);
 		~RotationCommand() noexcept override = default;
 
 		void Execute() override;
@@ -64,7 +66,8 @@ namespace Edit {
 
 	class SizeCommand final : public IEditCommand {
 	public:
-		SizeCommand(const WeakObjectPtr& object, const Nt::Float3D& scale);
+		SizeCommand(const WeakObjectPtr& object, const Nt::Float3D& newScale);
+		SizeCommand(const WeakObjectPtr& object, const Nt::Float3D& newScale, const Nt::Float3D& oldScale);
 		~SizeCommand() noexcept override = default;
 
 		void Execute() override;

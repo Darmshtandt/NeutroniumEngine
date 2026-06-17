@@ -15,6 +15,31 @@ Scene::Scene(const std::weak_ptr<Nt::EventBus>& pBus) :
 	m_LightBuffer(Nt::Buffer::Target::UNIFORM)
 {
 	Assert(!m_pEventBus.expired(), "EventBus pointer is null");
+
+	auto sharedBus = m_pEventBus.lock();
+	sharedBus->Subscribe<AddObjectCommand>([this] (const AddObjectCommand& e) {
+		AddObject(e.Object);
+		});
+	sharedBus->Subscribe<RemoveObjectCommand>([this] (const RemoveObjectCommand& e) {
+		RemoveObject(e.Object.get());
+		});
+
+	sharedBus->Subscribe<MultiAddObjectsCommand>([this] (const MultiAddObjectsCommand& e) {
+		for (const auto& object : e.Objects)
+			AddObject(object);
+		});
+	sharedBus->Subscribe<MultiRemoveObjectsCommand>([this] (const MultiRemoveObjectsCommand& e) {
+		for (const auto& object : e.Objects)
+			RemoveObject(object.get());
+		});
+	sharedBus->Subscribe<MultiRemoveWeakObjectsCommand>([this] (const MultiRemoveWeakObjectsCommand& e) {
+		for (const auto& weakObject : e.Objects) {
+			const auto object = weakObject.lock();
+			assert(object);
+
+			RemoveObject(object.get());
+		}
+		});
 }
 Scene::Scene(const Scene& scene) :
 	m_pEventBus(scene.m_pEventBus),

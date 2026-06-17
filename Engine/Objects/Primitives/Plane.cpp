@@ -17,6 +17,7 @@ Plane::Plane(const std::string& name) : Primitive(name, Class<Plane>::ID()) {
 }
 
 void Plane::SetSize(const Nt::Float3D& size) {
+	assert(0);
 	if (m_Size == size)
 		return;
 

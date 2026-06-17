@@ -45,12 +45,19 @@ namespace Edit {
 	}
 
 
-	MoveCommand::MoveCommand(const WeakObjectPtr& object, const Nt::Float3D& position) :
+	MoveCommand::MoveCommand(const WeakObjectPtr& object, const Nt::Float3D& newPosition) :
 		m_pObject(object),
-		m_NewPosition(position)
+		m_NewPosition(newPosition)
 	{
 		assert(!object.expired());
 		m_OldPosition = object.lock()->GetPosition();
+	}
+	MoveCommand::MoveCommand(const WeakObjectPtr& object, const Nt::Float3D& newPosition, const Nt::Float3D& oldPosition) :
+		m_pObject(object),
+		m_NewPosition(newPosition),
+		m_OldPosition(oldPosition)
+	{
+		assert(!object.expired());
 	}
 
 	void MoveCommand::Execute() {
@@ -73,12 +80,19 @@ namespace Edit {
 	}
 
 
-	RotationCommand::RotationCommand(const WeakObjectPtr& object, const Nt::Float3D& rotation) :
+	RotationCommand::RotationCommand(const WeakObjectPtr& object, const Nt::Float3D& newRotation) :
 		m_pObject(object),
-		m_NewRotation(rotation)
+		m_NewRotation(newRotation)
 	{
 		assert(!object.expired());
 		m_OldRotation = object.lock()->GetAngle();
+	}
+	RotationCommand::RotationCommand(const WeakObjectPtr& object, const Nt::Float3D& newRotation, const Nt::Float3D& oldRotation) :
+		m_pObject(object),
+		m_NewRotation(newRotation),
+		m_OldRotation(oldRotation)
+	{
+		assert(!m_pObject.expired());
 	}
 
 	void RotationCommand::Execute() {
@@ -101,12 +115,19 @@ namespace Edit {
 	}
 
 
-	SizeCommand::SizeCommand(const WeakObjectPtr& object, const Nt::Float3D& scale) :
+	SizeCommand::SizeCommand(const WeakObjectPtr& object, const Nt::Float3D& newScale) :
 		m_pObject(object),
-		m_NewScale(scale)
+		m_NewScale(newScale)
 	{
 		assert(!object.expired());
 		m_OldScale = object.lock()->GetSize();
+	}
+	SizeCommand::SizeCommand(const WeakObjectPtr& object, const Nt::Float3D& newScale, const Nt::Float3D& oldScale) :
+		m_pObject(object),
+		m_NewScale(newScale),
+		m_OldScale(oldScale)
+	{
+		assert(!m_pObject.expired());
 	}
 
 	void SizeCommand::Execute() {
