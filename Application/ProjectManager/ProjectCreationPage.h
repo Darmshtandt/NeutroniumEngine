@@ -1,7 +1,9 @@
 #pragma once
 
-#include <Main.h>
 #include <Settings.h>
+#include <Nt/Graphics/System/WindowElements/Button.h>
+#include <Nt/Graphics/System/WindowElements/Text.h>
+#include <Nt/Graphics/System/WindowElements/TextEdit.h>
 
 class ProjectCreationPage : private Nt::Window {
 	friend class ProjectMainPage;

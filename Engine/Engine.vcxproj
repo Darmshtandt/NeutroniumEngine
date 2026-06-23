@@ -38,6 +38,7 @@
     <ClInclude Include="Editor\WorldDocument.h" />
     <ClInclude Include="Editor\WorldEditor.h" />
     <ClInclude Include="IController.h" />
+    <ClInclude Include="Physics\PhysicsWorld.h" />
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="ResourceTokens.h" />
     <ClInclude Include="SerializerXML.h" />
@@ -62,6 +63,7 @@
     <ClInclude Include="Script\Lua.h" />
     <ClInclude Include="Script\Script.h" />
     <ClInclude Include="Selector.h" />
+    <ClInclude Include="SerializeStructs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Controllers\CameraController.cpp" />
@@ -87,6 +89,7 @@
     <ClCompile Include="Objects\Primitives\Primitive.cpp" />
     <ClCompile Include="Objects\Primitives\Pyramid.cpp" />
     <ClCompile Include="Objects\Primitives\Quad.cpp" />
+    <ClCompile Include="Physics\PhysicsWorld.cpp" />
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Script\Lua.cpp" />

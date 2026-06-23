@@ -30,7 +30,7 @@ public:
 
 	[[nodiscard]] Nt::Camera& GetCamera() noexcept;
 	[[nodiscard]] Grid* GetGrid() const noexcept;
-	[[nodiscard]] Scene* GetScene() const noexcept;
+	[[nodiscard]] std::weak_ptr<Scene> GetScene() const noexcept;
 	[[nodiscard]] Selector* GetSelector() const noexcept;
 	[[nodiscard]] Bool IsChanged() const noexcept;
 

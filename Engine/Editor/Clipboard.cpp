@@ -23,9 +23,8 @@ void Clipboard::Copy() {
 			continue;
 
 		ObjectPtr pCopiedObject(object->GetCopy());
-		pCopiedObject->SetForce(Nt::Float3D());
-		pCopiedObject->SetLinearAcceleration(Nt::Float3D());
-		pCopiedObject->SetLinearVelocity(Nt::Float3D());
+		pCopiedObject->GetRigidBody()->Body.SetForce(Nt::Float3D());
+		pCopiedObject->GetRigidBody()->Body.SetLinearVelocity(Nt::Float3D());
 
 		m_Clipboard.emplace_back(std::move(pCopiedObject));
 	}

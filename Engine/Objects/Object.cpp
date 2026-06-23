@@ -5,28 +5,26 @@
 #include <ResourceManager.h>
 
 Object::Object(std::string name, const ClassID id) :
-	Identifier(id),
+	NtEx::Object(id),
 	m_Name(std::move(name)),
 	m_Collider(new Nt::Collider)
 {
+	m_RigidBody = AddComponent<NtEx::RigidBody>();
 }
-
 Object::Object(const Object& object) :
-	RigidBody(object),
-	Identifier(object.GetID()),
+	IObject(object),
+	NtEx::Object(object),
 	m_Collider(new Nt::Collider)
 {
 	_Clone(object);
 }
-
 Object::Object(Object&& object) noexcept :
-	RigidBody(std::move(object)),
-	Identifier(object.GetID()),
+	IObject(std::move(object)),
+	NtEx::Object(std::move(object)),
 	m_Collider(new Nt::Collider)
 {
 	_Move(std::move(object));
 }
-
 Object::~Object() {
 	RemoveScript();
 }
@@ -37,8 +35,6 @@ void Object::Start() {
 		m_pScript->Start();
 	}
 
-	RigidBody::Activate();
-
 	m_IsStarted = true;
 }
 
@@ -46,27 +42,37 @@ void Object::Stop() {
 	if (m_pScript != nullptr)
 		m_pScript->Stop();
 
-	RigidBody::Deactivate();
-
 	m_IsStarted = false;
 }
 
 void Object::StaticUpdate() {
-	if (!IsDirty())
-		return;
-
-	RigidBody::StaticUpdate();
-	m_Collider->SetLocalWorld(LocalToWorld());
+	if (IsDirty())
+		m_Collider->SetLocalWorld(LocalToWorld());
 }
 
-void Object::Update(const Float& time) {
+void Object::Update(Float deltaTime) {
 	if (m_IsStarted) {
 		if (m_pScript != nullptr)
-			m_pScript->Update(time);
-		RigidBody::Update(time);
+			m_pScript->Update(deltaTime);
+
+		m_DeltaTime = deltaTime;
+		if (m_EnabledGravitation)
+			m_RigidBody->Body.AddForce(m_GravityDirection);
+
+		if (m_RigidBody->Body.HasForce()) {
+			m_RigidBody->Body.ApplyForces(m_DeltaTime);
+
+			Translate(m_RigidBody->Body.GetLinearVelocity() * m_DeltaTime);
+
+			m_RigidBody->Body.SetLinearVelocity({ });
+		}
 	}
 
 	m_Collider->SetLocalWorld(LocalToWorld());
+}
+
+void Object::AddForce(Nt::Float3D force) noexcept {
+	m_RigidBody->Body.AddForce(force);
 }
 
 Object& Object::_Clone(const Object& object) {
@@ -172,25 +178,20 @@ void Object::RemoveScript() {
 }
 
 void Object::Collision(NotNull<Object*> pObject) {
-	if (!(IsActive() && IsEnabledCollision() && pObject->IsEnabledCollision()))
+	if (m_EnabledCollider && pObject->m_EnabledCollider)
 		return;
 
 	const std::pair<Bool, Nt::Simplex> gjk = m_Collider->GJK(*pObject->m_Collider);
-	m_IsObjectCollided = gjk.first;
-	if (m_IsObjectCollided) {
+	if (gjk.first) {
 		const Nt::CollisionPoint point = m_Collider->EPA(gjk.second, *pObject->m_Collider);
 		Translate(-point.normal * point.depth);
 
-		SetLinearVelocity({ });
-		SetFrictionStatic(pObject->GetFriction());
-	}
-	else {
-		SetFrictionStatic(pObject->GetFrictionAir());
+		m_RigidBody->Body.SetLinearVelocity({ });
 	}
 }
 
 Bool Object::CheckCollision(const Object* pObject) const {
-	if (!IsActive())
+	if (!m_EnabledCollider)
 		return false;
 	return m_Collider->GJK(*pObject->m_Collider).first;
 }
@@ -203,14 +204,14 @@ Object& Object::operator = (const Object& object) {
 	if (this == &object)
 		return *this;
 
-	RigidBody::operator=(object);
+	IObject::operator=(object);
 	return _Clone(object);
 }
 Object& Object::operator = (Object&& object) noexcept {
 	if (this == &object)
 		return *this;
 
-	RigidBody::operator=(std::move(object));
+	IObject::operator=(std::move(object));
 	return _Move(std::move(object));
 }
 
@@ -229,7 +230,7 @@ Nt::Renderer::DrawingMode Object::GetDrawingMode() const noexcept {
 	return m_DrawingMode;
 }
 
-const Nt::Collider* Object::GetCollider() const noexcept {
+Nt::Collider* Object::GetCollider() const noexcept {
 	return m_Collider.get();
 }
 
@@ -257,6 +258,10 @@ Nt::ResourceHandle<Nt::Mesh> Object::GetMesh() const noexcept {
 	return m_Mesh;
 }
 
+NtEx::RigidBody* Object::GetRigidBody() const noexcept {
+	return m_RigidBody;
+}
+
 Nt::Matrix3x3 Object::TextureLocalWorld() const noexcept {
 	if (m_IsTexChanged) {
 		m_TextureLocalWorld =
@@ -281,6 +286,13 @@ Nt::Float2D Object::GetTextureScale() const noexcept {
 Float Object::GetTextureRotation() const noexcept {
 	return m_TextureRotation;
 }
+Bool Object::EnabledGravitation() const noexcept {
+	return m_EnabledGravitation;
+}
+
+Bool Object::EnabledCollider() const noexcept {
+	return m_EnabledCollider;
+}
 
 Nt::ResourceHandle<Nt::Texture> Object::GetTexture() const noexcept {
 	return m_Texture;
@@ -295,8 +307,13 @@ Bool Object::IsInvisible() const noexcept {
 Bool Object::IsStarted() const noexcept {
 	return m_IsStarted;
 }
-Bool Object::IsActivePhysics() const noexcept {
-	return RigidBody::IsActive();
+
+void Object::ToggleGravitation(Bool enabled) noexcept {
+	m_EnabledGravitation = enabled;
+}
+
+void Object::ToggleCollider(Bool enabled) noexcept {
+	m_EnabledCollider = enabled;
 }
 
 void Object::SetDrawingMode(Nt::Renderer::DrawingMode mode) noexcept {

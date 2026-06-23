@@ -4,6 +4,10 @@
 #include <Nt/Core/Math/Vector.h>
 #include <Script/Script.h>
 
+namespace NtEx {
+	class RigidBody;
+}
+
 class Plane;
 class Pyramid;
 class Cube;
@@ -22,38 +26,37 @@ namespace Nt {
 	class Mesh;
 	class Texture;
 	class Model;
-	class RigidBody;
 	class IObject;
 }
 
-struct SerializerXML final {
-	[[nodiscard]] static TiXmlElement* ToXML(const Nt::IObject* pIObject);
-	[[nodiscard]] static TiXmlElement* ToXML(const Nt::RigidBody* pBody);
+struct SerializerXML {
+	static [[nodiscard]] TiXmlElement* ToXML(const Nt::IObject* pIObject);
+	static [[nodiscard]] TiXmlElement* ToXML(const NtEx::RigidBody* pBody);
 
-	[[nodiscard]] static TiXmlElement* ToXML(const Nt::Texture* pTexture);
-	[[nodiscard]] static TiXmlElement* ToXML(const Nt::Mesh* pMesh);
-	[[nodiscard]] static TiXmlElement* ToXML(const Nt::Model* pModel);
+	static [[nodiscard]] TiXmlElement* ToXML(const Nt::Texture* pTexture);
+	static [[nodiscard]] TiXmlElement* ToXML(const Nt::Mesh* pMesh);
+	static [[nodiscard]] TiXmlElement* ToXML(const Nt::Model* pModel);
 
-	[[nodiscard]] static TiXmlElement* ToXML(const Script* pScript, const std::vector<Script::Data>& allData);
-	[[nodiscard]] static TiXmlElement* ToXML(const Object* pObject);
-	[[nodiscard]] static TiXmlElement* ToXML(const Primitive* pPrimitive);
-	[[nodiscard]] static TiXmlElement* ToXML(const Entity* pEntity);
+	static [[nodiscard]] TiXmlElement* ToXML(const Script* pScript, const std::vector<Script::Data>& allData);
+	static [[nodiscard]] TiXmlElement* ToXML(const Object* pObject);
+	static [[nodiscard]] TiXmlElement* ToXML(const Primitive* pPrimitive);
+	static [[nodiscard]] TiXmlElement* ToXML(const Entity* pEntity);
 
-	[[nodiscard]] static TiXmlElement* ToXML(const GameSound* pSound);
-	[[nodiscard]] static TiXmlElement* ToXML(const GameModel* pModel);
-	[[nodiscard]] static TiXmlElement* ToXML(const GameLight* pLight);
-	[[nodiscard]] static TiXmlElement* ToXML(const GameCamera* pCamera);
+	static [[nodiscard]] TiXmlElement* ToXML(const GameSound* pSound);
+	static [[nodiscard]] TiXmlElement* ToXML(const GameModel* pModel);
+	static [[nodiscard]] TiXmlElement* ToXML(const GameLight* pLight);
+	static [[nodiscard]] TiXmlElement* ToXML(const GameCamera* pCamera);
 
-	[[nodiscard]] static TiXmlElement* ToXML(const Cube* pCube);
-	[[nodiscard]] static TiXmlElement* ToXML(const Quad* pQuad);
-	[[nodiscard]] static TiXmlElement* ToXML(const Pyramid* pPyramid);
-	[[nodiscard]] static TiXmlElement* ToXML(const Plane* pPlane);
+	static [[nodiscard]] TiXmlElement* ToXML(const Cube* pCube);
+	static [[nodiscard]] TiXmlElement* ToXML(const Quad* pQuad);
+	static [[nodiscard]] TiXmlElement* ToXML(const Pyramid* pPyramid);
+	static [[nodiscard]] TiXmlElement* ToXML(const Plane* pPlane);
 
-	[[nodiscard]] static TiXmlElement* ToXML(const Scene* pScene);
+	static [[nodiscard]] TiXmlElement* ToXML(const Scene* pScene);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Scene*> pScene, NotNull<Lua*> pLua);
 
 	template <typename _Ty, uInt size>
-	[[nodiscard]] static TiXmlElement* ToXML(const Nt::String& name, const Nt::Vector<_Ty, size>& vector) noexcept {
+	static [[nodiscard]] TiXmlElement* ToXML(const Nt::String& name, const Nt::Vector<_Ty, size>& vector) noexcept {
 		TiXmlElement* element = new TiXmlElement("Vector");
 		element->SetAttribute("Dimension", size);
 		element->SetAttribute("Name", name.c_str());
@@ -108,7 +111,7 @@ struct SerializerXML final {
 	}
 
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::IObject*> pObject);
-	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::RigidBody*> pBody);
+	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<NtEx::RigidBody*> pBody, NotNull<Object*> pObject);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Texture*> pTexture);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Mesh*> pMesh);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Model*> pModel);

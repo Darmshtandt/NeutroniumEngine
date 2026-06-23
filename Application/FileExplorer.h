@@ -1,5 +1,9 @@
 #pragma once
 
+#include <shlobj_core.h>
+#include <shellapi.h>
+#include <commoncontrols.h>
+
 
 Int CALLBACK _ListCompareFunc(LPARAM lParam1, LPARAM lParam2, [[maybe_unused]] LPARAM lParamSort) {
 	if (lParam1 == 0 || lParam2 == 0)

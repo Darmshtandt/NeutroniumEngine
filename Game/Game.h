@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Nt/Core/EventBus.h>
 #include <Main.h>
 #include <Scene.h>
 #include <Objects/Entities/GameCamera.h>
@@ -8,6 +7,7 @@
 #include <Nt/Graphics/Sound/SoundDevice.h>
 #include <Nt/Graphics/Sound/Listener.h>
 
+class PhysicsWorld;
 class RenderEngine;
 
 class Game {
@@ -28,11 +28,9 @@ public:
 	};
 
 public:
-	explicit Game(Nt::RenderWindow* pWindow) noexcept;
+	Game(Nt::RenderWindow* pWindow, const Nt::String& scenePath) noexcept;
+	Game(Nt::RenderWindow* pWindow, NotNull<Scene*> pScene) noexcept;
 	~Game();
-
-	void InitializeGame(const Nt::String& scenePath);
-	void InitializeTestGame(NotNull<Scene*> pScene);
 
 	Bool Start();
 	void End();
@@ -47,9 +45,10 @@ private:
 	Nt::SoundDevice m_SoundDevice;
 	Nt::Listener m_Listener;
 
+	std::shared_ptr<Nt::EventBus> m_EventBus;
+	std::unique_ptr<PhysicsWorld> m_PhysicsWorld;
 	std::unique_ptr<RenderEngine> m_RenderEngine;
 	std::unique_ptr<Scene> m_GameScene;
-	std::shared_ptr<Nt::EventBus> m_EventBus = std::make_shared<Nt::EventBus>();
 	std::thread m_Thread;
 	Nt::Camera m_DefaultCamera;
 	const Lua* m_pLua = nullptr;
@@ -57,7 +56,6 @@ private:
 	GameCamera* m_CameraPtr = nullptr;
 	Scene* m_pEngineScene = nullptr;
 	
-	Bool m_IsInitialized = false;
 	Bool m_IsTestGame = false;
 	Bool m_IsLaunched = false;
 	Bool m_IsThreadTerminated = false;

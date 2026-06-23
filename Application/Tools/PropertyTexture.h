@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Nt/Graphics/Layouts.h>
 #include <Objects/Entities/GameCamera.h>
 #include <Objects/Entities/GameLight.h>
 #include <Objects/Entities/GameSound.h>

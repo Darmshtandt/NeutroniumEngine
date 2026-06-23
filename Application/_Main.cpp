@@ -28,6 +28,7 @@
 #include <ProgramMenu.h>
 #include <Application.h>
 #include <Function.h>
+#include <Nt/Core/Console.h>
 
 int main() {
 	//Nt::Console::Hide();

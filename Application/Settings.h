@@ -1,10 +1,12 @@
 #pragma once
 
+#include <fstream>
 #include <Main.h>
 #include <Style.h>
 #include <Language.h>
 
 #include <Nt/Core/MessageWindow.h>
+#include <Nt/Graphics/System/HandleWindow.h>
 
 struct Settings {
 private:

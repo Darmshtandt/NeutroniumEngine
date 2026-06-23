@@ -2,6 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 #include <ProjectManager/ActionWindow.h>
+#include <Nt/Graphics/System/WindowElements/Button.h>
 
 void ActionWindow::Initialize(const Settings& settings, const uInt& id) {
 	const auto buttonProc = [&] (const uInt& uMsg, const DWord& param_1, const DWord& param_2) {
@@ -60,4 +61,3 @@ void ActionWindow::DisableButtons() {
 		m_Buttons[i].DisableWindow();
 	m_Buttons[BUTTON_REMOVE_FROM_LIST].DisableWindow();
 }
-

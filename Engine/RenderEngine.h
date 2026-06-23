@@ -32,6 +32,7 @@ public:
 	void RenderOutline(const Object* pObject) const;
 
 	[[nodiscard]] Nt::Camera* GetCamera() const noexcept;
+	[[nodiscard]] Nt::Shader* GetShader() const noexcept;
 
 	void SetScene(Scene* pScene) noexcept;
 	void SetCamera(Nt::Camera* pCamera) noexcept;

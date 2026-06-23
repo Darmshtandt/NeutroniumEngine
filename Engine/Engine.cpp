@@ -6,11 +6,11 @@
 #include <InputContext.h>
 #include <RenderEngine.h>
 #include <ResourceManager.h>
+#include <windowsx.h>
 #include <Editor/WorldEditor.h>
 #include <Editor/WorldDocument.h>
 #include <Controllers/CameraController.h>
 #include <Core/Grid.h>
-#include <Editor/Clipboard.h>
 #include <Objects/Entities/GameLight.h>
 
 Engine::Engine(const std::weak_ptr<Nt::EventBus>& pBus) :
@@ -76,10 +76,13 @@ void Engine::Initialize(const Settings& settings, const Nt::String& defaultIniti
 	Nt::Camera* pCamera = &m_WorldEditor->GetCamera();
 	m_CameraController.reset(new CameraController(pCamera));
 
+	const auto scene = m_pScene.lock();
+	assert(scene);
+
 	m_InputContext->AddHotKey(
 		{ Nt::KEY_ESCAPE }, [this] () { m_pSelector->AllDeselect(); });
 	m_InputContext->AddHotKey(
-		{ Nt::KEY_DEL }, [this] () { m_pScene->RemoveSelected(m_pSelector); });
+		{ Nt::KEY_DEL }, [this, scene] () { scene->RemoveSelected(m_pSelector); });
 
 	m_InputContext->AddHotKey(
 		{ Nt::KEY_T }, [this] () { if (!m_IsFly) m_pSelector->SetTransformMode(Manipulator::TRANSLATE); });
@@ -105,8 +108,7 @@ void Engine::Initialize(const Settings& settings, const Nt::String& defaultIniti
 			}
 		});
 
-	m_Game.reset(new Game(&m_Window));
-	m_Game->InitializeTestGame(m_pScene);
+	m_Game.reset(new Game(&m_Window, scene.get()));
 
 	auto shader = new Nt::Shader;
 	shader->Initialize();
@@ -116,23 +118,28 @@ void Engine::Initialize(const Settings& settings, const Nt::String& defaultIniti
 	shader->Link();
 
 	shader->DisableStrict();
-	shader->SetUniform<Bool>("IsObjectSelected", false);
-	shader->SetUniform<Bool>("IsLightsEnabled", true);
-	shader->SetUniform<Int>("NumLights", m_pScene->GetLightsCount());
+	shader->SetUniform("fFullBright", false);
+	shader->SetUniform("fLight", false);
+	shader->SetUniform("LightDirection", Nt::Float3D(0.f, -1.f, 0.f));
+	shader->SetUniform("LightColor", Nt::Colors::White.rgb);
+
+	shader->SetUniform("IsObjectSelected", false);
+	shader->SetUniform("IsLightsEnabled", true);
+	shader->SetUniform("NumLights", scene->GetLightsCount());
 
 	shader->UniformBlockBinding("Lights", 0);
-	shader->BindBufferBase(m_pScene->GetLightBuffer(), 0);
+	shader->BindBufferBase(scene->GetLightBuffer(), 0);
 
 	auto sharedBus = m_pEventBus.lock();
 	sharedBus->Subscribe<Scene::EventAddObject>(
-		[this, shader] (const Scene::EventAddObject& e) {
+		[this, shader, scene] (const Scene::EventAddObject& e) {
 			if (e.pObject->GetToken() == GameLight::GetClassToken())
-				shader->SetUniform<Int>("NumLights", m_pScene->GetLightsCount());
+				shader->SetUniform<Int>("NumLights", scene->GetLightsCount());
 		});
 	sharedBus->Subscribe<Scene::EventRemoveObject>(
-		[this, shader] (const Scene::EventRemoveObject& e) {
+		[this, shader, scene] (const Scene::EventRemoveObject& e) {
 			if (e.pObject->GetToken() == GameLight::GetClassToken())
-				shader->SetUniform<Int>("NumLights", m_pScene->GetLightsCount() - 1);
+				shader->SetUniform<Int>("NumLights", scene->GetLightsCount() - 1);
 		});
 	sharedBus->Subscribe<Scene::EventClear>(
 		[this, shader] (const Scene::EventClear& e) {
@@ -141,7 +148,7 @@ void Engine::Initialize(const Settings& settings, const Nt::String& defaultIniti
 		});
 
 	m_RenderEngine.reset(new RenderEngine(&m_Window, shader));
-	m_RenderEngine->SetScene(m_WorldEditor->GetScene());
+	m_RenderEngine->SetScene(scene.get());
 	m_RenderEngine->SetCamera(&m_WorldEditor->GetCamera());
 
 	m_Window.SetClearColor(m_Settings.Style["Engine.BackgroundColor"]);
@@ -184,6 +191,11 @@ void Engine::Render() {
 		const Nt::Renderer::DrawingMode drawingMode = m_Window.GetDrawingMode();
 
 		m_RenderEngine->RenderObject(m_WorldEditor->GetGrid());
+
+		m_RenderEngine->GetShader()->SetUniform<Nt::Float3D>("LightDirection", Nt::Float3D(1.f, -1.f, 1.f).GetNormalize());
+		m_RenderEngine->GetShader()->SetUniform("LightColor", Nt::Colors::White.rgb);
+		m_RenderEngine->GetShader()->SetUniform("AmbientColor", Nt::Float3D(0.3f, 0.3f, 0.3f));
+		m_RenderEngine->GetShader()->SetUniform("fLight", true);
 
 		Selector* pSelector = m_WorldEditor->GetSelector();
 		if (pSelector->EnabledDebug())
@@ -256,7 +268,7 @@ Selector* Engine::GetSelector() const noexcept {
 	return m_pSelector;
 }
 
-Scene* Engine::GetScene() const noexcept {
+std::weak_ptr<Scene> Engine::GetScene() const noexcept {
 	return m_pScene;
 }
 

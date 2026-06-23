@@ -1,7 +1,11 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
+#include <Windows.h>
+#include <shlobj.h>
+
 #include <ProjectManager/ProjectManager.h>
+#include <Nt/Graphics/System/WindowElements/Button.h>
 
 
 ProjectCreationPage::ProjectCreationPage(NotNull<ProjectManager*> pProjectManager) :
@@ -138,18 +142,18 @@ void ProjectCreationPage::_OnButtonPressed(const uInt& command, const uInt& id, 
 		return;
 
 	switch (id - ID) {
-	case ProjectCreationPage::BUTTON_BROWSE:
+	case BUTTON_BROWSE:
 		m_InputProjectPath.SetText(
 			Nt::OpenFileDialog(m_InputProjectPath.GetText(), FOS_PICKFOLDERS));
 		break;
 
-	case ProjectCreationPage::BUTTON_BACK:
+	case BUTTON_BACK:
 		m_ProjectManagerPtr->m_MainPage.Show();
 		Hide();
 		_ClearInputs();
 		break;
 
-	case ProjectCreationPage::BUTTON_CREATE:
+	case BUTTON_CREATE:
 		_CreateProject();
 		break;
 	}

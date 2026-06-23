@@ -121,3 +121,7 @@ void RenderEngine::RenderOutline(const Object* pObject) const {
 Nt::Camera* RenderEngine::GetCamera() const noexcept {
 	return m_pCamera;
 }
+
+Nt::Shader* RenderEngine::GetShader() const noexcept {
+	return m_Shader.get();
+}

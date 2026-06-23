@@ -9,6 +9,7 @@
 #include <Objects/Primitives/Plane.h>
 #include <Objects/Primitives/Quad.h>
 #include <Objects/Primitives/Pyramid.h>
+#include <Nt/Graphics/Layouts.h>
 
 class PropertySound : public PropertyComponent {
 private:

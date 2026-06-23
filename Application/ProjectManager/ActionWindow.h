@@ -2,6 +2,11 @@
 
 #include <Main.h>
 #include <Settings.h>
+#include <Nt/Graphics/System/Window.h>
+
+namespace Nt {
+	class Button;
+}
 
 class ActionWindow : public Nt::Window {
 public:

@@ -18,7 +18,7 @@ GameCamera::GameCamera(const Nt::String& name) :
 
 	m_Camera.SetPosition({ 0.5f, -0.5f, 0.5f });
 
-	DisableCollider();
+	ToggleCollider(false);
 }
 
 GameCamera::GameCamera(const GameCamera& camera) :

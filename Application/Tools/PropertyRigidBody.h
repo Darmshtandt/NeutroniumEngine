@@ -5,6 +5,7 @@
 #include <Objects/Entities/GameCamera.h>
 #include <Objects/Entities/GameLight.h>
 #include <Objects/Entities/GameSound.h>
+#include <Nt/Graphics/Layouts.h>
 
 class PropertyRigidBody : public PropertyComponent {
 public:
@@ -122,12 +123,12 @@ public:
 
 		const auto& object = m_SelectorPtr->GetObjectPtr(0).lock();
 
-		m_TextEdits[TEXTEDIT_MASS].SetText(object->GetMass());
-		m_TextEdits[TEXTEDIT_FRICTION].SetText(object->GetFriction());
+		m_TextEdits[TEXTEDIT_MASS].SetText(object->GetRigidBody()->Body.GetMass());
+		//m_TextEdits[TEXTEDIT_FRICTION].SetText(object->GetFriction());
 
-		m_Buttons[BUTTON_ACTIVE].SetCheck(object->IsPhysicsEnabled());
-		m_Buttons[BUTTON_COLLISION].SetCheck(object->IsEnabledCollision());
-		m_Buttons[BUTTON_GRAVITATION].SetCheck(object->IsEnabledGravitation());
+		//m_Buttons[BUTTON_ACTIVE].SetCheck(object->IsPhysicsEnabled());
+		m_Buttons[BUTTON_COLLISION].SetCheck(object->EnabledCollider());
+		m_Buttons[BUTTON_GRAVITATION].SetCheck(object->EnabledGravitation());
 		m_Buttons[BUTTON_SHOW_COLLIDER].SetCheck(object->GetCollider()->IsVisible());
 	}
 
@@ -213,24 +214,15 @@ private:
 
 		switch (id) {
 		case BUTTON_ACTIVE:
-			if (m_Buttons[BUTTON_ACTIVE].IsChecked())
-				pObject->EnablePhysics();
-			else
-				pObject->DisablePhysics();
+			assert(0);
 			break;
 
 		case BUTTON_COLLISION:
-			if (m_Buttons[BUTTON_COLLISION].IsChecked())
-				pObject->EnableCollider();
-			else
-				pObject->DisableCollider();
+			pObject->ToggleCollider(m_Buttons[BUTTON_COLLISION].IsChecked());
 			break;
 
 		case BUTTON_GRAVITATION:
-			if (m_Buttons[BUTTON_GRAVITATION].IsChecked())
-				pObject->EnableGravitation();
-			else
-				pObject->DisableGravitation();
+			pObject->ToggleGravitation(m_Buttons[BUTTON_GRAVITATION].IsChecked());
 			break;
 
 		case BUTTON_SHOW_COLLIDER:
@@ -247,14 +239,16 @@ private:
 
 		switch (id) {
 		case TEXTEDIT_MASS:
-			pObject->SetMass(m_TextEdits[id].GetText());
+			pObject->GetRigidBody()->Body.SetMass(m_TextEdits[id].GetText());
 			break;
 
 		case TEXTEDIT_GRAVITY_DIRECTION:
+			assert(0);
 			break;
 
 		case TEXTEDIT_FRICTION:
-			pObject->SetFriction(m_TextEdits[id].GetText());
+			assert(0);
+			//pObject->SetFriction(m_TextEdits[id].GetText());
 			break;
 		}
 	}
@@ -263,12 +257,12 @@ private:
 		if (!pObject->IsDirty() && !fForce)
 			return;
 
-		m_Buttons[BUTTON_ACTIVE].SetCheck(pObject->IsActivePhysics());
-		m_Buttons[BUTTON_COLLISION].SetCheck(pObject->IsEnabledCollision());
-		m_Buttons[BUTTON_GRAVITATION].SetCheck(pObject->IsEnabledGravitation());
+		//m_Buttons[BUTTON_ACTIVE].SetCheck(pObject->IsActivePhysics());
+		m_Buttons[BUTTON_COLLISION].SetCheck(pObject->EnabledCollider());
+		m_Buttons[BUTTON_GRAVITATION].SetCheck(pObject->EnabledGravitation());
 		m_Buttons[BUTTON_SHOW_COLLIDER].SetCheck(pObject->GetCollider()->IsVisible());
 
-		m_TextEdits[TEXTEDIT_MASS].SetText(pObject->GetMass());
-		m_TextEdits[TEXTEDIT_FRICTION].SetText(pObject->GetFriction());
+		m_TextEdits[TEXTEDIT_MASS].SetText(pObject->GetRigidBody()->Body.GetMass());
+		//m_TextEdits[TEXTEDIT_FRICTION].SetText(pObject->GetFriction());
 	}
 };

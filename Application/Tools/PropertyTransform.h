@@ -3,6 +3,7 @@
 #include <ObjectEvents.h>
 #include <Nt/Core/EventBus.h>
 #include <Tools/PropertyRegistrar.h>
+#include <Nt/Graphics/Layouts.h>
 
 
 class PropertyTransform : public PropertyComponent {

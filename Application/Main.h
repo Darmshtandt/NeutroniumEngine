@@ -15,14 +15,8 @@
 #include <mutex>
 
 #include <Windows.h>
-
 #include <NtStdH.h>
-#include <Nt/Graphics.h>
-#include <Nt/Physics.h>
-
-#include <Nt/Graphics/Sound/Sound.h>
-#include <Nt/Collider.h>
-#include <Nt/Light.h>
+#include <Nt/Core/Utilities.h>
 
 constexpr std::string_view APPLICATION_NAME = "Neutronium Engine";
 constexpr const char* LANG_FOLDER = "\\Lang";

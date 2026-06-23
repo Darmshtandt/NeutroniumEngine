@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Nt/Graphics/System/WindowElements/ListBox.h>
+#include <Nt/Graphics/System/WindowElements/Text.h>
 #include <ProjectManager/Project.h>
 #include <ProjectManager/ActionWindow.h>
 

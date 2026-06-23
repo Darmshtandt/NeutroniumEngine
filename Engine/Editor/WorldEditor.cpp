@@ -117,8 +117,8 @@ Grid* WorldEditor::GetGrid() const noexcept {
 	return m_Grid.get();
 }
 
-Scene* WorldEditor::GetScene() const noexcept {
-	return m_Scene.get();
+std::weak_ptr<Scene> WorldEditor::GetScene() const noexcept {
+	return m_Scene;
 }
 
 Selector* WorldEditor::GetSelector() const noexcept {

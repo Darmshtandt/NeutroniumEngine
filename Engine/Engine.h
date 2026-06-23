@@ -56,9 +56,9 @@ public:
 	void DisableFly() noexcept;
 	void ToggleFly() noexcept;
 
+	std::weak_ptr<Scene> GetScene() const noexcept;
 	WorldEditor* GetWorldEditor() const noexcept;
 	Selector* GetSelector() const noexcept;
-	Scene* GetScene() const noexcept;
 	Bool IsFly() const noexcept;
 
 	void SetRect(const Nt::IntRect& rect) noexcept;
@@ -84,9 +84,9 @@ private:
 	std::unique_ptr<WorldEditor> m_WorldEditor;
 	std::unique_ptr<Game> m_Game;
 
+	std::weak_ptr<Scene> m_pScene;
 	Settings m_Settings;
 	Selector* m_pSelector = nullptr;
-	Scene* m_pScene = nullptr;
 	ViewMode m_Projection = ViewMode::PERSPECTIVE;
 	Float m_Zoom = 0.1f;
 

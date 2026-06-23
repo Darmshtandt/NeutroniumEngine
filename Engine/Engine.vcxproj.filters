@@ -61,6 +61,9 @@
     <Filter Include="Editor\Commands">
       <UniqueIdentifier>{fbcb546e-5659-4efb-ae7e-7a0665f7e591}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Physics">
+      <UniqueIdentifier>{b351ea58-5d4f-4fc6-a380-5192f0a13c6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\Vert.glsl">
@@ -186,6 +189,12 @@
     <ClInclude Include="Editor\IProgramComponent.h">
       <Filter>Editor</Filter>
     </ClInclude>
+    <ClInclude Include="Physics\PhysicsWorld.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="SerializeStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -274,6 +283,9 @@
     </ClCompile>
     <ClCompile Include="Editor\Commands\SceneCommands.cpp">
       <Filter>Editor\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\PhysicsWorld.cpp">
+      <Filter>Header Files\Physics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

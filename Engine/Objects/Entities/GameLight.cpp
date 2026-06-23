@@ -18,7 +18,7 @@ GameLight::GameLight(const Nt::String& name) :
 
 	m_Light.SetPosition({ 0.5f, -0.5f, 0.5f });
 
-	DisableCollider();
+	ToggleCollider(false);
 }
 
 GameLight::GameLight(const GameLight& light) :

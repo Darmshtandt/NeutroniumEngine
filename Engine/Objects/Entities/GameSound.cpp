@@ -16,7 +16,7 @@ GameSound::GameSound(const Nt::String& name) :
 	SetMesh(m_Icon3D->GetMesh().Get());
 	SetTexture(g_Loader.Get());
 
-	DisableCollider();
+	ToggleCollider(false);
 }
 
 GameSound::GameSound(const GameSound& sound) :

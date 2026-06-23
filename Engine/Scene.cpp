@@ -49,7 +49,6 @@ Scene::Scene(const Scene& scene) :
 {
 	for (const ObjectPtr& object : scene.m_Objects) {
 		Object* copiedObject = RequireNotNull(object->GetCopy());
-		copiedObject->SetForce({ });
 
 		Script* pScript = object->GetScript();
 		if (pScript != nullptr) {
@@ -130,6 +129,7 @@ void Scene::Clear() {
 }
 
 void Scene::Update(const Float& time) {
+#if 0
 	const auto findLayerByName = [&](LayerContainer& container, const Nt::String& layerName) {
 		return std::find_if(container.begin(), container.end(), [&](const Layer& layer) {
 			return (layer.Name == layerName);
@@ -145,15 +145,6 @@ void Scene::Update(const Float& time) {
 
 		pPrimaryObject->Collision(pSecondaryObject);
 	};
-
-
-	if (m_Lights.empty()) {
-		m_LightBuffer.SetData(m_LightBuffer.GetSize(), nullptr, Nt::USAGE_STREAMDRAW);
-	}
-	else {
-		const uInt bufferSize = (m_Lights.size() * sizeof(Nt::LightData));
-		m_LightBuffer.SetData(bufferSize, m_Lights.data(), Nt::USAGE_STREAMDRAW);
-	}
 
 	for (const ObjectPtr& object : m_Objects) {
 		object->Update(time);
@@ -174,6 +165,18 @@ void Scene::Update(const Float& time) {
 		}
 
 		object->StaticUpdate();
+	}
+#endif
+
+	for (const ObjectPtr& object : m_Objects)
+		object->Update(time);
+
+	if (m_Lights.empty()) {
+		m_LightBuffer.SetData(m_LightBuffer.GetSize(), nullptr, Nt::USAGE_STREAMDRAW);
+	}
+	else {
+		const uInt bufferSize = (m_Lights.size() * sizeof(Nt::LightData));
+		m_LightBuffer.SetData(bufferSize, m_Lights.data(), Nt::USAGE_STREAMDRAW);
 	}
 
 	const uInt offset = sizeof(Nt::Float4D) + sizeof(Nt::Float3D);

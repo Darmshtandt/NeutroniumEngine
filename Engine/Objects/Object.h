@@ -6,8 +6,8 @@
 #include <Nt/Graphics/Resources/ResourceHandle.h>
 #include <Script/Script.h>
 
-#include <Nt/Graphics/Ex/ClassIdentifier.h>
-#include <Nt/Physics/RigidBody.h>
+#include <Nt/Graphics/Ex/Components/Physics.h>
+#include <Nt/Graphics/Ex/Object.h>
 #include <Nt/Collider.h>
 
 using NtEx::ClassID;
@@ -17,7 +17,7 @@ class Lua;
 class Script;
 class Scene;
 
-class Object : public Nt::RigidBody, public NtEx::Identifier {
+class Object : public Nt::IObject, public NtEx::Object {
 protected:
 	Object(std::string name, const ClassID id);
 
@@ -30,7 +30,9 @@ public:
 	virtual void Stop();
 
 	void StaticUpdate() override;
-	void Update(const Float& time) override;
+	void Update(Float deltaTime);
+
+	void AddForce(Nt::Float3D force) noexcept;
 
 	void EnableOutline() noexcept;
 	void DisableOutline() noexcept;
@@ -54,7 +56,7 @@ public:
 	[[nodiscard]] virtual std::string GetToken() const noexcept;
 
 	Nt::Renderer::DrawingMode GetDrawingMode() const noexcept;
-	const Nt::Collider* GetCollider() const noexcept;
+	Nt::Collider* GetCollider() const noexcept;
 	Script* GetScript() const noexcept;
 	const std::vector<Script::Data>& GetScriptData() const noexcept;
 	Nt::String GetLayerName() const noexcept;
@@ -62,16 +64,21 @@ public:
 	Object* GetParentPtr() const noexcept;
 	Nt::ResourceHandle<Nt::Texture> GetTexture() const noexcept;
 	Nt::ResourceHandle<Nt::Mesh> GetMesh() const noexcept;
+	NtEx::RigidBody* GetRigidBody() const noexcept;
 
 	Nt::Matrix3x3 TextureLocalWorld() const noexcept;
 	Nt::Float2D GetTextureOffset() const noexcept;
 	Nt::Float2D GetTextureScale() const noexcept;
 	Float GetTextureRotation() const noexcept;
 
+	Bool EnabledGravitation() const noexcept;
+	Bool EnabledCollider() const noexcept;
 	Bool IsSelected() const noexcept;
 	Bool IsInvisible() const noexcept;
 	Bool IsStarted() const noexcept;
-	Bool IsActivePhysics() const noexcept;
+
+	void ToggleGravitation(Bool enabled) noexcept;
+	void ToggleCollider(Bool enabled) noexcept;
 
 	void SetDrawingMode(Nt::Renderer::DrawingMode mode) noexcept;
 	void SetName(const Nt::String& newName);
@@ -97,10 +104,9 @@ public:
 	virtual void SetOrigin(const Nt::Float3D& origin);
 	virtual void SetColor(const Nt::Float4D& color);
 
-private:
-	using RigidBody::IsActive;
-
 protected:
+	NtEx::RigidBody* m_RigidBody;
+
 	Nt::Renderer::DrawingMode m_DrawingMode = Nt::Renderer::DrawingMode::TRIANGLES;
 	Nt::ResourceHandle<Nt::Mesh> m_Mesh;
 	Nt::ResourceHandle<Nt::Texture> m_Texture;
@@ -108,6 +114,11 @@ protected:
 	std::vector<Script::Data> m_ScriptData;
 	std::string m_LayerName = "Main";
 	std::string m_Name;
+
+	Nt::Float3D m_GravityDirection = { 0.f, -1.f, 0.f };
+	Float m_DeltaTime = 0.f;
+	Bool m_EnabledGravitation = false;
+	Bool m_EnabledCollider = false;
 
 	mutable Nt::Matrix3x3 m_TextureLocalWorld;
 	Nt::Float2D m_TextureOffset;

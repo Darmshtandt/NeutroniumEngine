@@ -19,30 +19,23 @@ TiXmlElement* SerializerXML::ToXML(const Nt::IObject* pIObject) {
 	if (pIObject == nullptr)
 		return nullptr;
 
-	TiXmlElement* el = new TiXmlElement("Nt::IObject");
-	el->SetAttribute("IsVisible", pIObject->IsVisible());
+	TiXmlElement* el = new TiXmlElement("Transform");
 	el->LinkEndChild(ToXML("Position", pIObject->GetPosition()));
-	el->LinkEndChild(ToXML("Origin", pIObject->GetOrigin()));
 	el->LinkEndChild(ToXML("Angle", pIObject->GetAngle()));
-	el->LinkEndChild(ToXML("AngleOrigin", pIObject->GetAngleOrigin()));
 	el->LinkEndChild(ToXML("Size", pIObject->GetSize()));
-	el->LinkEndChild(ToXML("Color", pIObject->GetColor()));
 	return el;
 }
 
-TiXmlElement* SerializerXML::ToXML(const Nt::RigidBody* pBody) {
+TiXmlElement* SerializerXML::ToXML(const NtEx::RigidBody* pBody) {
 	if (pBody == nullptr)
 		return nullptr;
 
-	TiXmlElement* el = new TiXmlElement("Nt::RigidBody");
-	el->LinkEndChild(ToXML(static_cast<const Nt::IObject*>(pBody)));
-	el->SetDoubleAttribute("Mass", pBody->GetMass());
-	el->SetDoubleAttribute("Friction", pBody->GetFriction());
-	el->SetDoubleAttribute("FrictionStatic", pBody->GetFrictionStatic());
-	el->SetAttribute("Enabled", pBody->IsPhysicsEnabled());
-	el->SetAttribute("EnabledCollision", pBody->IsEnabledCollision());
-	el->SetAttribute("EnabledGravitation", pBody->IsEnabledGravitation());
-	el->SetAttribute("IsActive", pBody->IsActive());
+	TiXmlElement* el = new TiXmlElement("RigidBody");
+	el->SetDoubleAttribute("Mass", pBody->Body.GetMass());
+	el->SetDoubleAttribute("Restitution", pBody->Body.GetRestitution());
+	el->SetDoubleAttribute("LinearDamping", pBody->Body.GetLinearDamping());
+	el->LinkEndChild(ToXML("LinearVelocity", pBody->Body.GetLinearVelocity()));
+	el->LinkEndChild(ToXML("Force", pBody->Body.GetForce()));
 	return el;
 }
 
@@ -132,7 +125,12 @@ TiXmlElement* SerializerXML::ToXML(const Object* pObject) {
 		return nullptr;
 
 	TiXmlElement* el = new TiXmlElement("Object");
-	el->LinkEndChild(ToXML(static_cast<const Nt::RigidBody*>(pObject)));
+	el->SetAttribute("IsVisible", pObject->IsVisible());
+	el->SetAttribute("EnabledCollision", pObject->EnabledCollider());
+	el->SetAttribute("EnabledGravitation", pObject->EnabledGravitation());
+	el->LinkEndChild(ToXML("Color", pObject->GetColor()));
+	el->LinkEndChild(ToXML(static_cast<const Nt::IObject*>(pObject)));
+	el->LinkEndChild(ToXML(pObject->GetRigidBody()));
 
 	auto meshHandler = pObject->GetMesh();
 	if (meshHandler.IsValid()) {
@@ -345,46 +343,36 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::IObject
 	pObject->SetColor(color);
 }
 
-void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::RigidBody*> pBody) {
+void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<NtEx::RigidBody*> pBody, NotNull<Object*> pObject) {
 	Assert(pElement->ValueStr() == "Nt::RigidBody", "Element not Nt::RigidBody");
 
 	TiXmlElement* xmlObject = pElement->FirstChildElement();
-	FromXML(xmlObject, static_cast<Nt::IObject*>(pBody));
+	FromXML(xmlObject, static_cast<Nt::IObject*>(pObject));
 
 	Float floatValue;
 	pElement->QueryFloatAttribute("Mass", &floatValue);
-	pBody->SetMass(floatValue);
+	pBody->Body.SetMass(floatValue);
 
-	pElement->QueryFloatAttribute("Friction", &floatValue);
-	pBody->SetFriction(floatValue);
+	//pElement->QueryFloatAttribute("Friction", &floatValue);
+	//pBody->SetFriction(floatValue);
 
-	pElement->QueryFloatAttribute("FrictionStatic", &floatValue);
-	pBody->SetFrictionStatic(floatValue);
+	//pElement->QueryFloatAttribute("FrictionStatic", &floatValue);
+	//pBody->SetFrictionStatic(floatValue);
 
 	Bool boolValue;
-	pElement->QueryBoolAttribute("Enabled", &boolValue);
-	if (boolValue) 
-		pBody->EnablePhysics();
-	else 
-		pBody->DisablePhysics();
+	//pElement->QueryBoolAttribute("Enabled", &boolValue);
 
 	pElement->QueryBoolAttribute("EnabledCollision", &boolValue);
-	if (boolValue)
-		pBody->EnableCollider();
-	else
-		pBody->DisableCollider();
+	pObject->ToggleCollider(boolValue);
 
 	pElement->QueryBoolAttribute("EnabledGravitation", &boolValue);
-	if (boolValue)
-		pBody->EnableGravitation();
-	else
-		pBody->DisableGravitation();
+	pObject->ToggleGravitation(boolValue);
 
-	pElement->QueryBoolAttribute("IsActive", &boolValue);
-	if (boolValue)
-		pBody->Activate();
-	else
-		pBody->Deactivate();
+	//pElement->QueryBoolAttribute("IsActive", &boolValue);
+	//if (boolValue)
+	//	pBody->Activate();
+	//else
+	//	pBody->Deactivate();
 }
 
 void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Texture*> pTexture) {
@@ -496,7 +484,7 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Object*> pO
 	Assert(pElement->ValueStr() == "Object", "Element not Object");
 
 	TiXmlElement* pSibling = RequireNotNull(pElement->FirstChildElement());
-	FromXML(pSibling, static_cast<NotNull<Nt::RigidBody*>>(pObject));
+	FromXML(pSibling, pObject->GetRigidBody(), pObject);
 
 	std::string name;
 	pElement->QueryStringAttribute("LayerName", &name);

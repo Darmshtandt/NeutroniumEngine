@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Nt/Graphics/Objects/Model.h>
 #include <Objects/Object.h>
 
 class Grid : public Object {

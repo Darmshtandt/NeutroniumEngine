@@ -91,7 +91,10 @@ public:
 		m_RootPath = m_pProject->GetRootPath();
 		std::current_path(std::path(m_RootPath));
 
-		m_PropertyWindow.reset(new PropertyWindow(m_Engine->GetSelector(), m_Engine->GetScene()));
+		const auto scene = m_Engine->GetScene().lock();
+		assert(scene);
+
+		m_PropertyWindow.reset(new PropertyWindow(m_Engine->GetSelector(), scene.get()));
 		m_PropertyWindow->Initialize(m_EventBus, m_Settings, m_RootPath);
 		m_PropertyWindow->SetParent(*this);
 		m_PropertyWindow->Show();

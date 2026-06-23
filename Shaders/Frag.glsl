@@ -1,6 +1,8 @@
 #version 420
 
+in vec3 VertexPosition;
 in vec3 VertexTexCoords;
+in vec3 VertexNormal;
 in vec4 VertexColor;
 in vec3 PixelPosition;
 
@@ -26,12 +28,41 @@ uniform bool IsObjectInvisible;
 uniform bool IsLightsEnabled;
 uniform bool fTexture;
 
+uniform bool fFullBright;
+uniform bool fLight;
+uniform vec3 AmbientColor;
+uniform vec3 LightDirection;
+uniform vec3 LightColor;
+
 out vec4 Color;
 
 uniform sampler2D ourTexture;
 
+
+vec3 CalcDiffuse(vec3 normal, vec3 lightDir) {
+	float dotNL = max(0, dot(normal, lightDir));
+	return LightColor * dotNL;
+}
+vec3 CalcBlinnPhongSpecular(vec3 normal, vec3 lightDir) {
+	vec3 blinnPhong = normalize(lightDir + normal);
+	float dotBlinnPhong = max(0, dot(normal, blinnPhong));
+	return LightColor * pow(dotBlinnPhong, 32.f);
+}
+vec4 CalcDirectionLight() {
+	vec3 lightDir = -LightDirection;
+	vec3 viewDir = normalize(-VertexPosition);
+
+	vec3 diffuse = CalcDiffuse(VertexNormal, lightDir);
+	vec3 specular = CalcBlinnPhongSpecular(VertexNormal, lightDir);
+	return vec4(AmbientColor + diffuse + specular, 1.f);
+}
+
 void main() {
 	Color = VertexColor * RenderColor;
+	if (fLight && !fFullBright) {
+		Color *= CalcDirectionLight();
+	}
+
 	if (fTexture) {
 		vec2 textureCoords = vec2(VertexTexCoords);
 		vec2 textureRotation = vec2(tan(textureCoords.x), tan(textureCoords.y));

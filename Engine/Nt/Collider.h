@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Nt/Graphics/Objects/Model.h>
 #include <Nt/Graphics/Geometry/Ray.h>
 #include <Nt/Graphics/Renderer.h>
 #include <Nt/Physics/Simplex.h>

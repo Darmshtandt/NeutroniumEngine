@@ -1,18 +1,25 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
+#include <shobjidl.h>
+#include <filesystem>
+#include <fstream>
+
 #include <ProjectManager/Project.h>
+
+namespace std {
+	using namespace std::filesystem;
+}
 
 void Project::Write(std::ostream& Stream) const {
 	Nt::Serialization::WriteAll(Stream, m_Name, m_Path, m_RootPath);
 }
-
 void Project::Read(std::istream& Stream) {
 	Nt::Serialization::ReadAll(Stream, m_Name, m_Path, m_RootPath);
 	m_IsLoaded = false;
 }
-
-Nt::ISerialization* Project::New([[maybe_unused]] const uInt& ClassType) {
+Nt::ISerialization* Project::New(const uInt& ClassType) {
+	(void)ClassType;
 	return new Project;
 }
 

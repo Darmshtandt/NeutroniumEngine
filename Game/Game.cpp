@@ -1,6 +1,7 @@
 #include <Game.h>
 #include <RenderEngine.h>
-
+#include <Nt/Core/EventBus.h>
+#include <Physics/PhysicsWorld.h>
 
 void Game::Config::Write(std::ostream& stream) const {
 	Nt::Serialization::WriteAll(stream, WindowName, ScenePath);
@@ -10,8 +11,39 @@ void Game::Config::Read(std::istream& stream) {
 	Nt::Serialization::ReadAll(stream, WindowName, ScenePath);
 }
 
-Game::Game(Nt::RenderWindow* pWindow) noexcept :
-	m_pWindow(pWindow)
+Game::Game(Nt::RenderWindow* pWindow, const Nt::String& scenePath) noexcept :
+	m_pWindow(pWindow),
+	m_EventBus(new Nt::EventBus),
+	m_PhysicsWorld(new PhysicsWorld(m_EventBus))
+{
+	assert(0);
+
+	auto shader = new Nt::Shader;
+	shader->Initialize();
+	shader->Create();
+	shader->CompileFromFile(Nt::Shader::VERTEX, "..\\Shaders\\Vert.glsl");
+	shader->CompileFromFile(Nt::Shader::FRAGMENT, "..\\Shaders\\Frag.glsl");
+	shader->Link();
+
+	shader->DisableStrict();
+	shader->SetUniform<Bool>("IsObjectSelected", false);
+	shader->SetUniform<Bool>("IsLightsEnabled", true);
+
+	m_RenderEngine.reset(new RenderEngine(pWindow, shader));
+
+	if (scenePath.empty())
+		Raise("Scene path is empty.");
+
+	m_GameScene.reset(new Scene(m_EventBus));
+	//m_pGameScene->Load(scenePath);
+	m_RenderEngine->SetScene(m_GameScene.get());
+}
+Game::Game(Nt::RenderWindow* pWindow, NotNull<Scene*> pScene) noexcept :
+	m_pWindow(pWindow),
+	m_pEngineScene(pScene),
+	m_EventBus(new Nt::EventBus),
+	m_PhysicsWorld(new PhysicsWorld(m_EventBus)),
+	m_IsTestGame(true)
 {
 	auto shader = new Nt::Shader;
 	shader->Initialize();
@@ -26,38 +58,7 @@ Game::Game(Nt::RenderWindow* pWindow) noexcept :
 
 	m_RenderEngine.reset(new RenderEngine(pWindow, shader));
 }
-
 Game::~Game() = default;
-
-void Game::InitializeGame(const Nt::String& scenePath) {
-	if (m_IsInitialized) {
-		Nt::Log::Instance().Warning("Game already initialized");
-		return;
-	}
-
-	if (scenePath.empty())
-		Raise("Scene path is empty.");
-
-	m_GameScene.reset(new Scene(m_EventBus));
-	//m_pGameScene->Load(scenePath);
-	m_RenderEngine->SetScene(m_GameScene.get());
-
-	assert(0);
-
-	m_IsInitialized = true;
-}
-
-void Game::InitializeTestGame(NotNull<Scene*> pScene) {
-	m_IsTestGame = true;
-
-	if (m_IsInitialized) {
-		Nt::Log::Instance().Warning("Game already initialized");
-		return;
-	}
-
-	m_pEngineScene = pScene;
-	m_IsInitialized = true;
-}
 
 Bool Game::Start() {
 	if (m_IsLaunched) {
@@ -65,9 +66,6 @@ Bool Game::Start() {
 		Nt::MessageWindow("The game is already running", "Warning").ShowWarning();
 		return true;
 	}
-
-	if (!m_IsInitialized)
-		Raise("Game not initialized");
 
 	if (m_IsTestGame) {
 		if (m_GameScene != nullptr) {
@@ -126,11 +124,9 @@ void Game::End() {
 }
 
 void Game::Update(const Float& time) {
-	if (!m_IsInitialized)
-		Raise("Game not initialized");
-
 	try {
 		m_GameScene->Update(time);
+		m_PhysicsWorld->Update(time);
 
 		if (m_CameraPtr != nullptr) {
 			m_Listener.SetPosition(m_CameraPtr->GetPosition());
@@ -144,10 +140,13 @@ void Game::Update(const Float& time) {
 }
 
 void Game::Render() const {
-	if (!m_IsInitialized)
-		Raise("Game not initialized");
-
 	m_pWindow->Clear();
+
+	m_RenderEngine->GetShader()->SetUniform<Nt::Float3D>("LightDirection", Nt::Float3D(1.f, -1.f, 1.f).GetNormalize());
+	m_RenderEngine->GetShader()->SetUniform("LightColor", Nt::Colors::White.rgb);
+	m_RenderEngine->GetShader()->SetUniform("AmbientColor", Nt::Float3D(0.3f, 0.3f, 0.3f));
+	m_RenderEngine->GetShader()->SetUniform("fLight", true);
+
 	m_RenderEngine->Render();
 	m_pWindow->Display();
 }
@@ -157,9 +156,6 @@ const Bool& Game::IsLaunched() const noexcept {
 }
 
 void Game::_SetCamera() {
-	if (!m_IsInitialized)
-		Raise("Game not initialized");
-
 	try {
 		for (const ObjectPtr& object : m_GameScene->GetObjects()) {
 			if (object->GetToken() != GameCamera::GetClassToken())
