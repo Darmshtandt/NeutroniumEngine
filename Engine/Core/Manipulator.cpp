@@ -33,13 +33,13 @@ Manipulator::Arrow::Arrow(const Axis& axis) :
 Manipulator::Arrow::~Arrow() noexcept = default;
 
 void Manipulator::Arrow::Select() noexcept {
-	EnableOutline();
 	m_ShowingLine = true;
+	ToggleOutline(m_ShowingLine);
 }
 
 void Manipulator::Arrow::Deselect() noexcept {
-	DisableOutline();
 	m_ShowingLine = false;
+	ToggleOutline(m_ShowingLine);
 }
 
 const Nt::Mesh* Manipulator::Arrow::GetLineMesh() const noexcept {

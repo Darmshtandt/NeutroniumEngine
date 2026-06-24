@@ -142,21 +142,7 @@ void Object::Render(NotNull<Nt::Renderer*> pRenderer, const uInt& offset, const 
 {
 }
 
-void Object::EnableOutline() noexcept {
-	m_IsSelected = true;
-}
 
-void Object::DisableOutline() noexcept {
-	m_IsSelected = false;
-}
-
-void Object::EnableInvisible() noexcept {
-	m_IsInvisible = true;
-}
-
-void Object::DisableInvisible() noexcept {
-	m_IsInvisible = false;
-}
 
 void Object::ShowingCollider() {
 	m_Collider->Show();
@@ -318,11 +304,17 @@ void Object::ToggleCollider(Bool enabled) noexcept {
 }
 
 void Object::ToggleVisible(Bool enabled) noexcept {
-	m_IsVisible = enabled;
-	if (m_IsVisible)
+	if (enabled)
 		Show();
 	else
 		Hide();
+}
+
+void Object::ToggleOutline(Bool enabled) noexcept {
+	m_IsSelected = enabled;
+}
+void Object::ToggleInvisible(Bool enabled) noexcept {
+	m_IsInvisible = enabled;
 }
 
 void Object::SetDrawingMode(Nt::Renderer::DrawingMode mode) noexcept {

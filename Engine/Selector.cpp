@@ -106,7 +106,7 @@ void Selector::AddSelect(const WeakObjectPtr& pObject) {
 	}
 
 	const auto& sharedObject = pObject.lock();
-	sharedObject->EnableOutline();
+	sharedObject->ToggleOutline(true);
 	m_SelectedObjects.emplace_back(pObject);
 
 	m_pManipulator->Show();
@@ -147,7 +147,7 @@ void Selector::Deselect(const WeakObjectContainer::const_iterator& iterator) {
 		MessageBus<Object*>::Instance().Publish(TOPIC_SELECTOR_DESELECT, object.get());
 	}
 
-	object->DisableOutline();
+	object->ToggleOutline(false);
 	m_SelectedObjects.erase(iterator);
 }
 void Selector::AllDeselect() {
@@ -157,7 +157,7 @@ void Selector::AllDeselect() {
 	m_IsChanged = true;
 	while (!m_SelectedObjects.empty()) {
 		if (const auto& object = m_SelectedObjects.front().lock())
-			object->DisableOutline();
+			object->ToggleOutline(false);
 		m_SelectedObjects.erase(m_SelectedObjects.begin());
 	}
 

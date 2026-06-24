@@ -20,9 +20,9 @@ TiXmlElement* SerializerXML::ToXML(const Nt::IObject* pIObject) {
 		return nullptr;
 
 	TiXmlElement* el = new TiXmlElement("Transform");
-	el->LinkEndChild(VecToXML("Position", pIObject->GetPosition()));
-	el->LinkEndChild(VecToXML("Angle", pIObject->GetAngle()));
-	el->LinkEndChild(VecToXML("Size", pIObject->GetSize()));
+	WriteVecAttribute(el, "Position", pIObject->GetPosition());
+	WriteVecAttribute(el, "Angle", pIObject->GetAngle());
+	WriteVecAttribute(el, "Size", pIObject->GetSize());
 	return el;
 }
 
@@ -34,8 +34,8 @@ TiXmlElement* SerializerXML::ToXML(const NtEx::RigidBody* pBody) {
 	el->SetDoubleAttribute("Mass", pBody->Body.GetMass());
 	el->SetDoubleAttribute("Restitution", pBody->Body.GetRestitution());
 	el->SetDoubleAttribute("LinearDamping", pBody->Body.GetLinearDamping());
-	el->LinkEndChild(VecToXML("LinearVelocity", pBody->Body.GetLinearVelocity()));
-	el->LinkEndChild(VecToXML("Force", pBody->Body.GetForce()));
+	WriteVecAttribute(el, "LinearVelocity", pBody->Body.GetLinearVelocity());
+	WriteVecAttribute(el, "Force", pBody->Body.GetForce());
 	return el;
 }
 
@@ -85,10 +85,10 @@ TiXmlElement* SerializerXML::ToXML(const Nt::Mesh* pMesh) {
 
 	for (const Nt::Vertex& vert : pMesh->GetVertices()) {
 		TiXmlElement* xmlVertex = new TiXmlElement("Nt::Vertex");
-		xmlVertex->LinkEndChild(VecToXML("Position", vert.Position));
-		xmlVertex->LinkEndChild(VecToXML("Color", vert.Color));
-		xmlVertex->LinkEndChild(VecToXML("TexCoord", vert.TexCoord));
-		xmlVertex->LinkEndChild(VecToXML("Normal", vert.Normal));
+		WriteVecAttribute(xmlVertex, "Position", vert.Position.xyz);
+		WriteVecAttribute(xmlVertex, "Color", vert.Color);
+		WriteVecAttribute(xmlVertex, "TexCoord", vert.TexCoord);
+		WriteVecAttribute(xmlVertex, "Normal", vert.Normal.xyz);
 		xmlMesh->LinkEndChild(xmlVertex);
 	}
 
@@ -103,23 +103,6 @@ TiXmlElement* SerializerXML::ToXML(const Nt::Mesh* pMesh) {
 	return xmlMesh;
 }
 
-TiXmlElement* SerializerXML::ToXML(const Nt::Model* pModel) {
-	if (pModel == nullptr)
-		return nullptr;
-
-	TiXmlElement* el = new TiXmlElement("Nt::Model");
-	el->LinkEndChild(ToXML(static_cast<const Nt::IObject*>(pModel)));
-
-	const auto& meshHandle = pModel->GetMesh();
-	if (meshHandle.IsValid() && (!meshHandle.Get()->GetFilePath().empty()))
-		el->SetAttribute("MeshFilePath", meshHandle.Get()->GetFilePath().c_str());
-
-	const auto& texHandle = pModel->GetTexture();
-	if (texHandle.IsValid() && (!texHandle.Get()->GetFilePath().empty()))
-		el->SetAttribute("TextureFilePath", texHandle.Get()->GetFilePath().c_str());
-	return el;
-}
-
 TiXmlElement* SerializerXML::ToXML(const Object* pObject) {
 	if (pObject == nullptr)
 		return nullptr;
@@ -128,7 +111,7 @@ TiXmlElement* SerializerXML::ToXML(const Object* pObject) {
 	el->SetAttribute("IsVisible", pObject->IsVisible());
 	el->SetAttribute("EnabledCollision", pObject->EnabledCollider());
 	el->SetAttribute("EnabledGravitation", pObject->EnabledGravitation());
-	el->LinkEndChild(VecToXML("Color", pObject->GetColor()));
+	WriteVecAttribute(el, "Color", pObject->GetColor());
 	el->LinkEndChild(ToXML(static_cast<const Nt::IObject*>(pObject)));
 	el->LinkEndChild(ToXML(pObject->GetRigidBody()));
 
@@ -159,8 +142,8 @@ TiXmlElement* SerializerXML::ToXML(const Primitive* pPrimitive) {
 	TiXmlElement* el = new TiXmlElement("Primitive");
 	el->LinkEndChild(ToXML(static_cast<const Object*>(pPrimitive)));
 	el->LinkEndChild(ToXML(pPrimitive->GetMesh().Get()));
-	el->LinkEndChild(VecToXML("TextureOffset", pPrimitive->GetTextureOffset()));
-	el->LinkEndChild(VecToXML("TextureScale", pPrimitive->GetTextureScale()));
+	WriteVecAttribute(el, "TextureOffset", pPrimitive->GetTextureOffset());
+	WriteVecAttribute(el, "TextureScale", pPrimitive->GetTextureScale());
 	return el;
 }
 
@@ -308,18 +291,9 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Scene*> pSc
 void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::IObject*> pObject) {
 	Assert(pElement->ValueStr() == "Transform", "Element not Transform");
 
-	Nt::Float3D value3D;
-	NotNull<TiXmlElement*> pSibling = pElement->FirstChildElement();
-	VecFromXML<Float, 3>(pSibling, &value3D, "Position");
-	pObject->SetPosition(value3D);
-
-	pSibling = pSibling->NextSiblingElement();
-	VecFromXML<Float, 3>(pSibling, &value3D, "Angle");
-	pObject->SetAngle(value3D);
-
-	pSibling = pSibling->NextSiblingElement();
-	VecFromXML<Float, 3>(pSibling, &value3D, "Size");
-	pObject->SetSize(value3D);
+	pObject->SetPosition(ReadVecAttribute<Float, 3>(pElement, "Position"));
+	pObject->SetAngle(ReadVecAttribute<Float, 3>(pElement, "Angle"));
+	pObject->SetSize(ReadVecAttribute<Float, 3>(pElement, "Size"));
 }
 
 void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<NtEx::RigidBody*> pBody, NotNull<Object*> pObject) {
@@ -336,14 +310,8 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<NtEx::Rigid
 	pElement->QueryBoolAttribute("EnabledGravitation", &boolValue);
 	pObject->ToggleGravitation(boolValue);
 
-	auto sibling = pElement->FirstChildElement();
-
-	Nt::Float3D vec3D;
-	VecFromXML<Float, 3>(sibling, &vec3D, "LinearVelocity");
-	pBody->Body.SetLinearVelocity(vec3D);
-
-	VecFromXML<Float, 3>(sibling->NextSiblingElement(), &vec3D, "Force");
-	pBody->Body.SetForce(vec3D);
+	pBody->Body.SetLinearVelocity(ReadVecAttribute<Float, 3>(pElement, "LinearVelocity"));
+	pBody->Body.SetForce(ReadVecAttribute<Float, 3>(pElement, "Force"));
 }
 
 void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Texture*> pTexture) {
@@ -374,19 +342,11 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Mesh*> 
 	{
 		std::string tagName = pSibling->ValueStr();
 		if (tagName == "Nt::Vertex") {
-			Nt::Vertex vert;
-			NotNull<TiXmlElement*> pParam = pSibling->FirstChildElement();
-			VecFromXML<Float, 4>(pParam, &vert.Position, "Position");
-
-			pParam = pParam->NextSiblingElement();
-			VecFromXML<Float, 4>(pParam, &vert.Color, "Color");
-
-			pParam = pParam->NextSiblingElement();
-			VecFromXML<Float, 3>(pParam, &vert.TexCoord, "TexCoord");
-
-			pParam = pParam->NextSiblingElement();
-			VecFromXML<Float, 4>(pParam, &vert.Normal, "Normal");
-			shape.Vertices.emplace_back(vert);
+			shape.Vertices.emplace_back(
+				ReadVecAttribute<Float, 3>(pSibling, "Position"),
+				ReadVecAttribute<Float, 3>(pSibling, "Normal"),
+				ReadVecAttribute<Float, 3>(pSibling, "TexCoord"),
+				ReadVecAttribute<Float, 4>(pSibling, "Color"));
 		}
 		else if (tagName == "Triangle") {
 			Int face[3];
@@ -402,25 +362,6 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Mesh*> 
 	}
 
 	pMesh->SetShape(shape);
-}
-
-void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Model*> pModel) {
-	Assert(pElement->ValueStr() == "Nt::Model", "Element not Nt::Model");
-
-	TiXmlElement* xmlObject = pElement->FirstChildElement();
-	FromXML(xmlObject, static_cast<Nt::IObject*>(pModel));
-
-	std::string filePath;
-	if (pElement->QueryStringAttribute("MeshFilePath", &filePath) == TIXML_SUCCESS) {
-		assert(0);
-	}
-
-	if (pElement->QueryStringAttribute("TextureFilePath", &filePath) == TIXML_SUCCESS) {
-		const uInt index = Nt::ResourceManager::Instance().Add<Nt::Texture>(filePath);
-		Assert(std::cmp_not_equal(index ,-1), "Failed to load texture: " + filePath);
-
-		pModel->SetTexture(index);
-	}
 }
 
 void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, std::string& filePath, std::vector<Script::Data>& allData) {
@@ -454,23 +395,19 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, std::string& filePa
 void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Object*> pObject, NotNull<Lua*> pLua) {
 	Assert(pElement->ValueStr() == "Object", "Element not Object");
 
-	Bool isVisible;
-	pElement->QueryBoolAttribute("IsVisible", &isVisible);
-	pObject->ToggleVisible(isVisible);
+	Bool enabled;
+	pElement->QueryBoolAttribute("IsVisible", &enabled);
+	pObject->ToggleVisible(enabled);
+
+	pElement->QueryBoolAttribute("IsInvisible", &enabled);
+	pObject->ToggleInvisible(enabled);
 
 	std::string name;
 	pElement->QueryStringAttribute("LayerName", &name);
 	pObject->SetLayerName(name);
 	pElement->QueryStringAttribute("Name", &name);
 	pObject->SetName(name);
-
-	Bool isInvisible;
-	pElement->QueryBoolAttribute("IsInvisible", &isInvisible);
-
-	if (isInvisible)
-		pObject->EnableInvisible();
-	else
-		pObject->DisableInvisible();
+	pObject->SetColor(ReadVecAttribute<Float, 4>(pElement, "Color"));
 
 	for (TiXmlElement* pSibling = pElement->FirstChildElement();
 		pSibling;
@@ -503,11 +440,6 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Object*> pO
 
 			pObject->AttachScript(pLua, filePath, datas);
 		}
-		else if (name == "Vector") {
-			Nt::Float4D color;
-			VecFromXML<Float, 4>(pSibling, &color, "Color");
-			pObject->SetColor(color);
-		}
 		else if (name == "Transform") {
 			FromXML(pSibling, static_cast<Nt::IObject*>(pObject));
 		}
@@ -528,14 +460,8 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Primitive*>
 	FromXML(pSibling, &mesh);
 	pPrimitive->SetPrimitiveMesh(mesh);
 
-	Nt::Float2D value2D;
-	pSibling = pSibling->NextSiblingElement();
-	VecFromXML<Float, 2>(pSibling, &value2D, "TextureOffset");
-	pPrimitive->SetTextureOffset(value2D);
-
-	pSibling = pSibling->NextSiblingElement();
-	VecFromXML<Float, 2>(pSibling, &value2D, "TextureScale");
-	pPrimitive->SetTextureScale(value2D);
+	pPrimitive->SetTextureOffset(ReadVecAttribute<Float, 2>(pElement, "TextureOffset"));
+	pPrimitive->SetTextureScale(ReadVecAttribute<Float, 2>(pElement, "TextureScale"));
 }
 
 void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Entity*> pEntity, NotNull<Lua*> pLua) {

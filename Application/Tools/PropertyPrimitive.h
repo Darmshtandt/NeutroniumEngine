@@ -117,13 +117,8 @@ private:
 		case BUTTON_INVISIBLE:
 			for (const WeakObjectPtr& weakObject : m_SelectorPtr->GetObjectContainer()) {
 				const auto object = weakObject.lock();
-				if (object == nullptr)
-					continue;
-
-				if (m_Buttons[id].IsChecked())
-					object->EnableInvisible();
-				else
-					object->DisableInvisible();
+				if (object != nullptr)
+					object->ToggleInvisible(m_Buttons[id].IsChecked());
 			}
 
 			break;

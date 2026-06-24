@@ -36,7 +36,6 @@ struct SerializerXML {
 
 	static [[nodiscard]] TiXmlElement* ToXML(const Nt::Texture* pTexture);
 	static [[nodiscard]] TiXmlElement* ToXML(const Nt::Mesh* pMesh);
-	static [[nodiscard]] TiXmlElement* ToXML(const Nt::Model* pModel);
 
 	static [[nodiscard]] TiXmlElement* ToXML(const Script* pScript, const std::vector<Script::Data>& allData);
 	static [[nodiscard]] TiXmlElement* ToXML(const Object* pObject);
@@ -57,55 +56,21 @@ struct SerializerXML {
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Scene*> pScene, NotNull<Lua*> pLua);
 
 	template <typename _Ty, uInt size>
-	static [[nodiscard]] TiXmlElement* DELETEVecToXML(const Nt::String& name, const Nt::Vector<_Ty, size>& vector) noexcept {
-		TiXmlElement* element = new TiXmlElement("Vector");
-		element->SetAttribute("Dimension", size);
-		element->SetAttribute("Name", name.c_str());
-
-		for (uInt i = 0; i < size; ++i) {
-			Char literal[2] = { '\0' };
-			if (i < 3)
-				literal[0] = static_cast<Char>(static_cast<uInt>('x') + i);
-			else
-				literal[0] = static_cast<Char>(static_cast<uInt>('z') - i);
-
-			if constexpr (std::is_floating_point_v<_Ty>)
-				element->SetDoubleAttribute(literal, vector.Array[i]);
-			else
-				element->SetAttribute(literal, vector.Array[i]);
-		}
-
-		return element;
+	static void WriteVecAttribute(NotNull<TiXmlElement*> pElement, const Nt::String& name, const Nt::Vector<_Ty, size>& vector) noexcept {
+		pElement->SetAttribute(name, VecToString(vector));
 	}
 
 	template <typename _Ty, uInt size>
-	static void VecFromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Vector<_Ty, size>*> pVector, const std::string& requiredName) noexcept {
-		Assert(pElement->ValueStr() == "Vector", "Element not Vector");
-
-		std::string name;
-		pElement->QueryStringAttribute("Name", &name);
-		Assert(name == requiredName, "Name inconsistency");
-
-		uInt dimension;
-		pElement->QueryUnsignedAttribute("Dimension", &dimension);
-		Assert(dimension == size, "Vector has other dimension");
-
-		for (uInt i = 0; i < size; ++i) {
-			Char literal[2] = { '\0' };
-			if (i < 3)
-				literal[0] = static_cast<Char>(static_cast<uInt>('x') + i);
-			else
-				literal[0] = static_cast<Char>(static_cast<uInt>('z') - i);
-
-			pElement->QueryValueAttribute<_Ty>(literal, &pVector->Array[i]);
-		}
+	static [[nodiscard]] Nt::Vector<_Ty, size> ReadVecAttribute(NotNull<TiXmlElement*> pElement, const Nt::String& name) noexcept {
+		std::string str;
+		pElement->QueryStringAttribute(name, &str);
+		return StringToVec<_Ty, size>(str);
 	}
 
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::IObject*> pObject);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<NtEx::RigidBody*> pBody, NotNull<Object*> pObject);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Texture*> pTexture);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Mesh*> pMesh);
-	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Model*> pModel);
 
 	static void FromXML(NotNull<TiXmlElement*> pElement, std::string& filePath, std::vector<Script::Data>& allData);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Object*> pObject, NotNull<Lua*> pLua);
@@ -126,7 +91,7 @@ struct SerializerXML {
 	static std::string VecToString(const Nt::Vector<_Ty, size>& vector) {
 		std::string str;
 		for (_Ty scalar : vector.Array)
-			str += std::to_string(scalar) + ',';
+			str += std::format("{},", scalar);
 		str.pop_back();
 		return str;
 	}

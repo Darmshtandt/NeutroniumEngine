@@ -34,10 +34,6 @@ public:
 
 	void AddForce(Nt::Float3D force) noexcept;
 
-	void EnableOutline() noexcept;
-	void DisableOutline() noexcept;
-	void EnableInvisible() noexcept;
-	void DisableInvisible() noexcept;
 	void ShowingCollider();
 	void HidingCollider();
 
@@ -80,6 +76,8 @@ public:
 	void ToggleGravitation(Bool enabled) noexcept;
 	void ToggleCollider(Bool enabled) noexcept;
 	void ToggleVisible(Bool enabled) noexcept;
+	void ToggleOutline(Bool enabled) noexcept;
+	void ToggleInvisible(Bool enabled) noexcept;
 
 	void SetDrawingMode(Nt::Renderer::DrawingMode mode) noexcept;
 	void SetName(const Nt::String& newName);
@@ -133,7 +131,6 @@ protected:
 	Bool m_IsSelected = false;
 	Bool m_IsInvisible = false;
 	Bool m_IsStarted = false;
-	Bool m_IsVisible = false;
 
 private:
 	Object& _Clone(const Object& object);
