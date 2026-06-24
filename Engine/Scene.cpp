@@ -129,45 +129,6 @@ void Scene::Clear() {
 }
 
 void Scene::Update(const Float& time) {
-#if 0
-	const auto findLayerByName = [&](LayerContainer& container, const Nt::String& layerName) {
-		return std::find_if(container.begin(), container.end(), [&](const Layer& layer) {
-			return (layer.Name == layerName);
-		});
-	};
-
-	const auto handleCollisionIfAllowed = [&](Object* pPrimaryObject, Object* pSecondaryObject) {
-		const auto layerIterator = findLayerByName(m_DisjointLayers, pPrimaryObject->GetLayerName());
-		if (layerIterator != m_DisjointLayers.end()) {
-			if (findLayerByName(layerIterator->Layers, pSecondaryObject->GetLayerName()) != layerIterator->Layers.end())
-				return;
-		}
-
-		pPrimaryObject->Collision(pSecondaryObject);
-	};
-
-	for (const ObjectPtr& object : m_Objects) {
-		object->Update(time);
-		if (!(object->IsActivePhysics() && object->IsEnabledCollision()))
-			continue;
-
-		for (const ObjectPtr& otherObject : m_Objects) {
-			if (otherObject == object)
-				continue;
-
-			if (!(otherObject->IsActivePhysics() && otherObject->IsEnabledCollision()))
-				continue;
-
-			if (object->IsDirty())
-				handleCollisionIfAllowed(object.get(), otherObject.get());
-			else if (otherObject->IsDirty())
-				handleCollisionIfAllowed(otherObject.get(), object.get());
-		}
-
-		object->StaticUpdate();
-	}
-#endif
-
 	for (const ObjectPtr& object : m_Objects)
 		object->Update(time);
 

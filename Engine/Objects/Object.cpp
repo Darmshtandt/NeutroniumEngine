@@ -16,6 +16,7 @@ Object::Object(const Object& object) :
 	NtEx::Object(object),
 	m_Collider(new Nt::Collider)
 {
+	m_RigidBody = GetComponent<NtEx::RigidBody>();
 	_Clone(object);
 }
 Object::Object(Object&& object) noexcept :
@@ -23,6 +24,7 @@ Object::Object(Object&& object) noexcept :
 	NtEx::Object(std::move(object)),
 	m_Collider(new Nt::Collider)
 {
+	m_RigidBody = GetComponent<NtEx::RigidBody>();
 	_Move(std::move(object));
 }
 Object::~Object() {
@@ -289,7 +291,6 @@ Float Object::GetTextureRotation() const noexcept {
 Bool Object::EnabledGravitation() const noexcept {
 	return m_EnabledGravitation;
 }
-
 Bool Object::EnabledCollider() const noexcept {
 	return m_EnabledCollider;
 }
@@ -314,6 +315,14 @@ void Object::ToggleGravitation(Bool enabled) noexcept {
 
 void Object::ToggleCollider(Bool enabled) noexcept {
 	m_EnabledCollider = enabled;
+}
+
+void Object::ToggleVisible(Bool enabled) noexcept {
+	m_IsVisible = enabled;
+	if (m_IsVisible)
+		Show();
+	else
+		Hide();
 }
 
 void Object::SetDrawingMode(Nt::Renderer::DrawingMode mode) noexcept {

@@ -11,8 +11,6 @@ class PropertyRigidBody : public PropertyComponent {
 public:
 	enum Texts {
 		TEXT_MASS,
-		TEXT_GRAVITY_DIRECTION,
-		TEXT_FRICTION,
 		TEXT_COUNT,
 	};
 	
@@ -26,8 +24,6 @@ public:
 
 	enum TextEdits {
 		TEXTEDIT_MASS,
-		TEXTEDIT_GRAVITY_DIRECTION,
-		TEXTEDIT_FRICTION,
 		TEXTEDIT_COUNT,
 	};
 
@@ -124,9 +120,7 @@ public:
 		const auto& object = m_SelectorPtr->GetObjectPtr(0).lock();
 
 		m_TextEdits[TEXTEDIT_MASS].SetText(object->GetRigidBody()->Body.GetMass());
-		//m_TextEdits[TEXTEDIT_FRICTION].SetText(object->GetFriction());
 
-		//m_Buttons[BUTTON_ACTIVE].SetCheck(object->IsPhysicsEnabled());
 		m_Buttons[BUTTON_COLLISION].SetCheck(object->EnabledCollider());
 		m_Buttons[BUTTON_GRAVITATION].SetCheck(object->EnabledGravitation());
 		m_Buttons[BUTTON_SHOW_COLLIDER].SetCheck(object->GetCollider()->IsVisible());
@@ -160,8 +154,6 @@ public:
 		m_Buttons[BUTTON_SHOW_COLLIDER].SetName(language["Window.Property.RigidBody.ShowCollider"]);
 
 		m_Texts[TEXT_MASS].SetText(language["Window.Property.RigidBody.Mass"]);
-		m_Texts[TEXT_GRAVITY_DIRECTION].SetText(language["Window.Property.RigidBody.GravityDirection"]);
-		m_Texts[TEXT_FRICTION].SetText(language["Window.Property.RigidBody.Friction"]);
 	}
 
 private:
@@ -241,15 +233,6 @@ private:
 		case TEXTEDIT_MASS:
 			pObject->GetRigidBody()->Body.SetMass(m_TextEdits[id].GetText());
 			break;
-
-		case TEXTEDIT_GRAVITY_DIRECTION:
-			assert(0);
-			break;
-
-		case TEXTEDIT_FRICTION:
-			assert(0);
-			//pObject->SetFriction(m_TextEdits[id].GetText());
-			break;
 		}
 	}
 
@@ -257,12 +240,10 @@ private:
 		if (!pObject->IsDirty() && !fForce)
 			return;
 
-		//m_Buttons[BUTTON_ACTIVE].SetCheck(pObject->IsActivePhysics());
 		m_Buttons[BUTTON_COLLISION].SetCheck(pObject->EnabledCollider());
 		m_Buttons[BUTTON_GRAVITATION].SetCheck(pObject->EnabledGravitation());
 		m_Buttons[BUTTON_SHOW_COLLIDER].SetCheck(pObject->GetCollider()->IsVisible());
 
 		m_TextEdits[TEXTEDIT_MASS].SetText(pObject->GetRigidBody()->Body.GetMass());
-		//m_TextEdits[TEXTEDIT_FRICTION].SetText(pObject->GetFriction());
 	}
 };

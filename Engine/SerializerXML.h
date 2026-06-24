@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ranges>
 #include <TinyXML.h>
 #include <Nt/Core/Math/Vector.h>
 #include <Script/Script.h>
@@ -56,7 +57,7 @@ struct SerializerXML {
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Scene*> pScene, NotNull<Lua*> pLua);
 
 	template <typename _Ty, uInt size>
-	static [[nodiscard]] TiXmlElement* ToXML(const Nt::String& name, const Nt::Vector<_Ty, size>& vector) noexcept {
+	static [[nodiscard]] TiXmlElement* DELETEVecToXML(const Nt::String& name, const Nt::Vector<_Ty, size>& vector) noexcept {
 		TiXmlElement* element = new TiXmlElement("Vector");
 		element->SetAttribute("Dimension", size);
 		element->SetAttribute("Name", name.c_str());
@@ -78,16 +79,16 @@ struct SerializerXML {
 	}
 
 	template <typename _Ty, uInt size>
-	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Vector<_Ty, size>*> pVector, const std::string& requiredName) noexcept {
+	static void VecFromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Vector<_Ty, size>*> pVector, const std::string& requiredName) noexcept {
 		Assert(pElement->ValueStr() == "Vector", "Element not Vector");
+
+		std::string name;
+		pElement->QueryStringAttribute("Name", &name);
+		Assert(name == requiredName, "Name inconsistency");
 
 		uInt dimension;
 		pElement->QueryUnsignedAttribute("Dimension", &dimension);
 		Assert(dimension == size, "Vector has other dimension");
-
-		std::string name;
-		pElement->QueryStringAttribute("Name", &name);
-		Assert(name == requiredName, "Name inconsistency");		
 
 		for (uInt i = 0; i < size; ++i) {
 			Char literal[2] = { '\0' };
@@ -97,16 +98,6 @@ struct SerializerXML {
 				literal[0] = static_cast<Char>(static_cast<uInt>('z') - i);
 
 			pElement->QueryValueAttribute<_Ty>(literal, &pVector->Array[i]);
-			//if constexpr (std::is_floating_point_v<_Ty>) {
-			//	Double value;
-			//	pElement->QueryDoubleAttribute(literal, &value);
-			//	pVector->Array[i] = static_cast<_Ty>(value);
-			//}
-			//else {
-			//	Int value;
-			//	pElement->QueryIntAttribute(literal, &value);
-			//	pVector->Array[i] = static_cast<_Ty>(value);
-			//}
 		}
 	}
 
@@ -130,4 +121,33 @@ struct SerializerXML {
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Quad*> pQuad, NotNull<Lua*> pLua);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Pyramid*> pPyramid, NotNull<Lua*> pLua);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Plane*> pPlane, NotNull<Lua*> pLua);
+
+	template <typename _Ty, uInt size>
+	static std::string VecToString(const Nt::Vector<_Ty, size>& vector) {
+		std::string str;
+		for (_Ty scalar : vector.Array)
+			str += std::to_string(scalar) + ',';
+		str.pop_back();
+		return str;
+	}
+	template <typename _Ty, uInt size>
+	static Nt::Vector<_Ty, size> StringToVec(const std::string& str) {
+		Nt::Vector<_Ty, size> vec;
+		uInt i = 0;
+
+		for (auto&& part : str | std::views::split(',')) {
+			if (i >= size)
+				break;
+
+			const std::string scalar(part.begin(), part.end());
+			if constexpr (std::is_integral_v<_Ty>)
+				vec[i] = std::stoi(scalar);
+			else
+				vec[i] = std::stof(scalar);
+
+			++i;
+		}
+
+		return vec;
+	}
 };

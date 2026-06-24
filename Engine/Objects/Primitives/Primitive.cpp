@@ -2,7 +2,6 @@
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 #include <Objects/Primitives/Primitive.h>
-#include <Nt/Graphics/Geometry/Primitives.h>
 
 Primitive::Primitive(std::string name, const ClassID id) :
 	Object(std::move(name), id),
