@@ -1,9 +1,11 @@
 #pragma once
 
 #include <Objects/Object.h>
-#include <Nt/Graphics/Objects/Camera.h>
-#include <Nt/Graphics/Geometry/Primitives.h>
 #include <Nt/Graphics/RenderWindow.h>
+
+namespace NtEx {
+	class Camera3D;
+}
 
 class Manipulator {
 public:
@@ -35,7 +37,7 @@ public:
 public:
 	Manipulator();
 
-	[[deprecated]] void Control(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Camera& camera, Nt::Mouse& mouse);
+	[[deprecated]] void Control(NotNull<const Nt::RenderWindow*> pWindow, const NtEx::Camera3D& camera, Nt::Mouse& mouse);
 
 	void Update(const Nt::Ray& ray);
 

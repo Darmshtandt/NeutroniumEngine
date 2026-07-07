@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <Controllers/CameraController.h>
+#include <Editor/Camera3D.h>
 #include <Nt/Graphics/System/WindowElements.h>
 
 class RenderEngine;
@@ -71,7 +72,7 @@ private:
 	std::shared_ptr<InputContext> m_InputContext;
 	std::weak_ptr<Nt::EventBus> m_pEventBus;
 	Nt::RenderWindow m_Window;
-	Nt::Camera m_OrthoCamera;
+	NtEx::Camera3D m_OrthoCamera;
 	Nt::Keyboard m_Keyboard;
 	Nt::Mouse m_Mouse;
 	std::shared_ptr<Listener> m_Listener;

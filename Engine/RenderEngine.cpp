@@ -1,7 +1,7 @@
 #include <RenderEngine.h>
 
 #include <Scene.h>
-#include <Nt/Graphics/Objects/Camera.h>
+#include <Editor/Camera3D.h>
 #include <Objects/Object.h>
 
 RenderEngine::RenderEngine(NotNull<Nt::Renderer*> pRenderer, NotNull<Nt::Shader*> pShader) :
@@ -17,7 +17,7 @@ void RenderEngine::Render() const {
 
 	m_pRenderer->SetShader(m_Shader.get());
 	if (m_pCamera)
-		m_pRenderer->SetView(m_pCamera->GetView());
+		m_pRenderer->SetView(m_pCamera->View());
 
 	const ObjectContainer& allObjects = m_pScene->GetObjects();
 	for (const ObjectPtr& object : allObjects)
@@ -28,7 +28,7 @@ void RenderEngine::SetScene(Scene* pScene) noexcept {
 	m_pScene = pScene;
 }
 
-void RenderEngine::SetCamera(Nt::Camera* pCamera) noexcept {
+void RenderEngine::SetCamera(NtEx::Camera3D* pCamera) noexcept {
 	m_pCamera = pCamera;
 }
 
@@ -118,7 +118,7 @@ void RenderEngine::RenderOutline(const Object* pObject) const {
 	m_pRenderer->MatrixWorldPop();
 }
 
-Nt::Camera* RenderEngine::GetCamera() const noexcept {
+NtEx::Camera3D* RenderEngine::GetCamera() const noexcept {
 	return m_pCamera;
 }
 

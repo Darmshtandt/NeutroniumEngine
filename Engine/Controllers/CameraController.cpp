@@ -1,10 +1,11 @@
 #include <Controllers/CameraController.h>
 #include <Nt/Graphics/Objects/Camera.h>
 #include <Nt/Graphics/System/HandleWindow.h>
+#include <Editor/Camera3D.h>
 
 #include <algorithm>
 
-CameraController::CameraController(NotNull<Nt::Camera*> pCamera) noexcept :
+CameraController::CameraController(NotNull<NtEx::Camera3D*> pCamera) noexcept :
 	m_pCamera(pCamera)
 {
 }
@@ -16,7 +17,7 @@ void CameraController::Update() {
 	m_Keyboard.Update();
 	m_Mouse.Update();
 
-	const Float cameraPitch = m_pCamera->GetAngle().y;
+	const Float cameraPitch = m_pCamera->RotationEuler().y;
 
 	Nt::Float3D move;
 	if (m_Keyboard.IsKeyPressed(Nt::KEY_W, false)) {

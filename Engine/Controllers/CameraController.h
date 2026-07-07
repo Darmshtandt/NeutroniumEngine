@@ -4,8 +4,8 @@
 #include <Nt/Core/Input.h>
 #include <Nt/Core/Utilities.h>
 
-namespace Nt {
-	class Camera;
+namespace NtEx {
+	class Camera3D;
 }
 
 class CameraController : public IController {
@@ -14,7 +14,7 @@ public:
 	static constexpr Float MIN_SPEED = 0.001f;
 
 public:
-	explicit CameraController(NotNull<Nt::Camera*> pCamera) noexcept;
+	explicit CameraController(NotNull<NtEx::Camera3D*> pCamera) noexcept;
 
 	void Update() override;
 	void Toggle(Bool enabled) noexcept override;
@@ -25,7 +25,7 @@ public:
 	[[nodiscard]] Float GetSpeed() const noexcept;
 
 private:
-	Nt::Camera* m_pCamera;
+	NtEx::Camera3D* m_pCamera;
 	Nt::Keyboard m_Keyboard;
 	Nt::Mouse m_Mouse;
 	Float m_Sensitivity = 1.25f;

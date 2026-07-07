@@ -4,6 +4,8 @@
 #include <ResourceLoader.h>
 #include <Core/Manipulator.h>
 
+#include <Editor/Camera3D.h>
+
 static ResourceLoader<Nt::Mesh> g_TranslateLoader { "Mesh.Translate", "Models\\TranslateArrow.obj" };
 static ResourceLoader<Nt::Mesh> g_ScaleLoader { "Mesh.Scale", "Models\\ScaleArrow.obj" };
 
@@ -60,12 +62,12 @@ Manipulator::Manipulator() {
 		arrow->SetMesh(m_StateMeshes[m_State]);
 }
 
-void Manipulator::Control(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Camera& camera, Nt::Mouse& mouse) {
+void Manipulator::Control(NotNull<const Nt::RenderWindow*> pWindow, const NtEx::Camera3D& camera, Nt::Mouse& mouse) {
 	const Nt::Float2D& cursorPosition = pWindow->ScreenToClient(mouse.GetCursorPosition());
 	if (!m_StartedEditing || m_StartCursorPosition == cursorPosition)
 		return;
 
-	Nt::Ray ray = Nt::RayFromPoint2D(cursorPosition, -camera.GetPosition(),
+	Nt::Ray ray = Nt::RayFromPoint2D(cursorPosition, -camera.Position(),
 		pWindow->GetClientSize(), pWindow->GetProjection(), pWindow->GetView());
 	CalcMoveDelta(ray);
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Nt/Graphics/Objects/Model.h>
 #include <Nt/Graphics/Resources/Texture.h>
 #include <Nt/Graphics/Resources/Mesh.h>
 #include <Nt/Graphics/Resources/ResourceHandle.h>
@@ -15,9 +14,8 @@ using NtEx::Class;
 
 class Lua;
 class Script;
-class Scene;
 
-class Object : public Nt::IObject, public NtEx::Object {
+class Object : public NtEx::Object {
 protected:
 	Object(std::string name, const ClassID id);
 
@@ -26,10 +24,14 @@ public:
 	Object(Object&& object) noexcept;
 	~Object() override;
 
+	void Translate(Nt::Float3D offset) noexcept;
+	void Rotate(Nt::Float3D offset) noexcept;
+	void Scale(Nt::Float3D offset) noexcept;
+
 	virtual void Start();
 	virtual void Stop();
 
-	void StaticUpdate() override;
+	void StaticUpdate();
 	void Update(Float deltaTime);
 
 	void AddForce(Nt::Float3D force) noexcept;
@@ -51,16 +53,23 @@ public:
 	[[nodiscard]] virtual std::string GetTypeToken() const noexcept;
 	[[nodiscard]] virtual std::string GetToken() const noexcept;
 
+	Nt::Float3D GetPosition() const noexcept;
+	Nt::Float3D GetAngle() const noexcept;
+	Nt::Float3D GetSize() const noexcept;
+	Nt::Float4D GetColor() const noexcept;
+	const Nt::Matrix4x4& LocalToWorld() const noexcept;
+
 	Nt::Renderer::DrawingMode GetDrawingMode() const noexcept;
 	Nt::Collider* GetCollider() const noexcept;
 	Script* GetScript() const noexcept;
 	const std::vector<Script::Data>& GetScriptData() const noexcept;
 	Nt::String GetLayerName() const noexcept;
 	Nt::String GetName() const noexcept;
-	Object* GetParentPtr() const noexcept;
 	Nt::ResourceHandle<Nt::Texture> GetTexture() const noexcept;
 	Nt::ResourceHandle<Nt::Mesh> GetMesh() const noexcept;
+
 	NtEx::RigidBody* GetRigidBody() const noexcept;
+	NtEx::TransformFloat3D* GetTransform() const noexcept;
 
 	Nt::Matrix3x3 TextureLocalWorld() const noexcept;
 	Nt::Float2D GetTextureOffset() const noexcept;
@@ -72,6 +81,8 @@ public:
 	Bool IsSelected() const noexcept;
 	Bool IsInvisible() const noexcept;
 	Bool IsStarted() const noexcept;
+	Bool IsVisible() const noexcept;
+	Bool IsDirty() const noexcept;
 
 	void ToggleGravitation(Bool enabled) noexcept;
 	void ToggleCollider(Bool enabled) noexcept;
@@ -82,7 +93,6 @@ public:
 	void SetDrawingMode(Nt::Renderer::DrawingMode mode) noexcept;
 	void SetName(const Nt::String& newName);
 	void SetLayerName(const Nt::String& name);
-	void SetParentPtr(Object* pNewParent) noexcept;
 	void SetShape(const Nt::Shape& newShape);
 
 	void SetTexture(Nt::Texture* pTexture) noexcept;
@@ -99,12 +109,11 @@ public:
 	virtual void SetPosition(const Nt::Float3D& position);
 	virtual void SetSize(const Nt::Float3D& size);
 	virtual void SetAngle(const Nt::Float3D& angle);
-	virtual void SetAngleOrigin(const Nt::Float3D& angleOrigin);
-	virtual void SetOrigin(const Nt::Float3D& origin);
 	virtual void SetColor(const Nt::Float4D& color);
 
 protected:
 	NtEx::RigidBody* m_RigidBody;
+	NtEx::TransformFloat3D* m_Transform;
 
 	Nt::Renderer::DrawingMode m_DrawingMode = Nt::Renderer::DrawingMode::TRIANGLES;
 	Nt::ResourceHandle<Nt::Mesh> m_Mesh;
@@ -114,6 +123,7 @@ protected:
 	std::string m_LayerName = "Main";
 	std::string m_Name;
 
+	Nt::Float4D m_Color = Nt::Colors::White;
 	Nt::Float3D m_GravityDirection = { 0.f, -1.f, 0.f };
 	Float m_DeltaTime = 0.f;
 	Bool m_EnabledGravitation = false;
@@ -124,23 +134,19 @@ protected:
 	Nt::Float2D m_TextureScale = { 1.f, 1.f };
 	Float m_TextureRotation = 0.f;
 
-	Object* m_ParentPtr = nullptr;
 	Script* m_pScript = nullptr;
 
 	mutable Bool m_IsTexChanged = false;
 	Bool m_IsSelected = false;
 	Bool m_IsInvisible = false;
 	Bool m_IsStarted = false;
+	Bool m_IsVisible = true;
 
 private:
 	Object& _Clone(const Object& object);
 	Object& _Move(Object&& object);
 
 	void _SetParameters(const Object& object) noexcept;
-	void _UpdateCollider();
-
-	void Render(NotNull<Nt::Renderer*> pRenderer, const uInt& offset, const uInt& verticesCount) const override;
-	void Render(NotNull<Nt::Renderer*> pRenderer) const override;
 };
 
 using ObjectPtr = std::shared_ptr<Object>;

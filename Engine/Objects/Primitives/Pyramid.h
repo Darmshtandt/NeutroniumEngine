@@ -8,8 +8,6 @@ public:
 	Pyramid(const Pyramid& pyramid) = default;
 	Pyramid(Pyramid&& pyramid) noexcept = default;
 
-	void SetSize(const Nt::Float3D& size) override;
-
 	[[nodiscard]] Pyramid* GetCopy() const override;
 	[[nodiscard]] static std::string GetClassToken() noexcept;
 	[[nodiscard]] std::string GetToken() const noexcept override;

@@ -17,7 +17,6 @@ public:
 
 	[[nodiscard]] Nt::LightData GetData() const noexcept;
 
-	void SetOrigin(const Nt::Float3D& origin) override;
 	void SetPosition(const Nt::Float3D& position) override;
 	void SetAngle(const Nt::Float3D& angle) override;
 

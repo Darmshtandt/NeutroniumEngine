@@ -3,6 +3,10 @@
 #include <Core/Manipulator.h>
 #include <Nt/Graphics/RenderWindow.h>
 
+namespace NtEx {
+	class Camera3D;
+}
+
 constexpr const Char* TOPIC_SELECTOR_ADD_SELECTION = "Selector: Add selection";
 constexpr const Char* TOPIC_SELECTOR_DESELECT = "Selector: Deselect";
 constexpr const Char* TOPIC_SELECTOR_ALL_DESELECT = "Selector: All deselect";
@@ -17,7 +21,7 @@ public:
 public:
 	Selector(const std::weak_ptr<Nt::EventBus>& pBus, NotNull<Scene*> pScene, NotNull<Grid*> pGrid);
 
-	void Control(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Camera& camera, Nt::Keyboard& keyboard, Nt::Mouse& mouse);
+	void Control(NotNull<const Nt::RenderWindow*> pWindow, const NtEx::Camera3D& camera, Nt::Keyboard& keyboard, Nt::Mouse& mouse);
 
 	void Update();
 	void RayCastTest(const Nt::Ray& ray, const Nt::Float2D& cursorPosition, const Bool isMulti);
@@ -64,5 +68,5 @@ private:
 
 private:
 	[[deprecated]] void _MouseControl(NotNull<const Nt::RenderWindow*> pWindow, Nt::Keyboard& keyboard, Nt::Mouse& mouse);
-	void _AxisControl(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Camera& camera, Nt::Mouse& mouse);
+	void _AxisControl(NotNull<const Nt::RenderWindow*> pWindow, const NtEx::Camera3D& camera, Nt::Mouse& mouse);
 };

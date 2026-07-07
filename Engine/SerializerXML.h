@@ -3,6 +3,7 @@
 #include <ranges>
 #include <TinyXML.h>
 #include <Nt/Core/Math/Vector.h>
+#include <Nt/Graphics/Ex/Components/Transform.h>
 #include <Script/Script.h>
 
 namespace NtEx {
@@ -31,7 +32,7 @@ namespace Nt {
 }
 
 struct SerializerXML {
-	static [[nodiscard]] TiXmlElement* ToXML(const Nt::IObject* pIObject);
+	static [[nodiscard]] TiXmlElement* ToXML(const NtEx::TransformFloat3D* pTransform);
 	static [[nodiscard]] TiXmlElement* ToXML(const NtEx::RigidBody* pBody);
 
 	static [[nodiscard]] TiXmlElement* ToXML(const Nt::Texture* pTexture);
@@ -67,7 +68,7 @@ struct SerializerXML {
 		return StringToVec<_Ty, size>(str);
 	}
 
-	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::IObject*> pObject);
+	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<NtEx::TransformFloat3D*> pTransform);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<NtEx::RigidBody*> pBody, NotNull<Object*> pObject);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Texture*> pTexture);
 	static void FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::Mesh*> pMesh);

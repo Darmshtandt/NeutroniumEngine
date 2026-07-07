@@ -13,7 +13,6 @@ Grid::Grid() :
 	m_pMesh->SetShape(Build(m_Size, m_CellSize));
 	SetMesh(m_pMesh.get());
 
-	SetOrigin({ m_CellSize / 2.f, 0.f, m_CellSize / 2.f });
 	Object::SetSize({ m_CellSize, 0.f, m_CellSize });
 	SetColor(Nt::Colors::DarkGray);
 }
@@ -21,7 +20,7 @@ Grid::Grid() :
 void Grid::Update() {
 	constexpr Nt::Float3D XZ(-1.f, 0.f, -1.f);
 	if (m_pTarget != nullptr)
-		SetPosition(m_pTarget->GetPosition() * XZ);
+		SetPosition(m_pTarget->Position() * XZ);
 }
 
 void Grid::Show() noexcept {
@@ -42,7 +41,7 @@ Float Grid::GetCellSize() const noexcept {
 	return m_CellSize;
 }
 
-void Grid::SetTarget(IObject* pTarget) noexcept {
+void Grid::SetTarget(NtEx::TransformFloat3D* pTarget) noexcept {
 	m_pTarget = pTarget;
 }
 void Grid::SetCellSize(const Float& cellSize) {
@@ -50,7 +49,6 @@ void Grid::SetCellSize(const Float& cellSize) {
 		return;
 
 	m_CellSize = cellSize;
-	SetOrigin({ m_CellSize / 2.f, 0.f, m_CellSize / 2.f });
 	Object::SetSize({ m_CellSize, 0.f, m_CellSize });
 }
 void Grid::SetSize(const Nt::Float2D& size) {

@@ -9,7 +9,7 @@ namespace Nt {
 
 class PhysicsWorld {
 	struct PhysicObject final {
-		Nt::IObject* Transform = nullptr;
+		NtEx::TransformFloat3D* Transform = nullptr;
 		Nt::Collider* Collider = nullptr;
 		NtEx::RigidBody* RigidBody = nullptr;
 		ObjectPtr Object;

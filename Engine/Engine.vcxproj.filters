@@ -195,6 +195,9 @@
     <ClInclude Include="SerializeStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Editor\Camera3D.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -286,6 +289,9 @@
     </ClCompile>
     <ClCompile Include="Physics\PhysicsWorld.cpp">
       <Filter>Header Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\Camera3D.cpp">
+      <Filter>Editor</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

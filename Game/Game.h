@@ -50,7 +50,7 @@ private:
 	std::unique_ptr<RenderEngine> m_RenderEngine;
 	std::unique_ptr<Scene> m_GameScene;
 	std::thread m_Thread;
-	Nt::Camera m_DefaultCamera;
+	NtEx::Camera3D m_DefaultCamera;
 	const Lua* m_pLua = nullptr;
 	Nt::RenderWindow* m_pWindow = nullptr;
 	GameCamera* m_CameraPtr = nullptr;

@@ -11,6 +11,7 @@
 
 #include <MessageBus.h>
 #include <ObjectEvents.h>
+#include <Editor/Camera3D.h>
 #include <Editor/EditingHistory.h>
 #include <Editor/Commands/TransformCommands.h>
 #include <Nt/Core/EventBus.h>
@@ -43,9 +44,9 @@ Selector::Selector(const std::weak_ptr<Nt::EventBus>& pBus, NotNull<Scene*> pSce
 		});
 }
 
-void Selector::Control(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Camera& camera, Nt::Keyboard& keyboard, Nt::Mouse& mouse) {
+void Selector::Control(NotNull<const Nt::RenderWindow*> pWindow, const NtEx::Camera3D& camera, Nt::Keyboard& keyboard, Nt::Mouse& mouse) {
 	const Nt::Float2D cursorPosition = pWindow->ScreenToClient(mouse.GetCursorPosition());
-	m_Ray = Nt::RayFromPoint2D(cursorPosition, -camera.GetPosition(),
+	m_Ray = Nt::RayFromPoint2D(cursorPosition, -camera.Position(),
 		pWindow->GetClientSize(), pWindow->GetProjection(), pWindow->GetView());
 
 	_MouseControl(pWindow, keyboard, mouse);
@@ -257,7 +258,7 @@ void Selector::_MouseControl(NotNull<const Nt::RenderWindow*> pWindow, Nt::Keybo
 	}
 }
 
-void Selector::_AxisControl(NotNull<const Nt::RenderWindow*> pWindow, const Nt::Camera& camera, Nt::Mouse& mouse) {
+void Selector::_AxisControl(NotNull<const Nt::RenderWindow*> pWindow, const NtEx::Camera3D& camera, Nt::Mouse& mouse) {
 	if (!m_pManipulator->StartedEditing())
 		return;
 

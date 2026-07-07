@@ -29,6 +29,7 @@
     <ClInclude Include="Core\Grid.h" />
     <ClInclude Include="Core\Icon3D.h" />
     <ClInclude Include="Core\Manipulator.h" />
+    <ClInclude Include="Editor\Camera3D.h" />
     <ClInclude Include="Editor\Clipboard.h" />
     <ClInclude Include="Editor\Commands\IEditCommand.h" />
     <ClInclude Include="Editor\Commands\SceneCommands.h" />
@@ -70,6 +71,7 @@
     <ClCompile Include="Core\Grid.cpp" />
     <ClCompile Include="Core\Icon3D.cpp" />
     <ClCompile Include="Core\Manipulator.cpp" />
+    <ClCompile Include="Editor\Camera3D.cpp" />
     <ClCompile Include="Editor\Clipboard.cpp" />
     <ClCompile Include="Editor\Commands\SceneCommands.cpp" />
     <ClCompile Include="Editor\Commands\TransformCommands.cpp" />

@@ -15,14 +15,14 @@ public:
 	[[nodiscard]] const Nt::Mesh* GetMesh() const noexcept;
 	[[nodiscard]] Float GetCellSize() const noexcept;
 
-	void SetTarget(Nt::IObject* pTarget) noexcept;
+	void SetTarget(NtEx::TransformFloat3D* pTarget) noexcept;
 	void SetCellSize(const Float& cellSize);
 	void SetSize(const Nt::Float2D& size);
 	void SetPosition(Nt::Float3D position);
 
 private:
 	std::unique_ptr<Nt::Mesh> m_pMesh;
-	IObject* m_pTarget = nullptr;
+	NtEx::TransformFloat3D* m_pTarget = nullptr;
 	Nt::Float2D m_Size = { 100.f, 100.f };
 	Nt::Float3D m_Position;
 	Float m_CellSize = 1.f;

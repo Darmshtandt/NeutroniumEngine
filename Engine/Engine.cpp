@@ -73,7 +73,7 @@ void Engine::Initialize(const Settings& settings, const Nt::String& defaultIniti
 	m_pScene = m_WorldEditor->GetScene();
 	m_pSelector = m_WorldEditor->GetSelector();
 
-	Nt::Camera* pCamera = &m_WorldEditor->GetCamera();
+	NtEx::Camera3D* pCamera = &m_WorldEditor->GetCamera();
 	m_CameraController.reset(new CameraController(pCamera));
 
 	const auto scene = m_pScene.lock();
@@ -435,11 +435,11 @@ Long Engine::_Procedure(const uInt& uMsg, const DWord& param_1, const DWord& par
 void Engine::_UpdateProjection() {
 	if (m_Projection == ViewMode::PERSPECTIVE) {
 		_SetPerspective();
-		m_Window.SetCamera(&m_WorldEditor->GetCamera());
+		m_RenderEngine->SetCamera(&m_WorldEditor->GetCamera());
 	}
 	else {
 		_SetOrtho();
-		m_Window.SetCamera(&m_OrthoCamera);
+		m_RenderEngine->SetCamera(&m_OrthoCamera);
 
 		const Float scaledHeight = 0.5f;
 
@@ -447,33 +447,33 @@ void Engine::_UpdateProjection() {
 		switch (m_Projection) {
 		case ViewMode::BOTTOM:
 			cameraPosition.y = -scaledHeight / m_Zoom;
-			m_OrthoCamera.SetPosition(cameraPosition);
-			m_OrthoCamera.SetAngle({ -PIf * 0.5f, 0.f, 0.f });
+			m_OrthoCamera.Position(cameraPosition);
+			m_OrthoCamera.RotationEuler({ -PIf * 0.5f, 0.f, 0.f });
 			break;
 		case ViewMode::TOP:
 			cameraPosition.y = scaledHeight / m_Zoom;
-			m_OrthoCamera.SetPosition(cameraPosition);
-			m_OrthoCamera.SetAngle({ PIf * 0.5f, 0.f, 0.f });
+			m_OrthoCamera.Position(cameraPosition);
+			m_OrthoCamera.RotationEuler({ PIf * 0.5f, 0.f, 0.f });
 			break;
 		case ViewMode::LEFT:
 			cameraPosition.x = -scaledHeight / m_Zoom;
-			m_OrthoCamera.SetPosition(cameraPosition);
-			m_OrthoCamera.SetAngle({ 0.f, PIf * 0.5f, 0.f });
+			m_OrthoCamera.Position(cameraPosition);
+			m_OrthoCamera.RotationEuler({ 0.f, PIf * 0.5f, 0.f });
 			break;
 		case ViewMode::RIGHT:
 			cameraPosition.x = scaledHeight / m_Zoom;
-			m_OrthoCamera.SetPosition(cameraPosition);
-			m_OrthoCamera.SetAngle({ 0.f, -PIf * 0.5f, 0.f });
+			m_OrthoCamera.Position(cameraPosition);
+			m_OrthoCamera.RotationEuler({ 0.f, -PIf * 0.5f, 0.f });
 			break;
 		case ViewMode::BACK:
 			cameraPosition.z = -scaledHeight / m_Zoom;
-			m_OrthoCamera.SetPosition(cameraPosition);
-			m_OrthoCamera.SetAngle({ 0.f, 0.f, 0.f });
+			m_OrthoCamera.Position(cameraPosition);
+			m_OrthoCamera.RotationEuler({ 0.f, 0.f, 0.f });
 			break;
 		case ViewMode::FORWARD:
 			cameraPosition.z = scaledHeight / m_Zoom;
-			m_OrthoCamera.SetPosition(cameraPosition);
-			m_OrthoCamera.SetAngle({ 0.f, PIf, 0.f });
+			m_OrthoCamera.Position(cameraPosition);
+			m_OrthoCamera.RotationEuler({ 0.f, PIf, 0.f });
 			break;
 		}
 	}

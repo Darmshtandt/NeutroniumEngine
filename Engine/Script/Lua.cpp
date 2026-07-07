@@ -250,8 +250,6 @@ void Lua::_AddClasses() {
 		.addFunction("GetPosition", &Object::GetPosition)
 		.addFunction("GetSize", &Object::GetSize)
 		.addFunction("GetAngle", &Object::GetAngle)
-		.addFunction("GetAngleOrigin", &Object::GetAngleOrigin)
-		.addFunction("GetOrigin", &Object::GetOrigin)
 		.addFunction("GetColor", &Object::GetColor)
 
 		.addFunction("SetLayerName", &Object::SetLayerName)
@@ -259,8 +257,6 @@ void Lua::_AddClasses() {
 		.addFunction("SetPosition", &Object::SetPosition)
 		.addFunction("SetSize", &Object::SetSize)
 		.addFunction("SetAngle", &Object::SetAngle)
-		.addFunction("SetAngleOrigin", &Object::SetAngleOrigin)
-		.addFunction("SetOrigin", &Object::SetOrigin)
 		.addFunction("SetColor", &Object::SetColor)
 		.endClass()
 

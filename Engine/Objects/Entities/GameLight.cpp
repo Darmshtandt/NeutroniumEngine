@@ -33,29 +33,20 @@ GameLight::GameLight(const GameLight& light) :
 GameLight* GameLight::GetCopy() const {
 	return new GameLight(*this);
 }
-
 std::string GameLight::GetClassToken() noexcept {
 	return "Light";
 }
-
 std::string GameLight::GetToken() const noexcept {
 	return GetClassToken();
 }
-
 Nt::LightData GameLight::GetData() const noexcept {
 	return m_Light.GetData();
-}
-
-void GameLight::SetOrigin(const Nt::Float3D& origin) {
-	Entity::SetOrigin(origin);
-	m_Light.SetOrigin(-origin);
 }
 
 void GameLight::SetPosition(const Nt::Float3D& position) {
 	Entity::SetPosition(position);
 	m_Light.SetPosition(position);
 }
-
 void GameLight::SetAngle(const Nt::Float3D& angle) {
 	Entity::SetAngle(angle);
 	m_Light.SetAngle(angle);

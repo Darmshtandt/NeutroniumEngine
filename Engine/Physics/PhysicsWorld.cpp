@@ -27,7 +27,7 @@ void PhysicsWorld::AddObject(const ObjectPtr& object) {
 		return;
 
 	PhysicObjectPtr physObject(new PhysicObject);
-	physObject->Transform = object.get();
+	physObject->Transform = object->GetTransform();
 	physObject->Collider = object->GetCollider();
 	physObject->RigidBody = object->GetRigidBody();
 	physObject->Object = object;

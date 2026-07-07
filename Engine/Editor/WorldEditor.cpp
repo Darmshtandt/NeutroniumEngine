@@ -22,7 +22,7 @@ WorldEditor::WorldEditor(const std::weak_ptr<Nt::EventBus>& pBus, const Nt::Stri
 {
 	assert(!pBus.expired());
 
-	m_Grid->SetTarget(&m_Camera);
+	m_Grid->SetTarget(m_Camera.Transform());
 	m_Document->SetDefaultPath(defaultInitialPath);
 
 	auto sharedBus = pBus.lock();
@@ -75,8 +75,8 @@ void WorldEditor::CreateEntity(const std::string& className) {
 
 
 void WorldEditor::ResetCamera() noexcept {
-	m_Camera.SetPosition({ 0.f, -3.f, -5.f });
-	m_Camera.SetAngle({ -35.f * RADf, 0.f, 0.f });
+	m_Camera.Position({ 0.f, -3.f, -5.f });
+	m_Camera.RotationEuler({ -35.f * RADf, 0.f, 0.f });
 }
 
 void WorldEditor::Update(Float deltaTime) {
@@ -109,7 +109,7 @@ void WorldEditor::SaveAs() {
 		m_IsChanged = false;
 }
 
-Nt::Camera& WorldEditor::GetCamera() noexcept {
+NtEx::Camera3D& WorldEditor::GetCamera() noexcept {
 	return m_Camera;
 }
 

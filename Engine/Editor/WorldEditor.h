@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Editor/Camera3D.h>
 #include <Nt/Core/EventBus.h>
-#include <Nt/Graphics/Objects/Camera.h>
 
 class Clipboard;
 class InputContext;
@@ -28,7 +28,7 @@ public:
 	void Save();
 	void SaveAs();
 
-	[[nodiscard]] Nt::Camera& GetCamera() noexcept;
+	[[nodiscard]] NtEx::Camera3D& GetCamera() noexcept;
 	[[nodiscard]] Grid* GetGrid() const noexcept;
 	[[nodiscard]] std::weak_ptr<Scene> GetScene() const noexcept;
 	[[nodiscard]] Selector* GetSelector() const noexcept;
@@ -42,6 +42,6 @@ private:
 	std::unique_ptr<WorldDocument> m_Document;
 	std::unique_ptr<Selector> m_Selector;
 	std::unique_ptr<Clipboard> m_Clipboard;
-	Nt::Camera m_Camera;
+	NtEx::Camera3D m_Camera;
 	Bool m_IsChanged = false;
 };

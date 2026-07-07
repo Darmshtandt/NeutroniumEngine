@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Editor/Camera3D.h>
 #include <Nt/Graphics/RenderWindow.h>
 #include <Objects/ObjectRegistrar.h>
 
@@ -12,15 +13,14 @@ public:
 	~GameCamera() noexcept override = default;
 
 	[[nodiscard]] GameCamera* GetCopy() const override;
-	[[nodiscard]] Nt::Camera* GetCamera() noexcept;
+	[[nodiscard]] NtEx::Camera3D* GetCamera() noexcept;
 	[[nodiscard]] static std::string GetClassToken() noexcept;
 	[[nodiscard]] std::string GetToken() const noexcept override;
 
-	void SetOrigin(const Nt::Float3D& origin) override;
 	void SetPosition(const Nt::Float3D& position) override;
 	void SetAngle(const Nt::Float3D& angle) override;
 
 private:
 	std::unique_ptr<Icon3D> m_Icon3D;
-	Nt::Camera m_Camera;
+	NtEx::Camera3D m_Camera;
 };

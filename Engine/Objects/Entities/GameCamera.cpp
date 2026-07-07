@@ -3,7 +3,6 @@
 
 #include <ResourceLoader.h>
 #include <Objects/Entities/GameCamera.h>
-
 #include <Core/Icon3D.h>
 
 static EntityRegistrar<GameCamera> g_Registrar;
@@ -16,7 +15,7 @@ GameCamera::GameCamera(const Nt::String& name) :
 	SetMesh(m_Icon3D->GetMesh().Get());
 	SetTexture(g_Loader.Get());
 
-	m_Camera.SetPosition({ 0.5f, -0.5f, 0.5f });
+	m_Camera.Position({ 0.5f, -0.5f, 0.5f });
 
 	ToggleCollider(false);
 }
@@ -33,7 +32,7 @@ GameCamera::GameCamera(const GameCamera& camera) :
 GameCamera* GameCamera::GetCopy() const {
 	return new GameCamera(*this);
 }
-Nt::Camera* GameCamera::GetCamera() noexcept {
+NtEx::Camera3D* GameCamera::GetCamera() noexcept {
 	return &m_Camera;
 }
 std::string GameCamera::GetClassToken() noexcept {
@@ -43,17 +42,12 @@ std::string GameCamera::GetToken() const noexcept {
 	return GetClassToken();
 }
 
-void GameCamera::SetOrigin(const Nt::Float3D& origin) {
-	Entity::SetOrigin(origin);
-	m_Camera.SetOrigin(-origin);
-}
-
 void GameCamera::SetPosition(const Nt::Float3D& position) {
 	Entity::SetPosition(position);
-	m_Camera.SetPosition(-position + Nt::Float3D(0.5f, -0.5f, 0.5f));
+	m_Camera.Position(-position + Nt::Float3D(0.5f, -0.5f, 0.5f));
 }
 
 void GameCamera::SetAngle(const Nt::Float3D& angle) {
 	Entity::SetAngle(angle);
-	m_Camera.SetAngle(-angle);
+	m_Camera.RotationEuler(-angle);
 }

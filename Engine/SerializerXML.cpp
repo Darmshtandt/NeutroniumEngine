@@ -15,14 +15,14 @@
 #include <Objects/Entities/GameModel.h>
 #include <Objects/Entities/GameLight.h>
 
-TiXmlElement* SerializerXML::ToXML(const Nt::IObject* pIObject) {
-	if (pIObject == nullptr)
+TiXmlElement* SerializerXML::ToXML(const NtEx::TransformFloat3D* pTransform) {
+	if (pTransform == nullptr)
 		return nullptr;
 
 	TiXmlElement* el = new TiXmlElement("Transform");
-	WriteVecAttribute(el, "Position", pIObject->GetPosition());
-	WriteVecAttribute(el, "Angle", pIObject->GetAngle());
-	WriteVecAttribute(el, "Size", pIObject->GetSize());
+	WriteVecAttribute(el, "Position", pTransform->LocalPosition());
+	WriteVecAttribute(el, "Angle", pTransform->LocalRotationEuler());
+	WriteVecAttribute(el, "Size", pTransform->Size());
 	return el;
 }
 
@@ -112,7 +112,7 @@ TiXmlElement* SerializerXML::ToXML(const Object* pObject) {
 	el->SetAttribute("EnabledCollision", pObject->EnabledCollider());
 	el->SetAttribute("EnabledGravitation", pObject->EnabledGravitation());
 	WriteVecAttribute(el, "Color", pObject->GetColor());
-	el->LinkEndChild(ToXML(static_cast<const Nt::IObject*>(pObject)));
+	el->LinkEndChild(ToXML(pObject->GetTransform()));
 	el->LinkEndChild(ToXML(pObject->GetRigidBody()));
 
 	auto meshHandler = pObject->GetMesh();
@@ -288,12 +288,12 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Scene*> pSc
 	}
 }
 
-void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Nt::IObject*> pObject) {
+void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<NtEx::TransformFloat3D*> pTransform) {
 	Assert(pElement->ValueStr() == "Transform", "Element not Transform");
 
-	pObject->SetPosition(ReadVecAttribute<Float, 3>(pElement, "Position"));
-	pObject->SetAngle(ReadVecAttribute<Float, 3>(pElement, "Angle"));
-	pObject->SetSize(ReadVecAttribute<Float, 3>(pElement, "Size"));
+	pTransform->LocalPosition(ReadVecAttribute<Float, 3>(pElement, "Position"));
+	pTransform->LocalRotationEuler(ReadVecAttribute<Float, 3>(pElement, "Angle"));
+	pTransform->Size(ReadVecAttribute<Float, 3>(pElement, "Size"));
 }
 
 void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<NtEx::RigidBody*> pBody, NotNull<Object*> pObject) {
@@ -434,14 +434,13 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Object*> pO
 		else if (name == "Script") {
 			std::string filePath;
 			std::vector<Script::Data> datas;
-			FromXML(pSibling, filePath, datas);
-			if (filePath.empty())
-				continue;
 
-			pObject->AttachScript(pLua, filePath, datas);
+			FromXML(pSibling, filePath, datas);
+			if (!filePath.empty())
+				pObject->AttachScript(pLua, filePath, datas);
 		}
 		else if (name == "Transform") {
-			FromXML(pSibling, static_cast<Nt::IObject*>(pObject));
+			FromXML(pSibling, pObject->GetTransform());
 		}
 		else if (name == "RigidBody") {
 			FromXML(pSibling, pObject->GetRigidBody(), pObject);
@@ -494,9 +493,7 @@ void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<GameCamera*
 	FromXML(pElement->FirstChildElement(), NotNull<Entity*>(pCamera), pLua);
 
 	pCamera->SetPosition(pCamera->GetPosition());
-	pCamera->SetOrigin(pCamera->GetOrigin());
 	pCamera->SetAngle(pCamera->GetAngle());
-	pCamera->SetAngleOrigin(pCamera->GetAngleOrigin());
 }
 
 void SerializerXML::FromXML(NotNull<TiXmlElement*> pElement, NotNull<Cube*> pCube, NotNull<Lua*> pLua) {
