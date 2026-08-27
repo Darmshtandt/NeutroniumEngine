@@ -91,7 +91,7 @@ public:
 					pStartCell->SizeOnGrid.x += m_Cells[x][y]->SizeOnGrid.x;
 
 				if (m_Cells[x][y]->WindowPtr)
-					Nt::Log::Warning("Window was lost when merging cells");
+					Nt::Log::Instance().Warning("Window was lost when merging cells");
 
 				delete(m_Cells[x][y]);
 				m_Cells[x][y] = pStartCell;

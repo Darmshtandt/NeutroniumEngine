@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -19,30 +19,85 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Object.cpp" />
-    <ClCompile Include="Lua.cpp" />
-    <ClCompile Include="Script.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Collider.h" />
-    <ClInclude Include="Engine.h" />
-    <ClInclude Include="Entity.h" />
-    <ClInclude Include="EnumWrapper.h" />
-    <ClInclude Include="GameCamera.h" />
-    <ClInclude Include="GameModel.h" />
-    <ClInclude Include="GameSound.h" />
-    <ClInclude Include="Object.h" />
-    <ClInclude Include="Primitive.h" />
-    <ClInclude Include="Scence.h" />
-    <ClInclude Include="Script.h" />
-    <ClInclude Include="Lua.h" />
-    <ClInclude Include="Sound.h" />
-    <ClInclude Include="Wave.h" />
-    <ClInclude Include="Попытки силекта.h" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\Shaders\Frag.glsl" />
     <None Include="..\Shaders\Vert.glsl" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Controllers\CameraController.h" />
+    <ClInclude Include="Core\Commands.h" />
+    <ClInclude Include="Core\Grid.h" />
+    <ClInclude Include="Core\Icon3D.h" />
+    <ClInclude Include="Core\Manipulator.h" />
+    <ClInclude Include="Editor\Camera3D.h" />
+    <ClInclude Include="Editor\Clipboard.h" />
+    <ClInclude Include="Editor\Commands\IEditCommand.h" />
+    <ClInclude Include="Editor\Commands\SceneCommands.h" />
+    <ClInclude Include="Editor\Commands\TransformCommands.h" />
+    <ClInclude Include="Editor\EditingHistory.h" />
+    <ClInclude Include="Editor\IProgramComponent.h" />
+    <ClInclude Include="Editor\WorldDocument.h" />
+    <ClInclude Include="Editor\WorldEditor.h" />
+    <ClInclude Include="IController.h" />
+    <ClInclude Include="Physics\PhysicsWorld.h" />
+    <ClInclude Include="RenderEngine.h" />
+    <ClInclude Include="ResourceTokens.h" />
+    <ClInclude Include="SerializerXML.h" />
+    <ClInclude Include="Engine.h" />
+    <ClInclude Include="Nt\Collider.h" />
+    <ClInclude Include="Nt\Light.h" />
+    <ClInclude Include="Objects\Entities\Entity.h" />
+    <ClInclude Include="Objects\Entities\GameCamera.h" />
+    <ClInclude Include="Objects\Entities\GameLight.h" />
+    <ClInclude Include="Objects\Entities\GameModel.h" />
+    <ClInclude Include="Objects\Entities\GameSound.h" />
+    <ClInclude Include="Objects\Object.h" />
+    <ClInclude Include="Objects\ObjectFactory.h" />
+    <ClInclude Include="Objects\ObjectRegistrar.h" />
+    <ClInclude Include="Objects\Primitives\Cube.h" />
+    <ClInclude Include="Objects\Primitives\Plane.h" />
+    <ClInclude Include="Objects\Primitives\Primitive.h" />
+    <ClInclude Include="Objects\Primitives\Pyramid.h" />
+    <ClInclude Include="Objects\Primitives\Quad.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="Script\EnumWrapper.h" />
+    <ClInclude Include="Script\Lua.h" />
+    <ClInclude Include="Script\Script.h" />
+    <ClInclude Include="Selector.h" />
+    <ClInclude Include="SerializeStructs.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Controllers\CameraController.cpp" />
+    <ClCompile Include="Core\Grid.cpp" />
+    <ClCompile Include="Core\Icon3D.cpp" />
+    <ClCompile Include="Core\Manipulator.cpp" />
+    <ClCompile Include="Editor\Camera3D.cpp" />
+    <ClCompile Include="Editor\Clipboard.cpp" />
+    <ClCompile Include="Editor\Commands\SceneCommands.cpp" />
+    <ClCompile Include="Editor\Commands\TransformCommands.cpp" />
+    <ClCompile Include="Editor\EditingHistory.cpp" />
+    <ClCompile Include="Editor\WorldDocument.cpp" />
+    <ClCompile Include="Editor\WorldEditor.cpp" />
+    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Nt\Collider.cpp" />
+    <ClCompile Include="Objects\Entities\Entity.cpp" />
+    <ClCompile Include="Objects\Entities\GameCamera.cpp" />
+    <ClCompile Include="Objects\Entities\GameLight.cpp" />
+    <ClCompile Include="Objects\Entities\GameModel.cpp" />
+    <ClCompile Include="Objects\Entities\GameSound.cpp" />
+    <ClCompile Include="Objects\Object.cpp" />
+    <ClCompile Include="Objects\Primitives\Cube.cpp" />
+    <ClCompile Include="Objects\Primitives\Plane.cpp" />
+    <ClCompile Include="Objects\Primitives\Primitive.cpp" />
+    <ClCompile Include="Objects\Primitives\Pyramid.cpp" />
+    <ClCompile Include="Objects\Primitives\Quad.cpp" />
+    <ClCompile Include="Physics\PhysicsWorld.cpp" />
+    <ClCompile Include="RenderEngine.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Script\Lua.cpp" />
+    <ClCompile Include="Script\Script.cpp" />
+    <ClCompile Include="Selector.cpp" />
+    <ClCompile Include="SerializerXML.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -57,6 +112,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableASAN>true</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -98,6 +154,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Bin\$(Configuration)\</OutDir>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <TinyXmlLinkage>StaticMT</TinyXmlLinkage>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Bin\$(Configuration)\</OutDir>
@@ -110,7 +168,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NT_DLL;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
@@ -129,6 +187,10 @@
       <AdditionalDependencies>
       </AdditionalDependencies>
     </Lib>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -188,5 +250,14 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\tinyxml.2.8.2.3\build\native\tinyxml.targets" Condition="Exists('..\packages\tinyxml.2.8.2.3\build\native\tinyxml.targets')" />
+    <Import Project="..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets" Condition="Exists('..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\tinyxml.2.8.2.3\build\native\tinyxml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\tinyxml.2.8.2.3\build\native\tinyxml.targets'))" />
+    <Error Condition="!Exists('..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nlohmann.json.3.12.0\build\native\nlohmann.json.targets'))" />
+  </Target>
 </Project>

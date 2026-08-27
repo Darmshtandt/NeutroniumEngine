@@ -1,0 +1,419 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+
+#include <Objects/Object.h>
+#include <ResourceManager.h>
+
+Object::Object(std::string name, const ClassID id) :
+	NtEx::Object(id),
+	m_Name(std::move(name)),
+	m_Collider(new Nt::Collider)
+{
+	m_Transform = AddComponent<NtEx::TransformFloat3D>();
+	m_RigidBody = AddComponent<NtEx::RigidBody>();
+}
+Object::Object(const Object& object) :
+	NtEx::Object(object),
+	m_Collider(new Nt::Collider)
+{
+	m_Transform = GetComponent<NtEx::TransformFloat3D>();
+	m_RigidBody = GetComponent<NtEx::RigidBody>();
+	_Clone(object);
+}
+Object::Object(Object&& object) noexcept :
+	NtEx::Object(std::move(object)),
+	m_Collider(new Nt::Collider)
+{
+	m_Transform = GetComponent<NtEx::TransformFloat3D>();
+	m_RigidBody = GetComponent<NtEx::RigidBody>();
+	_Move(std::move(object));
+}
+Object::~Object() {
+	RemoveScript();
+}
+
+void Object::Translate(Nt::Float3D offset) noexcept {
+	m_Transform->Translate(offset);
+}
+void Object::Rotate(Nt::Float3D offset) noexcept {
+	m_Transform->Rotate(offset);
+}
+void Object::Scale(Nt::Float3D offset) noexcept {
+	m_Transform->Resize(offset);
+}
+
+void Object::Start() {
+	if (m_pScript != nullptr) {
+		m_ScriptData = m_pScript->GetScriptData();
+		m_pScript->Start();
+	}
+
+	m_IsStarted = true;
+}
+
+void Object::Stop() {
+	if (m_pScript != nullptr)
+		m_pScript->Stop();
+
+	m_IsStarted = false;
+}
+
+void Object::StaticUpdate() {
+	m_Collider->SetLocalWorld(m_Transform->LocalToWorld());
+}
+
+void Object::Update(Float deltaTime) {
+	if (m_IsStarted) {
+		if (m_pScript != nullptr)
+			m_pScript->Update(deltaTime);
+
+		m_DeltaTime = deltaTime;
+		if (m_EnabledGravitation)
+			m_RigidBody->Body.AddForce(m_GravityDirection);
+
+		if (m_RigidBody->Body.HasForce()) {
+			m_RigidBody->Body.ApplyForces(m_DeltaTime);
+
+			m_Transform->Translate(m_RigidBody->Body.GetLinearVelocity() * m_DeltaTime);
+
+			m_RigidBody->Body.SetLinearVelocity({ });
+		}
+	}
+
+	m_Collider->SetLocalWorld(m_Transform->LocalToWorld());
+}
+
+void Object::AddForce(Nt::Float3D force) noexcept {
+	m_RigidBody->Body.AddForce(force);
+}
+
+Object& Object::_Clone(const Object& object) {
+	if (this != &object)
+		_SetParameters(object);
+
+	return *this;
+}
+
+Object& Object::_Move(Object&& object) {
+	assert(0);
+	if (this == &object)
+		return *this;
+
+	RemoveScript();
+
+	if (object.m_pScript != nullptr) {
+		m_pScript = std::move(object.m_pScript);
+		object.m_pScript = nullptr;
+	}
+
+	_SetParameters(object);
+	return *this;
+}
+
+void Object::_SetParameters(const Object& object) noexcept {
+	if (this == &object)
+		return;
+
+	m_DrawingMode = object.m_DrawingMode;
+	m_Mesh = object.m_Mesh;
+	m_Texture = object.m_Texture;
+	m_LayerName = object.m_LayerName;
+	m_Name = object.m_Name;
+
+	m_TextureLocalWorld = object.m_TextureLocalWorld;
+	m_TextureOffset = object.m_TextureOffset;
+	m_TextureScale = object.m_TextureScale;
+	m_TextureRotation = object.m_TextureRotation;
+
+	m_IsTexChanged = object.m_IsTexChanged;
+	m_IsSelected = object.m_IsSelected;
+	m_IsInvisible = object.m_IsInvisible;
+	m_IsStarted = object.m_IsStarted;
+
+	if (m_Mesh.IsValid())
+		m_Collider->SetShape(m_Mesh.Get()->GetShape());
+	m_Collider->SetLocalWorld(m_Transform->LocalToWorld());
+	m_Collider->ToggleVisible(object.m_Collider->IsVisible());
+}
+
+void Object::ShowingCollider() {
+	m_Collider->Show();
+}
+void Object::HidingCollider() {
+	m_Collider->Hide();
+}
+
+void Object::AttachScript(NotNull<Lua*> pLua, const Nt::String& filePath, const std::vector<Script::Data>& data) {
+	if (m_pScript != nullptr)
+		delete(m_pScript);
+
+	m_pScript = new Script(pLua, filePath, this);
+	m_pScript->SetScriptData(data);
+}
+
+void Object::RemoveScript() {
+	m_ScriptData.clear();
+	SAFE_DELETE(&m_pScript);
+}
+
+void Object::Collision(NotNull<Object*> pObject) {
+	if (m_EnabledCollider && pObject->m_EnabledCollider)
+		return;
+
+	const std::pair<Bool, Nt::Simplex> gjk = m_Collider->GJK(*pObject->m_Collider);
+	if (gjk.first) {
+		const Nt::CollisionPoint point = m_Collider->EPA(gjk.second, *pObject->m_Collider);
+
+		m_Transform->Translate(-point.normal * point.depth);
+		m_RigidBody->Body.SetLinearVelocity({ });
+	}
+}
+
+Bool Object::CheckCollision(const Object* pObject) const {
+	if (!m_EnabledCollider)
+		return false;
+	return m_Collider->GJK(*pObject->m_Collider).first;
+}
+
+Int Object::RayCastTest(const Nt::Ray& ray, Nt::Float3D* pResultIntersectionPoint) const {
+	return m_Collider->RayCastTest(ray, pResultIntersectionPoint);
+}
+
+Object& Object::operator = (const Object& object) {
+	if (this == &object)
+		return *this;
+
+	NtEx::Object::operator=(object);
+	return _Clone(object);
+}
+Object& Object::operator = (Object&& object) noexcept {
+	if (this == &object)
+		return *this;
+
+	NtEx::Object::operator=(std::move(object));
+	return _Move(std::move(object));
+}
+
+Object* Object::GetCopy() const {
+	return new Object(*this);
+}
+
+std::string Object::GetTypeToken() const noexcept {
+	return "Object";
+}
+std::string Object::GetToken() const noexcept {
+	return GetTypeToken();
+}
+
+Nt::Float3D Object::GetPosition() const noexcept {
+	return m_Transform->Position();
+}
+Nt::Float3D Object::GetAngle() const noexcept {
+	return m_Transform->Rotation();
+}
+Nt::Float3D Object::GetSize() const noexcept {
+	return m_Transform->Size();
+}
+Nt::Float4D Object::GetColor() const noexcept {
+	return m_Color;
+}
+const Nt::Matrix4x4& Object::LocalToWorld() const noexcept {
+	return m_Transform->LocalToWorld();
+}
+
+Nt::Renderer::DrawingMode Object::GetDrawingMode() const noexcept {
+	return m_DrawingMode;
+}
+Nt::Collider* Object::GetCollider() const noexcept {
+	return m_Collider.get();
+}
+Script* Object::GetScript() const noexcept {
+	return m_pScript;
+}
+
+const std::vector<Script::Data>& Object::GetScriptData() const noexcept {
+	return m_ScriptData;
+}
+
+Nt::String Object::GetLayerName() const noexcept {
+	return m_LayerName;
+}
+Nt::String Object::GetName() const noexcept {
+	return m_Name;
+}
+Nt::ResourceHandle<Nt::Mesh> Object::GetMesh() const noexcept {
+	return m_Mesh;
+}
+
+NtEx::RigidBody* Object::GetRigidBody() const noexcept {
+	return m_RigidBody;
+}
+NtEx::TransformFloat3D* Object::GetTransform() const noexcept {
+	return m_Transform;
+}
+
+Nt::Matrix3x3 Object::TextureLocalWorld() const noexcept {
+	if (m_IsTexChanged) {
+		m_TextureLocalWorld =
+			Nt::Matrix3x3::GetTranslate({ m_TextureOffset, 1.f }) *
+			Nt::Matrix3x3::GetRotateZ(m_TextureRotation) *
+			Nt::Matrix3x3::GetScale({ m_TextureScale, 1.f });
+
+		m_IsTexChanged = false;
+	}
+
+	return m_TextureLocalWorld;
+}
+Nt::Float2D Object::GetTextureOffset() const noexcept {
+	return m_TextureOffset;
+}
+Nt::Float2D Object::GetTextureScale() const noexcept {
+	return m_TextureScale;
+}
+Float Object::GetTextureRotation() const noexcept {
+	return m_TextureRotation;
+}
+
+Bool Object::EnabledGravitation() const noexcept {
+	return m_EnabledGravitation;
+}
+Bool Object::EnabledCollider() const noexcept {
+	return m_EnabledCollider;
+}
+
+Nt::ResourceHandle<Nt::Texture> Object::GetTexture() const noexcept {
+	return m_Texture;
+}
+
+Bool Object::IsSelected() const noexcept {
+	return m_IsSelected;
+}
+Bool Object::IsInvisible() const noexcept {
+	return m_IsInvisible;
+}
+Bool Object::IsStarted() const noexcept {
+	return m_IsStarted;
+}
+Bool Object::IsVisible() const noexcept {
+	return m_IsVisible;
+}
+Bool Object::IsDirty() const noexcept {
+	return m_Transform->IsDirty();
+}
+
+void Object::ToggleGravitation(Bool enabled) noexcept {
+	m_EnabledGravitation = enabled;
+}
+void Object::ToggleCollider(Bool enabled) noexcept {
+	m_EnabledCollider = enabled;
+}
+void Object::ToggleVisible(Bool enabled) noexcept {
+	m_IsVisible = enabled;
+}
+void Object::ToggleOutline(Bool enabled) noexcept {
+	m_IsSelected = enabled;
+}
+void Object::ToggleInvisible(Bool enabled) noexcept {
+	m_IsInvisible = enabled;
+}
+
+void Object::SetDrawingMode(Nt::Renderer::DrawingMode mode) noexcept {
+	m_DrawingMode = mode;
+}
+void Object::SetName(const Nt::String& newName) {
+	m_Name = newName;
+}
+void Object::SetLayerName(const Nt::String& name) {
+	m_LayerName = name;
+}
+
+void Object::SetShape(const Nt::Shape& newShape) {
+	assert(0);
+	if (!m_Mesh.IsValid())
+		return;
+
+	m_Mesh.Get()->SetShape(newShape);
+	m_Collider->SetShape(newShape);
+}
+
+void Object::SetTexture(Nt::Texture* pTexture) noexcept {
+	m_Texture = pTexture;
+}
+void Object::SetMesh(Nt::Mesh* pMesh) {
+	m_Mesh = pMesh;
+	if (m_Mesh.IsValid())
+		m_Collider->SetShape(m_Mesh.Get()->GetShape());
+}
+
+void Object::SetTexture(const uInt& index) {
+	m_Texture.Set(index);
+}
+void Object::SetTexture(const std::string& token) {
+	m_Texture.Set(ResourceManager::Instance().GetIndex(token));
+}
+
+void Object::SetMesh(const std::string& token) {
+	m_Mesh.Set(ResourceManager::Instance().GetIndex(token));
+	m_Collider->SetShape(m_Mesh.Get()->GetShape());
+}
+void Object::SetMesh(const uInt& index) {
+	m_Mesh.Set(index);
+	if (m_Mesh.IsValid())
+		m_Collider->SetShape(m_Mesh.Get()->GetShape());
+}
+
+void Object::SetTextureOffset(const Nt::Float2D& textureOffset) noexcept {
+	if (m_TextureOffset == textureOffset)
+		return;
+
+	m_TextureOffset = textureOffset;
+	m_IsTexChanged = true;
+}
+void Object::SetTextureScale(const Nt::Float2D& textureScale) noexcept {
+	if (m_TextureScale == textureScale)
+		return;
+
+	m_TextureScale = textureScale;
+	m_IsTexChanged = true;
+}
+void Object::SetTextureRotation(Float angle) noexcept {
+	if (m_TextureRotation == angle)
+		return;
+
+	m_TextureRotation = angle;
+	m_IsTexChanged = true;
+}
+
+void Object::SetPosition(const Nt::Float3D& position) {
+	m_Transform->LocalPosition(position);
+}
+void Object::SetSize(const Nt::Float3D& size) {
+	m_Transform->Size(size);
+}
+void Object::SetAngle(const Nt::Float3D& angle) {
+	m_Transform->LocalRotationEuler(angle);
+}
+void Object::SetColor(const Nt::Float4D& color) {
+	m_Color = color;
+}
+
+ObjectContainer::const_iterator FindObject(const ObjectContainer& objects, NotNull<Object*> pObject) noexcept {
+	return std::find_if(objects.begin(), objects.end(), [&] (const ObjectPtr& object) {
+		return object.get() == pObject;
+		});
+}
+
+ObjectContainer::const_iterator FindObject(const ObjectContainer& objects, NotNull<const Object*> pObject) noexcept {
+	return std::find_if(objects.begin(), objects.end(), [&] (const ObjectPtr& object) {
+		return object.get() == pObject;
+		});
+}
+
+WeakObjectContainer::const_iterator FindObject(const WeakObjectContainer& objects, WeakObjectPtr weakObject) noexcept {
+	const auto object = weakObject.lock();
+	if (!object)
+		return objects.cend();
+	return std::find_if(objects.begin(), objects.end(), [&] (const WeakObjectPtr& other) {
+		return other.lock() == object;
+		});
+}

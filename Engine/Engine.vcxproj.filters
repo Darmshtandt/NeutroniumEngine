@@ -13,64 +13,57 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Lua.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Script.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Engine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scence.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Попытки силекта.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Primitive.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Script.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Lua.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Collider.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameCamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnumWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Sound.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameSound.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <Filter Include="Header Files\Script">
+      <UniqueIdentifier>{7a2e4f44-be1c-4a23-9cca-e17398cbe095}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Script">
+      <UniqueIdentifier>{4b394c85-e943-4a35-aa8c-02362c0e19ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Nt">
+      <UniqueIdentifier>{32339f0b-d3ce-4faf-9b7c-d0e86c9418d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{0fe62e67-a572-40e0-991d-ebba69cd50e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{ff0a71a1-f026-4bbb-8fc4-b087a7a4b368}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Nt">
+      <UniqueIdentifier>{a43b463f-a2e6-4bb1-9fe5-cd33ed614885}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Objects">
+      <UniqueIdentifier>{4ea7b5c7-2e7f-45b7-a777-d8b911207e39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Objects">
+      <UniqueIdentifier>{fbc4f447-3b87-4a04-8ddd-086fb2b39eac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Objects\Primitives">
+      <UniqueIdentifier>{fd1c64b9-b72a-473f-bf04-ac67501934eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Objects\Primitives">
+      <UniqueIdentifier>{9305c001-d0ca-4045-949c-47dc23375387}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Objects\Entities">
+      <UniqueIdentifier>{9ae9a4dc-3838-4dca-96cc-d918063fc4de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Objects\Entities">
+      <UniqueIdentifier>{dff861dc-caf4-4db4-a010-2e220b932390}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Controllers">
+      <UniqueIdentifier>{945be76d-a55d-4067-8943-850fadd7dad6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Controllers">
+      <UniqueIdentifier>{c3a8db33-b3c3-41be-82d1-3d90e0c9f380}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor">
+      <UniqueIdentifier>{bb24d0a0-f9a2-4337-86ac-30d8258f5c75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Commands">
+      <UniqueIdentifier>{fbcb546e-5659-4efb-ae7e-7a0665f7e591}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Physics">
+      <UniqueIdentifier>{b351ea58-5d4f-4fc6-a380-5192f0a13c6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\Vert.glsl">
@@ -79,5 +72,226 @@
     <None Include="..\Shaders\Frag.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Selector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Lua.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Script.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\EnumWrapper.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Nt\Light.h">
+      <Filter>Header Files\Nt</Filter>
+    </ClInclude>
+    <ClInclude Include="Nt\Collider.h">
+      <Filter>Header Files\Nt</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Icon3D.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Manipulator.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Grid.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\ObjectFactory.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\ObjectRegistrar.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Object.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Primitives\Primitive.h">
+      <Filter>Header Files\Objects\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Primitives\Pyramid.h">
+      <Filter>Header Files\Objects\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Primitives\Quad.h">
+      <Filter>Header Files\Objects\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Primitives\Cube.h">
+      <Filter>Header Files\Objects\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Primitives\Plane.h">
+      <Filter>Header Files\Objects\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Entities\GameModel.h">
+      <Filter>Header Files\Objects\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Entities\GameSound.h">
+      <Filter>Header Files\Objects\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Entities\Entity.h">
+      <Filter>Header Files\Objects\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Entities\GameCamera.h">
+      <Filter>Header Files\Objects\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Entities\GameLight.h">
+      <Filter>Header Files\Objects\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Controllers\CameraController.h">
+      <Filter>Header Files\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="IController.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SerializerXML.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Commands.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditingHistory.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\WorldDocument.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\WorldEditor.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\Clipboard.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\Commands\TransformCommands.h">
+      <Filter>Editor\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\Commands\IEditCommand.h">
+      <Filter>Editor\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceTokens.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\Commands\SceneCommands.h">
+      <Filter>Editor\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\IProgramComponent.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\PhysicsWorld.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="SerializeStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\Camera3D.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Selector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Lua.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Script.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Icon3D.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Grid.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Manipulator.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Nt\Collider.cpp">
+      <Filter>Source Files\Nt</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Object.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Entities\Entity.cpp">
+      <Filter>Source Files\Objects\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Entities\GameCamera.cpp">
+      <Filter>Source Files\Objects\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Entities\GameLight.cpp">
+      <Filter>Source Files\Objects\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Entities\GameModel.cpp">
+      <Filter>Source Files\Objects\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Entities\GameSound.cpp">
+      <Filter>Source Files\Objects\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Primitives\Cube.cpp">
+      <Filter>Source Files\Objects\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Primitives\Plane.cpp">
+      <Filter>Source Files\Objects\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Primitives\Primitive.cpp">
+      <Filter>Source Files\Objects\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Primitives\Pyramid.cpp">
+      <Filter>Source Files\Objects\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Primitives\Quad.cpp">
+      <Filter>Source Files\Objects\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Controllers\CameraController.cpp">
+      <Filter>Source Files\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="SerializerXML.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderEngine.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\WorldDocument.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\WorldEditor.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\Clipboard.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\EditingHistory.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\Commands\TransformCommands.cpp">
+      <Filter>Editor\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\Commands\SceneCommands.cpp">
+      <Filter>Editor\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\PhysicsWorld.cpp">
+      <Filter>Header Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\Camera3D.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
